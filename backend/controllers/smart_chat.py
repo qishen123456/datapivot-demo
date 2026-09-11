@@ -1,0 +1,1434 @@
+"""
+Smart chat controller for dataset-isolated four-agent orchestration.
+"""
+
+from flask import Blueprint, Response, jsonify, request, stream_with_context
+import json
+import inspect
+import math
+import os
+import queue
+import sys
+import threading
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from ask_flow import ask_flow_controller
+from ask_flow.contracts import AskRequest, ConfirmRequest
+import dataset_report_config as drc
+from disambiguation.shadow_gatekeeper import schedule_shadow_log, build_correction, is_visible_user
+from disambiguation.typo_fastpath import detect_obvious_typo, build_early_clarify_result, log_fastpath
+from disambiguation.direction_ambiguity import (
+    detect_direction_ambiguity,
+    build_direction_clarify_result,
+    log_direction,
+    is_enabled as direction_ambiguity_enabled,
+)
+from auth_store import get_current_user
+from data_permission_store import allowed_dataset_ids_for_user
+from feature_flags import feature_available
+from system_log_store import log_event, request_snapshot
+from smartask_report_history_store import (
+    StaleHistorySnapshotError,
+    clear_history as clear_report_history,
+    filter_history_dataset_results,
+    list_history as list_report_history,
+    remove_history as remove_report_history,
+    upsert_history as upsert_report_history,
+)
+
+
+smart_chat_bp = Blueprint("smart_chat", __name__)
+
+
+def _require_feature(user: dict, key: str):
+    if feature_available(key, user or {}):
+        return None
+    return jsonify({"error": "当前账号没有使用该功能的权限。"}), 403
+
+
+def _require_any_feature(user: dict, keys: list[str]):
+    if any(feature_available(key, user or {}) for key in keys):
+        return None
+    return jsonify({"error": "当前账号没有使用该功能的权限。"}), 403
+
+
+@smart_chat_bp.route("/api/smart-chat/report-history", methods=["GET"])
+def get_report_history():
+    user = get_current_user()
+    limit = _safe_int(request.args.get("limit"), 50)
+    history = list_report_history(user, limit=limit)
+    # A-05 后端最小权限校验：按当前账号的数据集权限裁剪历史快照中的 dataset_results
+    try:
+        allowed_ids = _allowed_dataset_ids(user or {})
+    except Exception:
+        # 权限系统异常时，降级为不返回任何数据集结果（保留元信息）
+        allowed_ids = []
+    history = filter_history_dataset_results(history, allowed_ids)
+    return jsonify({"history": history})
+
+
+@smart_chat_bp.route("/api/smart-chat/report-history", methods=["POST"])
+def save_report_history():
+    user = get_current_user()
+    payload = request.get_json() or {}
+    item = payload.get("item") if isinstance(payload.get("item"), dict) else payload
+    if not isinstance(item, dict) or not item.get("id"):
+        return jsonify({"error": "history item id is required."}), 400
+    try:
+        saved = upsert_report_history(user, item)
+        return jsonify({"success": True, "item": saved})
+    except StaleHistorySnapshotError as exc:
+        return jsonify({"error": str(exc), "code": exc.code}), 409
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@smart_chat_bp.route("/api/smart-chat/report-history/<item_id>", methods=["DELETE"])
+def delete_report_history_item(item_id):
+    user = get_current_user()
+    denied = _require_feature(user, "app_history_delete")
+    if denied:
+        return denied
+    remove_report_history(user, item_id)
+    return jsonify({"success": True})
+
+
+@smart_chat_bp.route("/api/smart-chat/report-history", methods=["DELETE"])
+def clear_report_history_items():
+    user = get_current_user()
+    denied = _require_feature(user, "app_history_clear")
+    if denied:
+        return denied
+    clear_report_history(user)
+    return jsonify({"success": True})
+
+
+def _active_dataset_ids() -> list[int]:
+    try:
+        return [int(item.get("id")) for item in ask_flow_controller.active_service().repository.get_agent1_catalog() if item.get("id") is not None]
+    except Exception:
+        return []
+
+
+def _allowed_dataset_ids(user: dict) -> list[int]:
+    return allowed_dataset_ids_for_user(user or {}, _active_dataset_ids())
+
+
+def _filter_requested_dataset_ids(user: dict, selected_dataset_ids):
+    if selected_dataset_ids is None:
+        return None
+    allowed = set(_allowed_dataset_ids(user))
+    filtered = []
+    for item in selected_dataset_ids:
+        try:
+            dataset_id = int(item)
+        except (TypeError, ValueError):
+            continue
+        if dataset_id in allowed and dataset_id not in filtered:
+            filtered.append(dataset_id)
+    return filtered
+
+
+def _permission_denied_response(user: dict, requested_dataset_ids, allowed_dataset_ids):
+    return jsonify({
+        "error": "当前账号没有访问所选数据集的权限。",
+        "diagnostics": {
+            "requested_dataset_ids": requested_dataset_ids or [],
+            "allowed_dataset_ids": allowed_dataset_ids or [],
+            "user_role": (user or {}).get("role"),
+            "user_org_codes": (user or {}).get("organization_codes") or [],
+            "user_org_node_ids": (user or {}).get("organization_node_ids") or [],
+        },
+    }), 403
+
+
+def _mark_request_event_logged() -> None:
+    try:
+        request._smartask_event_logged = True
+    except Exception:
+        pass
+
+
+def _log_smart_chat_rejection(
+    *,
+    event_prefix: str,
+    title: str,
+    error_message: str,
+    question: str,
+    started: float,
+    user: dict,
+    request_info: dict,
+    status_code: int = 400,
+    details: dict | None = None,
+) -> None:
+    duration_ms = int((time.time() - started) * 1000)
+    log_event(
+        category="error",
+        event_type=f"{event_prefix}_rejected",
+        level="error" if status_code >= 500 else "warning",
+        title=title or "智能问数请求被拒绝",
+        user=user,
+        request_info=request_info,
+        status_code=status_code,
+        duration_ms=duration_ms,
+        question=question or "",
+        error_message=error_message or "",
+        details={
+            "event_name": title or "智能问数请求被拒绝",
+            "what_happened": error_message or "问数请求在进入执行链路前被拒绝。",
+            "suggested_action": "检查问题内容、功能权限、数据集权限或确认会话是否过期。",
+            "code_hint": "backend/controllers/smart_chat.py；backend/four_agent_ask.py；frontend/src/views/SmartAsk.vue。",
+            **(details or {}),
+        },
+    )
+    _mark_request_event_logged()
+
+
+def _append_controller_debug(event: str, **payload):
+    log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    line = {
+        "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        "event": event,
+    }
+    line.update(payload)
+    with open(os.path.join(log_dir, "smart_chat_controller.jsonl"), "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(line, ensure_ascii=False) + "\n")
+
+
+def _json_safe(value):
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, dict):
+        return {str(key): _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_json_safe(item) for item in value]
+    return str(value)
+
+
+def _sse_frame(event_name: str, payload: dict) -> str:
+    return f"event: {event_name}\ndata: {json.dumps(_json_safe(payload), ensure_ascii=False)}\n\n"
+
+
+def _safe_int(value, fallback=0) -> int:
+    try:
+        return int(value)
+    except Exception:
+        return fallback
+
+
+def _is_low_confidence(result: dict) -> bool:
+    if not isinstance(result, dict) or result.get("error"):
+        return False
+    if result.get("requires_confirmation"):
+        return True
+    confidence = result.get("confidence") if isinstance(result.get("confidence"), dict) else {}
+    route = confidence.get("route") if isinstance(confidence.get("route"), dict) else {}
+    output = confidence.get("result") if isinstance(confidence.get("result"), dict) else {}
+    route_score = _safe_int(route.get("score"), 100)
+    output_score = _safe_int(output.get("score"), 100) if output else 100
+    return route.get("level") == "low" or output.get("level") == "low" or route_score < 65 or output_score < 62
+
+
+def _compact_trace_events(trace_events: list) -> list:
+    rows = []
+    for payload in trace_events or []:
+        if not isinstance(payload, dict):
+            continue
+        if payload.get("type") == "trace" and isinstance(payload.get("event"), dict):
+            events = [payload.get("event")]
+        elif payload.get("type") == "summary" and isinstance(payload.get("events"), list):
+            events = payload.get("events")
+        else:
+            events = []
+        for event in events:
+            if not isinstance(event, dict):
+                continue
+            rows.append(
+                {
+                    "time": event.get("time"),
+                    "stage": event.get("stage"),
+                    "status": event.get("status"),
+                    "agent": event.get("agent"),
+                    "duration_seconds": event.get("duration_seconds"),
+                    "detail": event.get("detail") or event.get("message") or event.get("summary") or event.get("error") or "",
+                    "reasoning": event.get("reasoning_text") or event.get("reasoning_delta") or "",
+                    "stream": event.get("stream_text") or event.get("delta_text") or "",
+                    "sql": event.get("sql") or event.get("final_sql") or "",
+                    "risk": event.get("risks") or event.get("risk") or "",
+                }
+            )
+    return rows[-180:]
+
+
+def _token_number(value) -> int:
+    try:
+        return max(0, int(float(value or 0)))
+    except Exception:
+        return 0
+
+
+def _usage_from_mapping(value) -> dict:
+    if not isinstance(value, dict):
+        return {}
+    prompt_tokens = _token_number(value.get("prompt_tokens") or value.get("input_tokens"))
+    completion_tokens = _token_number(value.get("completion_tokens") or value.get("output_tokens"))
+    total_tokens = _token_number(value.get("total_tokens"))
+    if total_tokens <= 0:
+        total_tokens = prompt_tokens + completion_tokens
+    if total_tokens <= 0:
+        return {}
+    return {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "total_tokens": total_tokens,
+        "source": value.get("source") or "actual",
+        "estimated": bool(value.get("estimated", False)),
+    }
+
+
+def _estimate_text_tokens(text) -> int:
+    text = str(text or "")
+    if not text:
+        return 0
+    cjk = sum(1 for char in text if "\u4e00" <= char <= "\u9fff")
+    other = len(text) - cjk
+    return max(1, int(math.ceil(cjk * 1.1 + other / 4)))
+
+
+def _extract_event(payload: dict) -> dict:
+    if not isinstance(payload, dict):
+        return {}
+    if payload.get("type") == "trace" and isinstance(payload.get("event"), dict):
+        return payload.get("event") or {}
+    return payload
+
+
+def _extract_token_usage(result: dict, trace_events: list | None = None) -> dict:
+    result = result or {}
+    for key in ("token_usage", "usage", "llm_usage"):
+        usage = _usage_from_mapping(result.get(key))
+        if usage:
+            return usage
+    details = result.get("details") if isinstance(result.get("details"), dict) else {}
+    for key in ("token_usage", "usage"):
+        usage = _usage_from_mapping(details.get(key))
+        if usage:
+            return usage
+
+    prompt_tokens = 0
+    completion_tokens = 0
+    for payload in trace_events or []:
+        event = _extract_event(payload)
+        if not event:
+            continue
+        usage = _usage_from_mapping(event.get("token_usage") or event.get("usage") or {})
+        if usage and not usage.get("estimated"):
+            prompt_tokens += usage.get("prompt_tokens") or 0
+            completion_tokens += usage.get("completion_tokens") or 0
+            continue
+        if event.get("status") == "request":
+            prompt_tokens += _estimate_text_tokens(event.get("system_prompt"))
+            prompt_tokens += _estimate_text_tokens(event.get("user_prompt"))
+        elif event.get("status") == "response":
+            completion_tokens += _estimate_text_tokens(event.get("response_text"))
+
+    if prompt_tokens <= 0 and completion_tokens <= 0:
+        prompt_tokens = _estimate_text_tokens(result.get("question"))
+        completion_tokens = _estimate_text_tokens(result.get("analysis") or result.get("answer_text") or result.get("sql"))
+    total_tokens = prompt_tokens + completion_tokens
+    if total_tokens <= 0:
+        return {}
+    return {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "total_tokens": total_tokens,
+        "source": "trace_estimate",
+        "estimated": True,
+    }
+
+
+def _trace_id_from_events(trace_events: list | None = None) -> str:
+    for payload in trace_events or []:
+        if isinstance(payload, dict) and payload.get("trace_id"):
+            return str(payload.get("trace_id") or "")
+    return ""
+
+
+def _compact_dataset_results(result: dict) -> list:
+    compact = []
+    for item in result.get("dataset_results") or []:
+        if not isinstance(item, dict):
+            continue
+        compact.append(
+            {
+                "dataset_id": item.get("dataset_id"),
+                "dataset_name": item.get("dataset_name"),
+                "sql": item.get("sql") or "",
+                "row_count": item.get("row_count"),
+                "columns": item.get("columns") or [],
+                "rows_preview": (item.get("rows") or [])[:20],
+                "analysis": item.get("analysis") or "",
+                "agent3_review": item.get("agent3_review") or {},
+            }
+        )
+    return compact
+
+
+def _log_smart_chat_result(
+    *,
+    result: dict,
+    question: str,
+    started: float,
+    user: dict,
+    request_info: dict,
+    trace_events: list | None = None,
+    event_prefix: str = "smart_chat",
+) -> None:
+    result = result or {}
+    duration_ms = int((time.time() - started) * 1000)
+    has_error = bool(result.get("error"))
+    low_confidence = _is_low_confidence(result)
+    if has_error:
+        category = "error"
+        level = "error"
+        event_type = f"{event_prefix}_error"
+        title = "智能问数执行失败"
+    elif low_confidence:
+        category = "low_confidence"
+        level = "warning"
+        event_type = f"{event_prefix}_low_confidence"
+        title = "低置信度智能问数结果"
+    else:
+        category = "qa"
+        level = "info"
+        event_type = f"{event_prefix}_answer"
+        title = "智能问数结果"
+
+    token_usage = _extract_token_usage(result, trace_events or [])
+    trace_id = result.get("trace_id") or _trace_id_from_events(trace_events or [])
+
+    log_event(
+        category=category,
+        event_type=event_type,
+        level=level,
+        title=title,
+        user=user,
+        request_info=request_info,
+        status_code=500 if has_error else 200,
+        duration_ms=duration_ms,
+        question=result.get("question") or question,
+        thinking_process=_compact_trace_events(trace_events or []),
+        sql_text=result.get("sql") or "",
+        answer_text=result.get("analysis") or "",
+        confidence=result.get("confidence") or {},
+        error_message=result.get("error") or "",
+        details={
+            "trace_id": trace_id,
+            "effective_question": result.get("effective_question") or "",
+            "route": result.get("route") or {},
+            "data_source": result.get("data_source") or "",
+            "diagnostics": result.get("diagnostics") or {},
+            "original_error": result.get("original_error") or "",
+            "diagnostic": bool(result.get("diagnostic")),
+            "row_count": result.get("row_count"),
+            "columns": result.get("columns") or [],
+            "rows_preview": (result.get("rows") or [])[:20],
+            "steps": result.get("steps") or [],
+            "dataset_results": _compact_dataset_results(result),
+            "requires_confirmation": bool(result.get("requires_confirmation")),
+            "conversation_session_id": result.get("conversation_session_id") or "",
+            "confirmation_session_id": result.get("session_id") or "",
+            "token_usage": token_usage,
+            "total_tokens": token_usage.get("total_tokens") or 0,
+        },
+    )
+
+
+@smart_chat_bp.route("/api/smart-chat", methods=["POST"])
+def smart_chat():
+    started = time.time()
+    user = get_current_user()
+    req_info = request_snapshot(request)
+    payload = request.get_json(silent=True) or {}
+    denied = _require_feature(user, "smart_send_question")
+    if denied:
+        _log_smart_chat_rejection(
+            event_prefix="smart_chat",
+            title="智能问数权限不足",
+            error_message="当前账号没有发送智能问数的权限。",
+            question=(payload.get("question") or "").strip(),
+            started=started,
+            user=user,
+            request_info=req_info,
+            status_code=403,
+            details={"feature_key": "smart_send_question"},
+        )
+        return denied
+    try:
+        _append_controller_debug("smart_chat.request.enter")
+        _append_controller_debug("smart_chat.request.payload", payload=payload)
+        service = ask_flow_controller.active_service()
+        _append_controller_debug(
+            "smart_chat.service.meta",
+            controller=ask_flow_controller.__class__.__name__,
+            service_module=service.__class__.__module__,
+            service_file=inspect.getsourcefile(service.__class__),
+        )
+        ask_flow_controller.write_controller_probe(
+            {
+                "type": "controller_probe",
+                "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+                "question": payload.get("question", ""),
+            }
+        )
+        question = (payload.get("question") or "").strip()
+        session_id = (payload.get("session_id") or "").strip()
+        conversation_history = payload.get("conversation_history")
+        selected_dataset_ids = payload.get("selected_dataset_ids")
+        if not question:
+            _append_controller_debug("smart_chat.request.reject", reason="empty_question")
+            _log_smart_chat_rejection(
+                event_prefix="smart_chat",
+                title="智能问数问题为空",
+                error_message="Question cannot be empty.",
+                question=question,
+                started=started,
+                user=user,
+                request_info=req_info,
+                status_code=400,
+            )
+            return jsonify({"error": "Question cannot be empty."}), 400
+        if selected_dataset_ids is not None:
+            denied = _require_feature(user, "smart_dataset_select")
+            if denied:
+                _log_smart_chat_rejection(
+                    event_prefix="smart_chat",
+                    title="智能问数数据集选择权限不足",
+                    error_message="当前账号没有选择智能问数数据集的权限。",
+                    question=question,
+                    started=started,
+                    user=user,
+                    request_info=req_info,
+                    status_code=403,
+                    details={"feature_key": "smart_dataset_select", "selected_dataset_ids": selected_dataset_ids},
+                )
+                return denied
+        if selected_dataset_ids is not None and not isinstance(selected_dataset_ids, list):
+            _append_controller_debug("smart_chat.request.reject", reason="selected_dataset_ids_not_list")
+            _log_smart_chat_rejection(
+                event_prefix="smart_chat",
+                title="智能问数参数错误",
+                error_message="selected_dataset_ids must be a list when provided.",
+                question=question,
+                started=started,
+                user=user,
+                request_info=req_info,
+                status_code=400,
+                details={"selected_dataset_ids": selected_dataset_ids},
+            )
+            return jsonify({"error": "selected_dataset_ids must be a list when provided."}), 400
+        allowed_dataset_ids = _allowed_dataset_ids(user)
+        selected_dataset_ids = _filter_requested_dataset_ids(user, selected_dataset_ids)
+        if payload.get("selected_dataset_ids") is not None and not selected_dataset_ids:
+            _log_smart_chat_rejection(
+                event_prefix="smart_chat",
+                title="智能问数数据集权限不足",
+                error_message="当前账号没有访问所选数据集的权限。",
+                question=question,
+                started=started,
+                user=user,
+                request_info=req_info,
+                status_code=403,
+                details={
+                    "requested_dataset_ids": payload.get("selected_dataset_ids") or [],
+                    "allowed_dataset_ids": allowed_dataset_ids,
+                },
+            )
+            return _permission_denied_response(user, payload.get("selected_dataset_ids"), allowed_dataset_ids)
+
+        # 第 0 层：明显错字快检（毫秒级纯代码）。命中即短路返回纠正卡，不进问数流水线；
+        # 前端"按原问题继续查"会带 skip_typo_check 跳过本层。任何异常静默放行（fail-open）。
+        if not payload.get("skip_typo_check") and is_visible_user(user):
+            _typo_hit = detect_obvious_typo(question, allowed_dataset_ids)
+            if _typo_hit:
+                result = build_early_clarify_result(question, _typo_hit, session_id=session_id)
+                result["total_duration"] = round(time.time() - started, 2)
+                _append_controller_debug(
+                    "smart_chat.typo_fastpath.hit",
+                    fragment=_typo_hit.get("fragment"),
+                    suggestion=_typo_hit.get("suggestion"),
+                )
+                log_fastpath(question, _typo_hit, user=user, session_id=session_id)
+                _log_smart_chat_result(
+                    result=result,
+                    question=question,
+                    started=started,
+                    user=user,
+                    request_info=req_info,
+                    event_prefix="smart_chat",
+                )
+                return jsonify(result)
+
+        # 第 0.5 层：方向歧义快检（纯正则，独立开关，全员开放不挂角色门控）。
+        # 命中即短路返回"选方向"纠正卡；观察位词目只记日志不弹卡。fail-open。
+        if not payload.get("skip_typo_check") and direction_ambiguity_enabled():
+            _dir_hit = detect_direction_ambiguity(question)
+            if _dir_hit and _dir_hit.get("observe_only"):
+                log_direction(question, _dir_hit, user=user, session_id=session_id)
+            elif _dir_hit:
+                result = build_direction_clarify_result(question, _dir_hit, session_id=session_id)
+                result["total_duration"] = round(time.time() - started, 2)
+                _append_controller_debug(
+                    "smart_chat.direction_ambiguity.hit",
+                    fragment=_dir_hit.get("fragment"),
+                    candidates=_dir_hit.get("candidates"),
+                )
+                log_direction(question, _dir_hit, user=user, session_id=session_id,
+                              shown_candidates=(result.get("clarify_suggestion") or {}).get("candidates"))
+                _log_smart_chat_result(
+                    result=result,
+                    question=question,
+                    started=started,
+                    user=user,
+                    request_info=req_info,
+                    event_prefix="smart_chat",
+                )
+                return jsonify(result)
+
+        _append_controller_debug(
+            "smart_chat.service.ask.start",
+            question=question,
+            selected_dataset_ids=selected_dataset_ids,
+            allowed_dataset_ids=allowed_dataset_ids,
+        )
+        result = ask_flow_controller.ask(AskRequest(
+            question=question,
+            preferred_dataset_ids=selected_dataset_ids,
+            allowed_dataset_ids=allowed_dataset_ids,
+            session_id=session_id,
+            conversation_history=conversation_history if isinstance(conversation_history, list) else None,
+            current_user=user,
+            requested_flow=str(payload.get("ask_flow") or payload.get("flow") or ""),
+        ))
+        _append_controller_debug(
+            "smart_chat.service.ask.done",
+            has_error=bool(result.get("error")),
+            keys=sorted(result.keys()),
+        )
+        result["total_duration"] = round(time.time() - started, 2)
+        _log_smart_chat_result(
+            result=result,
+            question=question,
+            started=started,
+            user=user,
+            request_info=req_info,
+            event_prefix="smart_chat",
+        )
+        # 守门员分流：可见用户走同步纠正条（自身写影子日志）；其余用户走异步影子，一次提问只调一次守门员
+        if is_visible_user(user):
+            _correction = build_correction(question=question, result=result, user=user, session_id=session_id)
+            if _correction:
+                result["clarify_suggestion"] = _correction
+        else:
+            schedule_shadow_log(question=question, result=result, user=user, session_id=session_id)
+        # 首字母提示条（超管预览）：守门员没给纠正条时才尝试，不覆盖已有卡。
+        # 防重复：缩写已被路由层应用（initials_hint）时解析条缩写标注已承载同信息；
+        # 有确认卡时卡片已提供真实节点选择——两种情况下提示条都在推荐"刚执行完的同一个问题"。
+        _route_guard = result.get("route") or {}
+        if (not result.get("clarify_suggestion") and not result.get("early_clarify")
+                and not result.get("requires_confirmation") and not _route_guard.get("requires_confirmation")
+                and not _route_guard.get("initials_hint")):
+            from disambiguation.initials_guardrail import build_initials_preview
+            _preview = build_initials_preview(question=question, user=user)
+            if _preview:
+                result["clarify_suggestion"] = _preview
+        # 结构化解析条（响应层只读聚合，fail-open；内部已判开关/可见性/出条铁律）
+        from disambiguation.parse_spans import build_parse_bar
+        _parse_bar = build_parse_bar(question=question, result=result, user=user)
+        if _parse_bar:
+            result["parse_bar"] = _parse_bar
+
+        if result.get("error"):
+            _append_controller_debug("smart_chat.response.error", error=result.get("error"))
+            return jsonify(result), 400
+        _append_controller_debug("smart_chat.response.success", total_duration=result["total_duration"])
+        return jsonify(result)
+    except Exception as exc:
+        _append_controller_debug("smart_chat.response.exception", error=str(exc))
+        _log_smart_chat_result(
+            result={"error": f"smart-chat failed: {exc}", "question": (request.get_json(silent=True) or {}).get("question", "")},
+            question=(request.get_json(silent=True) or {}).get("question", ""),
+            started=started,
+            user=user,
+            request_info=req_info,
+            event_prefix="smart_chat",
+        )
+        return jsonify(
+            {
+                "error": f"smart-chat failed: {exc}",
+                "total_duration": round(time.time() - started, 2),
+            }
+        ), 500
+
+
+@smart_chat_bp.route("/api/smart-chat/stream", methods=["POST"])
+def smart_chat_stream():
+    started = time.time()
+    payload = request.get_json() or {}
+    user = get_current_user()
+    req_info = request_snapshot(request)
+    denied = _require_feature(user, "smart_send_question")
+    if denied:
+        _log_smart_chat_rejection(
+            event_prefix="smart_chat_stream",
+            title="智能问数权限不足",
+            error_message="当前账号没有发送智能问数的权限。",
+            question=(payload.get("question") or "").strip(),
+            started=started,
+            user=user,
+            request_info=req_info,
+            status_code=403,
+            details={"feature_key": "smart_send_question"},
+        )
+        return denied
+    question = (payload.get("question") or "").strip()
+    session_id = (payload.get("session_id") or "").strip()
+    conversation_history = payload.get("conversation_history")
+    selected_dataset_ids = payload.get("selected_dataset_ids")
+    model_id = payload.get("model_id")  # None = AUTO (use default)
+
+    if not question:
+        _log_smart_chat_rejection(
+            event_prefix="smart_chat_stream",
+            title="智能问数问题为空",
+            error_message="Question cannot be empty.",
+            question=question,
+            started=started,
+            user=user,
+            request_info=req_info,
+            status_code=400,
+        )
+        return jsonify({"error": "Question cannot be empty."}), 400
+    if selected_dataset_ids is not None:
+        denied = _require_feature(user, "smart_dataset_select")
+        if denied:
+            _log_smart_chat_rejection(
+                event_prefix="smart_chat_stream",
+                title="智能问数数据集选择权限不足",
+                error_message="当前账号没有选择智能问数数据集的权限。",
+                question=question,
+                started=started,
+                user=user,
+                request_info=req_info,
+                status_code=403,
+                details={"feature_key": "smart_dataset_select", "selected_dataset_ids": selected_dataset_ids},
+            )
+            return denied
+    if model_id is not None:
+        denied = _require_feature(user, "smart_model_select")
+        if denied:
+            _log_smart_chat_rejection(
+                event_prefix="smart_chat_stream",
+                title="智能问数模型选择权限不足",
+                error_message="当前账号没有选择智能问数模型的权限。",
+                question=question,
+                started=started,
+                user=user,
+                request_info=req_info,
+                status_code=403,
+                details={"feature_key": "smart_model_select", "model_id": model_id},
+            )
+            return denied
+    if selected_dataset_ids is not None and not isinstance(selected_dataset_ids, list):
+        _log_smart_chat_rejection(
+            event_prefix="smart_chat_stream",
+            title="智能问数参数错误",
+            error_message="selected_dataset_ids must be a list when provided.",
+            question=question,
+            started=started,
+            user=user,
+            request_info=req_info,
+            status_code=400,
+            details={"selected_dataset_ids": selected_dataset_ids},
+        )
+        return jsonify({"error": "selected_dataset_ids must be a list when provided."}), 400
+    allowed_dataset_ids = _allowed_dataset_ids(user)
+    selected_dataset_ids = _filter_requested_dataset_ids(user, selected_dataset_ids)
+    if payload.get("selected_dataset_ids") is not None and not selected_dataset_ids:
+        _log_smart_chat_rejection(
+            event_prefix="smart_chat_stream",
+            title="智能问数数据集权限不足",
+            error_message="当前账号没有访问所选数据集的权限。",
+            question=question,
+            started=started,
+            user=user,
+            request_info=req_info,
+            status_code=403,
+            details={
+                "requested_dataset_ids": payload.get("selected_dataset_ids") or [],
+                "allowed_dataset_ids": allowed_dataset_ids,
+            },
+        )
+        return _permission_denied_response(user, payload.get("selected_dataset_ids"), allowed_dataset_ids)
+
+    # Normalize model_id
+    if model_id is not None:
+        try:
+            model_id = int(model_id)
+        except (ValueError, TypeError):
+            model_id = None
+
+    def event_stream():
+        event_queue: "queue.Queue[dict]" = queue.Queue()
+        completed = threading.Event()
+        trace_events = []
+
+        def emit(payload: dict) -> None:
+            if payload.get("type") == "summary" or len(trace_events) < 500:
+                trace_events.append(payload)
+            event_queue.put(payload)
+
+        def run_ask() -> None:
+            try:
+                result = ask_flow_controller.ask(AskRequest(
+                    question=question,
+                    preferred_dataset_ids=selected_dataset_ids,
+                    allowed_dataset_ids=allowed_dataset_ids,
+                    live_callback=emit,
+                    model_id=model_id,
+                    session_id=session_id,
+                    conversation_history=conversation_history if isinstance(conversation_history, list) else None,
+                    current_user=user,
+                    requested_flow=str(payload.get("ask_flow") or payload.get("flow") or ""),
+                ))
+                result["total_duration"] = round(time.time() - started, 2)
+                # Attach report_config if dataset was identified
+                ds_id = result.get("dataset_id")
+                if ds_id:
+                    rc = drc.get_config(int(ds_id))
+                    if rc:
+                        result["report_config"] = rc
+                _log_smart_chat_result(
+                    result=result,
+                    question=question,
+                    started=started,
+                    user=user,
+                    request_info=req_info,
+                    trace_events=trace_events,
+                    event_prefix="smart_chat_stream",
+                )
+                print(f"[DEBUG] stream result requires_confirmation={result.get('requires_confirmation')} route_decision={result.get('route', {}).get('decision')} route_requires_confirmation={result.get('route', {}).get('requires_confirmation')} dataset_ids={result.get('route', {}).get('dataset_ids')}", flush=True)
+                # 守门员分流：可见用户走同步纠正条（自身写影子日志）；其余用户走异步影子
+                if is_visible_user(user):
+                    _correction = build_correction(question=question, result=result, user=user, session_id=session_id)
+                    if _correction:
+                        result["clarify_suggestion"] = _correction
+                else:
+                    schedule_shadow_log(question=question, result=result, user=user, session_id=session_id)
+                # 首字母提示条（超管预览）：守门员没给纠正条时才尝试，不覆盖已有卡。
+                # 防重复：缩写已被路由层应用（initials_hint）时解析条缩写标注已承载同信息；
+                # 有确认卡时卡片已提供真实节点选择——两种情况下提示条都在推荐"刚执行完的同一个问题"。
+                _route_guard = result.get("route") or {}
+                if (not result.get("clarify_suggestion") and not result.get("early_clarify")
+                        and not result.get("requires_confirmation") and not _route_guard.get("requires_confirmation")
+                        and not _route_guard.get("initials_hint")):
+                    from disambiguation.initials_guardrail import build_initials_preview
+                    _preview = build_initials_preview(question=question, user=user)
+                    if _preview:
+                        result["clarify_suggestion"] = _preview
+                # 结构化解析条（响应层只读聚合，fail-open；内部已判开关/可见性/出条铁律）
+                from disambiguation.parse_spans import build_parse_bar
+                _parse_bar = build_parse_bar(question=question, result=result, user=user)
+                if _parse_bar:
+                    result["parse_bar"] = _parse_bar
+                event_queue.put({"type": "result", "result": result})
+            except Exception as exc:
+                error_result = {
+                    "error": f"smart-chat failed: {exc}",
+                    "question": question,
+                    "total_duration": round(time.time() - started, 2),
+                }
+                _log_smart_chat_result(
+                    result=error_result,
+                    question=question,
+                    started=started,
+                    user=user,
+                    request_info=req_info,
+                    trace_events=trace_events,
+                    event_prefix="smart_chat_stream",
+                )
+                event_queue.put(
+                    {
+                        "type": "result",
+                        "result": error_result,
+                    }
+                )
+            finally:
+                completed.set()
+
+        # 第 0 层：明显错字快检（与同步端点同一层）。命中则不启 worker，直接发纠正卡结果。
+        _typo_hit = None
+        if not payload.get("skip_typo_check") and is_visible_user(user):
+            _typo_hit = detect_obvious_typo(question, allowed_dataset_ids)
+        # 第 0.5 层：方向歧义快检（纯正则，独立开关，全员开放）。观察位词目只记日志不弹卡。
+        _dir_hit = None
+        if not _typo_hit and not payload.get("skip_typo_check") and direction_ambiguity_enabled():
+            _dir_hit = detect_direction_ambiguity(question)
+        if _dir_hit and _dir_hit.get("observe_only"):
+            log_direction(question, _dir_hit, user=user, session_id=session_id)
+            _dir_hit = None
+        if _typo_hit:
+            typo_result = build_early_clarify_result(question, _typo_hit, session_id=session_id)
+            typo_result["total_duration"] = round(time.time() - started, 2)
+            log_fastpath(question, _typo_hit, user=user, session_id=session_id)
+            _log_smart_chat_result(
+                result=typo_result,
+                question=question,
+                started=started,
+                user=user,
+                request_info=req_info,
+                trace_events=trace_events,
+                event_prefix="smart_chat_stream",
+            )
+            event_queue.put({"type": "result", "result": typo_result})
+            completed.set()
+        elif _dir_hit:
+            dir_result = build_direction_clarify_result(question, _dir_hit, session_id=session_id)
+            dir_result["total_duration"] = round(time.time() - started, 2)
+            log_direction(question, _dir_hit, user=user, session_id=session_id,
+                          shown_candidates=(dir_result.get("clarify_suggestion") or {}).get("candidates"))
+            _log_smart_chat_result(
+                result=dir_result,
+                question=question,
+                started=started,
+                user=user,
+                request_info=req_info,
+                trace_events=trace_events,
+                event_prefix="smart_chat_stream",
+            )
+            event_queue.put({"type": "result", "result": dir_result})
+            completed.set()
+        else:
+            worker = threading.Thread(target=run_ask, daemon=True)
+            worker.start()
+        yield _sse_frame("ready", {"ok": True, "question": question})
+
+        while not completed.is_set() or not event_queue.empty():
+            try:
+                item = event_queue.get(timeout=1.0)
+            except queue.Empty:
+                yield _sse_frame("heartbeat", {"time": time.time()})
+                continue
+
+            item_type = str(item.get("type") or "")
+            if item_type == "trace":
+                yield _sse_frame("trace", item)
+                continue
+            if item_type == "summary":
+                yield _sse_frame("summary", item)
+                continue
+            if item_type == "result":
+                yield _sse_frame("result", item.get("result") or {})
+                break
+
+        yield _sse_frame("done", {"ok": True})
+
+    response = Response(stream_with_context(event_stream()), mimetype="text/event-stream")
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["X-Accel-Buffering"] = "no"
+    return response
+
+
+@smart_chat_bp.route("/api/smart-chat/parse-bar/candidates", methods=["POST"])
+def parse_bar_candidates():
+    """解析条槽位候选（原位编辑下拉用）。书架/权限过滤在 list_slot_candidates 内完成。"""
+    user = get_current_user()
+    denied = _require_feature(user, "smart_send_question")
+    if denied:
+        return denied
+    try:
+        payload = request.get_json(silent=True) or {}
+        slot = str(payload.get("slot") or "")
+        current_value = payload.get("current_value")
+        dataset_id = payload.get("dataset_id")
+        try:
+            dataset_id = int(dataset_id) if dataset_id is not None else None
+        except (TypeError, ValueError):
+            dataset_id = None
+        from disambiguation.parse_spans import is_visible_user as _pb_visible, list_slot_candidates
+        if not _pb_visible(user):
+            return jsonify({"candidates": []})
+        candidates = list_slot_candidates(
+            slot, current_value=current_value, dataset_id=dataset_id,
+            allowed_dataset_ids=_allowed_dataset_ids(user),
+        )
+        return jsonify({"candidates": candidates})
+    except Exception as exc:
+        return jsonify({"candidates": [], "error": str(exc)}), 200  # fail-open：候选拉不到不阻断
+
+
+@smart_chat_bp.route("/api/smart-chat/parse-bar/rerun", methods=["POST"])
+def parse_bar_rerun():
+    """解析条结构化修正重跑（编译重跑+三重锚定，parse-bar-design Phase 2）。
+
+    权限红线：dataset override 必须 ∈ allowed_dataset_ids；node override 必须属于目标
+    数据集书架且目标数据集 ∈ allowed；metric override 必须 ∈ 词表白名单。任一不过 → 403。
+    """
+    started = time.time()
+    user = get_current_user()
+    req_info = request_snapshot(request)
+    payload = request.get_json(silent=True) or {}
+    denied = _require_feature(user, "smart_send_question")
+    if denied:
+        return denied
+    question = (payload.get("question") or "").strip()
+    original_bar = payload.get("parse_bar") or {}
+    override = payload.get("override") or {}
+    session_id = (payload.get("session_id") or "").strip()
+    conversation_history = payload.get("conversation_history")
+    if not question or not override:
+        return jsonify({"error": "question and override are required."}), 400
+    try:
+        from disambiguation.parse_spans import (
+            apply_override_to_bar,
+            compile_question,
+            is_visible_user as _pb_visible,
+            list_slot_candidates,
+            node_belongs_to_dataset,
+        )
+        if not _pb_visible(user):
+            return jsonify({"error": "parse bar not visible for this user."}), 403
+        allowed = _allowed_dataset_ids(user) or []
+        allowed_set = set(int(d) for d in allowed if d)
+        slot = str(override.get("slot") or "")
+        new_value = override.get("new_value")
+        # 目标数据集：dataset override 用新值；node/metric override 用 override 带的当前数据集
+        if slot == "dataset":
+            try:
+                target_ds = int(new_value)
+            except (TypeError, ValueError):
+                return jsonify({"error": "invalid dataset id."}), 400
+        else:
+            try:
+                target_ds = int(override.get("dataset_id") or 0)
+            except (TypeError, ValueError):
+                target_ds = 0
+        # 权限红线 1：目标数据集必须在用户权限内
+        if allowed_set and target_ds not in allowed_set:
+            _log_smart_chat_rejection(
+                event_prefix="parse_bar_rerun",
+                title="解析条修正数据集越权",
+                error_message="目标数据集不在当前账号权限内。",
+                question=question, started=started, user=user, request_info=req_info,
+                status_code=403, details={"target_dataset_id": target_ds},
+            )
+            return jsonify({"error": "目标数据集不在当前账号权限内。"}), 403
+        # 权限红线 2：node override 必须是目标数据集书架内节点（防注入书架外节点）
+        if slot == "node" and not node_belongs_to_dataset(str(new_value or ""), target_ds):
+            return jsonify({"error": "修正对象不属于目标数据集。"}), 403
+        # 权限红线 3：metric override 必须在词表白名单值域内
+        if slot == "metric":
+            whitelist = {c["value"] for c in list_slot_candidates("metric")}
+            if str(new_value or "") not in whitelist:
+                return jsonify({"error": "修正指标不在支持范围内。"}), 403
+        compiled = compile_question(question, original_bar, override)
+        if not compiled:
+            return jsonify({"error": "无法编译修正（槽位无原句定位，可能为继承上文）。"}), 400
+        result = ask_flow_controller.ask(AskRequest(
+            question=compiled["question"],
+            preferred_dataset_ids=[compiled["dataset_id"]] if compiled.get("dataset_id") else None,
+            allowed_dataset_ids=allowed,
+            session_id=session_id,
+            conversation_history=conversation_history if isinstance(conversation_history, list) else None,
+            current_user=user,
+        ))
+        result["total_duration"] = round(time.time() - started, 2)
+        # 解析条改写：spans 保留原句 offset（问句气泡框出不变），被改槽位标 corrected
+        new_ds_name = ""
+        if slot == "dataset":
+            cand = next((c for c in list_slot_candidates("dataset", allowed_dataset_ids=allowed)
+                         if int(c["value"]) == target_ds), None)
+            new_ds_name = str(cand["label"]) if cand else ""
+        new_bar = apply_override_to_bar(original_bar, override, new_dataset_name=new_ds_name)
+        if new_bar:
+            result["parse_bar"] = new_bar
+        result["parse_bar_corrected"] = {
+            "original_question": question,
+            "compiled_question": compiled["question"],
+            "override": {"slot": slot, "new_value": new_value},
+        }
+        # 修正写回学习（§8）：rerun 黄维桢后记录本次修正，下次同片段命中标 learned。
+        # fail-open：记录失败不影响 rerun 结果。
+        if not result.get("error"):
+            try:
+                from disambiguation.parse_spans import record_feedback
+                orig_slot = next(
+                    (s for s in (original_bar.get("slots") or [])
+                     if isinstance(s, dict) and s.get("slot") == slot), {})
+                record_feedback(
+                    user_id=str((user or {}).get("username") or (user or {}).get("id") or ""),
+                    slot=slot,
+                    question=question,
+                    span_text=str(orig_slot.get("span_text") or ""),
+                    original_resolved=str(orig_slot.get("resolved_value") or ""),
+                    new_value=str(new_value or ""),
+                    dataset_id=target_ds or None,
+                    session_id=session_id,
+                )
+            except Exception:
+                pass
+        _log_smart_chat_result(
+            result=result, question=question, started=started, user=user,
+            request_info=req_info, event_prefix="parse_bar_rerun",
+        )
+        return jsonify(result)
+    except Exception as exc:
+        _append_controller_debug("parse_bar_rerun.exception", error=str(exc))
+        return jsonify({"error": f"parse-bar rerun failed: {exc}",
+                        "total_duration": round(time.time() - started, 2)}), 500
+
+
+@smart_chat_bp.route("/api/smart-chat/parse-bar/feedback", methods=["POST"])
+def parse_bar_feedback():
+    """解析条「暂存→确认新提问」链路的修正学习落库（fail-open）。
+
+    前端确认后走正常提问链路发新问句，不经过 rerun 端点；修正记录在此补齐，
+    供下次同片段命中标 learned。落库失败不影响提问主链路（前端也不等待结果）。
+    """
+    user = get_current_user()
+    denied = _require_feature(user, "smart_send_question")
+    if denied:
+        return denied
+    payload = request.get_json(silent=True) or {}
+    overrides = payload.get("overrides") or []
+    question = str(payload.get("question") or "")[:500]
+    dataset_id = payload.get("dataset_id")
+    session_id = str(payload.get("session_id") or "")[:128]
+    try:
+        from disambiguation.parse_spans import is_visible_user as _pb_visible, record_feedback
+        if not _pb_visible(user):
+            return jsonify({"recorded": 0})
+        recorded = 0
+        for o in overrides:
+            if not isinstance(o, dict):
+                continue
+            slot = str(o.get("slot") or "")
+            if slot not in ("node", "metric", "dataset"):
+                continue
+            new_value = str(o.get("new_value") or "").strip()
+            original = str(o.get("original") or "").strip()
+            if not new_value or new_value == original:
+                continue
+            if record_feedback(
+                user_id=str((user or {}).get("username") or (user or {}).get("id") or ""),
+                slot=slot,
+                question=question,
+                span_text=str(o.get("span_text") or "")[:200],
+                original_resolved=original[:200],
+                new_value=new_value[:200],
+                dataset_id=dataset_id or None,
+                session_id=session_id,
+            ):
+                recorded += 1
+        return jsonify({"recorded": recorded})
+    except Exception as exc:
+        _append_controller_debug("parse_bar_feedback.exception", error=str(exc))
+        return jsonify({"recorded": 0})  # fail-open：学习记录丢失不阻断
+
+
+@smart_chat_bp.route("/api/smart-chat/confirm-by-boss", methods=["POST"])
+def confirm_by_boss():
+    started = time.time()
+    user = get_current_user()
+    req_info = request_snapshot(request)
+    payload = request.get_json(silent=True) or {}
+    denied = _require_any_feature(user, ["smart_confirm_scope", "smart_submit_note"])
+    if denied:
+        _log_smart_chat_rejection(
+            event_prefix="boss_confirm",
+            title="问数确认权限不足",
+            error_message="当前账号没有提交问数确认口径的权限。",
+            question=(payload.get("selected_option") or payload.get("session_id") or "").strip(),
+            started=started,
+            user=user,
+            request_info=req_info,
+            status_code=403,
+            details={"feature_keys": ["smart_confirm_scope", "smart_submit_note"]},
+        )
+        return denied
+    try:
+        session_id = (payload.get("session_id") or "").strip()
+        selected_option = (payload.get("selected_option") or "").strip()
+        option_id = (payload.get("option_id") or "").strip()
+        selected_dataset_ids = payload.get("selected_dataset_ids")
+
+        if not session_id:
+            _log_smart_chat_rejection(
+                event_prefix="boss_confirm",
+                title="问数确认缺少会话",
+                error_message="session_id is required.",
+                question=selected_option,
+                started=started,
+                user=user,
+                request_info=req_info,
+                status_code=400,
+                details={"option_id": option_id, "selected_dataset_ids": selected_dataset_ids},
+            )
+            return jsonify({"error": "session_id is required."}), 400
+
+        if selected_dataset_ids is not None and not isinstance(selected_dataset_ids, list):
+            _log_smart_chat_rejection(
+                event_prefix="boss_confirm",
+                title="问数确认参数错误",
+                error_message="selected_dataset_ids must be a list when provided.",
+                question=selected_option or session_id,
+                started=started,
+                user=user,
+                request_info=req_info,
+                status_code=400,
+                details={"selected_dataset_ids": selected_dataset_ids},
+            )
+            return jsonify({"error": "selected_dataset_ids must be a list when provided."}), 400
+        allowed_dataset_ids = _allowed_dataset_ids(user)
+        selected_dataset_ids = _filter_requested_dataset_ids(user, selected_dataset_ids)
+        if payload.get("selected_dataset_ids") is not None and not selected_dataset_ids:
+            _log_smart_chat_rejection(
+                event_prefix="boss_confirm",
+                title="问数确认数据集权限不足",
+                error_message="当前账号没有访问所选数据集的权限。",
+                question=selected_option or session_id,
+                started=started,
+                user=user,
+                request_info=req_info,
+                status_code=403,
+                details={
+                    "requested_dataset_ids": payload.get("selected_dataset_ids") or [],
+                    "allowed_dataset_ids": allowed_dataset_ids,
+                },
+            )
+            return _permission_denied_response(user, payload.get("selected_dataset_ids"), allowed_dataset_ids)
+
+        result = ask_flow_controller.confirm_by_boss(ConfirmRequest(
+            session_id=session_id,
+            selected_option=selected_option,
+            selected_dataset_ids=selected_dataset_ids,
+            allowed_dataset_ids=allowed_dataset_ids,
+            option_id=option_id,
+            current_user=user,
+            requested_flow=str(payload.get("ask_flow") or payload.get("flow") or ""),
+        ))
+        result["total_duration"] = round(time.time() - started, 2)
+        # 确认执行后补 parse_bar：让历史消息保留"最终确认的理解"解析条（单值节点，2026-08-31 定稿）。
+        # 否则前端 doConfirm 用 res 整体替换消息 data 时，确认前的解析条会被覆盖丢失（用户实测反馈）。
+        if not result.get("error"):
+            try:
+                from disambiguation.parse_spans import build_parse_bar
+                _pb_question = str(result.get("question") or selected_option or "").strip()
+                _parse_bar = build_parse_bar(question=_pb_question, result=result, user=user)
+                if _parse_bar:
+                    result["parse_bar"] = _parse_bar
+            except Exception:
+                pass  # fail-open：parse_bar 生成失败不影响确认结果
+        _log_smart_chat_result(
+            result=result,
+            question=selected_option or session_id,
+            started=started,
+            user=user,
+            request_info=req_info,
+            event_prefix="boss_confirm",
+        )
+
+        if result.get("error"):
+            return jsonify(result), 400
+        return jsonify(result)
+    except Exception as exc:
+        _log_smart_chat_result(
+            result={"error": f"confirm-by-boss failed: {exc}", "question": selected_option or session_id},
+            question=selected_option or session_id,
+            started=started,
+            user=user,
+            request_info=req_info,
+            event_prefix="boss_confirm",
+        )
+        return jsonify(
+            {
+                "error": f"confirm-by-boss failed: {exc}",
+                "total_duration": round(time.time() - started, 2),
+            }
+        ), 500
+
+
+@smart_chat_bp.route("/api/smart-chat/confirm-by-boss/stream", methods=["POST"])
+def confirm_by_boss_stream():
+    started = time.time()
+    payload = request.get_json() or {}
+    user = get_current_user()
+    req_info = request_snapshot(request)
+    denied = _require_any_feature(user, ["smart_confirm_scope", "smart_submit_note"])
+    if denied:
+        _log_smart_chat_rejection(
+            event_prefix="boss_confirm_stream",
+            title="问数确认权限不足",
+            error_message="当前账号没有提交问数确认口径的权限。",
+            question=(payload.get("selected_option") or payload.get("session_id") or "").strip(),
+            started=started,
+            user=user,
+            request_info=req_info,
+            status_code=403,
+            details={"feature_keys": ["smart_confirm_scope", "smart_submit_note"]},
+        )
+        return denied
+    session_id = (payload.get("session_id") or "").strip()
+    selected_option = (payload.get("selected_option") or "").strip()
+    option_id = (payload.get("option_id") or "").strip()
+    selected_dataset_ids = payload.get("selected_dataset_ids")
+
+    if not session_id:
+        _log_smart_chat_rejection(
+            event_prefix="boss_confirm_stream",
+            title="问数确认缺少会话",
+            error_message="session_id is required.",
+            question=selected_option,
+            started=started,
+            user=user,
+            request_info=req_info,
+            status_code=400,
+            details={"option_id": option_id, "selected_dataset_ids": selected_dataset_ids},
+        )
+        return jsonify({"error": "session_id is required."}), 400
+    if selected_dataset_ids is not None and not isinstance(selected_dataset_ids, list):
+        _log_smart_chat_rejection(
+            event_prefix="boss_confirm_stream",
+            title="问数确认参数错误",
+            error_message="selected_dataset_ids must be a list when provided.",
+            question=selected_option or session_id,
+            started=started,
+            user=user,
+            request_info=req_info,
+            status_code=400,
+            details={"selected_dataset_ids": selected_dataset_ids},
+        )
+        return jsonify({"error": "selected_dataset_ids must be a list when provided."}), 400
+    allowed_dataset_ids = _allowed_dataset_ids(user)
+    selected_dataset_ids = _filter_requested_dataset_ids(user, selected_dataset_ids)
+    if payload.get("selected_dataset_ids") is not None and not selected_dataset_ids:
+        _log_smart_chat_rejection(
+            event_prefix="boss_confirm_stream",
+            title="问数确认数据集权限不足",
+            error_message="当前账号没有访问所选数据集的权限。",
+            question=selected_option or session_id,
+            started=started,
+            user=user,
+            request_info=req_info,
+            status_code=403,
+            details={
+                "requested_dataset_ids": payload.get("selected_dataset_ids") or [],
+                "allowed_dataset_ids": allowed_dataset_ids,
+            },
+        )
+        return _permission_denied_response(user, payload.get("selected_dataset_ids"), allowed_dataset_ids)
+
+    def event_stream():
+        event_queue: "queue.Queue[dict]" = queue.Queue()
+        completed = threading.Event()
+        trace_events = []
+
+        def emit(trace_payload: dict) -> None:
+            if trace_payload.get("type") == "summary" or len(trace_events) < 500:
+                trace_events.append(trace_payload)
+            event_queue.put(trace_payload)
+
+        def run_confirm() -> None:
+            try:
+                result = ask_flow_controller.confirm_by_boss(ConfirmRequest(
+                    session_id=session_id,
+                    selected_option=selected_option,
+                    selected_dataset_ids=selected_dataset_ids,
+                    allowed_dataset_ids=allowed_dataset_ids,
+                    option_id=option_id,
+                    live_callback=emit,
+                    current_user=user,
+                    requested_flow=str(payload.get("ask_flow") or payload.get("flow") or ""),
+                ))
+                result["total_duration"] = round(time.time() - started, 2)
+                # 确认执行后补 parse_bar（stream 版，与同步版对齐，2026-08-31）：让历史保留"最终确认的理解"解析条。
+                # 前端确认走 stream 版（confirmByBossStream），不补则确认后 res 无 parse_bar，解析条被覆盖丢失。
+                if not result.get("error"):
+                    try:
+                        from disambiguation.parse_spans import build_parse_bar
+                        _pb_question = str(result.get("question") or selected_option or "").strip()
+                        _parse_bar = build_parse_bar(question=_pb_question, result=result, user=user)
+                        if _parse_bar:
+                            result["parse_bar"] = _parse_bar
+                    except Exception:
+                        pass  # fail-open：parse_bar 生成失败不影响确认结果
+                ds_id = result.get("dataset_id")
+                if ds_id:
+                    rc = drc.get_config(int(ds_id))
+                    if rc:
+                        result["report_config"] = rc
+                _log_smart_chat_result(
+                    result=result,
+                    question=selected_option or session_id,
+                    started=started,
+                    user=user,
+                    request_info=req_info,
+                    trace_events=trace_events,
+                    event_prefix="boss_confirm_stream",
+                )
+                event_queue.put({"type": "result", "result": result})
+            except Exception as exc:
+                error_result = {
+                    "error": f"confirm-by-boss failed: {exc}",
+                    "question": selected_option or session_id,
+                    "total_duration": round(time.time() - started, 2),
+                }
+                _log_smart_chat_result(
+                    result=error_result,
+                    question=selected_option or session_id,
+                    started=started,
+                    user=user,
+                    request_info=req_info,
+                    trace_events=trace_events,
+                    event_prefix="boss_confirm_stream",
+                )
+                event_queue.put(
+                    {
+                        "type": "result",
+                        "result": error_result,
+                    }
+                )
+            finally:
+                completed.set()
+
+        worker = threading.Thread(target=run_confirm, daemon=True)
+        worker.start()
+        yield _sse_frame("ready", {"ok": True, "session_id": session_id})
+
+        while not completed.is_set() or not event_queue.empty():
+            try:
+                item = event_queue.get(timeout=1.0)
+            except queue.Empty:
+                yield _sse_frame("heartbeat", {"time": time.time()})
+                continue
+
+            item_type = str(item.get("type") or "")
+            if item_type == "trace":
+                yield _sse_frame("trace", item)
+                continue
+            if item_type == "summary":
+                yield _sse_frame("summary", item)
+                continue
+            if item_type == "result":
+                yield _sse_frame("result", item.get("result") or {})
+                break
+
+        yield _sse_frame("done", {"ok": True})
+
+    response = Response(stream_with_context(event_stream()), mimetype="text/event-stream")
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["X-Accel-Buffering"] = "no"
+    return response

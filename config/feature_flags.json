@@ -1,0 +1,2207 @@
+{
+  "version": 1,
+  "role_schema_version": 2,
+  "updated_at": "2026-05-21 09:24:34",
+  "features": {
+    "smart_ask_workspace": {
+      "label": "智能分析工作台",
+      "description": "面向业务用户的问数、分析和报告生成入口。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 10,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "agent_management": {
+      "label": "智能体编排配置",
+      "description": "维护 Agent 流程、节点和执行策略。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 20,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "dataset_management": {
+      "label": "数据资产管理",
+      "description": "维护数据集、字段语义和问数口径。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 30,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "database_management": {
+      "label": "数据连接管理",
+      "description": "维护数据库连接和连通性测试。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 40,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "ai_model_config": {
+      "label": "模型服务配置",
+      "description": "维护模型供应商、Key 和默认模型。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 50,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "report_config": {
+      "label": "报告模板配置",
+      "description": "维护报告样式、指标卡和展示规则。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 60,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "advanced_capabilities": {
+      "label": "进阶能力中心",
+      "description": "管理进阶问数 Skill、MCP、SQL Server 和工具链路配置。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 65,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": true,
+      "risk": ""
+    },
+    "advanced_ask_flow": {
+      "label": "使用进阶问数流程",
+      "description": "智能分析页，控制用户提问时是否可以进入进阶问数流程；仍受问数流程总开关和数据集灰度保护。",
+      "category": "流程权限",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "flow",
+      "order": 118,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": true
+    },
+    "feishu_sync": {
+      "label": "飞书数据同步",
+      "description": "维护飞书表格同步任务。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 70,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "runtime_migration": {
+      "label": "迁移发布管理",
+      "description": "导出、导入和备份运行态配置。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 80,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "runtime_file_select": {
+      "label": "选择导入包",
+      "description": "迁移发布页，控制上传运行态 JSON 包。",
+      "category": "按钮 · 迁移发布管理",
+      "module": "runtime_migration",
+      "module_label": "迁移发布管理",
+      "kind": "button",
+      "order": 805,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "runtime_export": {
+      "label": "导出运行态包",
+      "description": "迁移发布页，控制运行态包导出按钮。",
+      "category": "按钮 · 迁移发布管理",
+      "module": "runtime_migration",
+      "module_label": "迁移发布管理",
+      "kind": "button",
+      "order": 810,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "runtime_backup": {
+      "label": "手动备份",
+      "description": "迁移发布页，控制手动备份当前环境按钮。",
+      "category": "按钮 · 迁移发布管理",
+      "module": "runtime_migration",
+      "module_label": "迁移发布管理",
+      "kind": "button",
+      "order": 820,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "runtime_import_preview": {
+      "label": "预检导入",
+      "description": "迁移发布页，控制运行态包预检按钮。",
+      "category": "按钮 · 迁移发布管理",
+      "module": "runtime_migration",
+      "module_label": "迁移发布管理",
+      "kind": "button",
+      "order": 830,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false
+    },
+    "runtime_import_confirm": {
+      "label": "确认导入",
+      "description": "迁移发布页，控制正式写入运行态资源按钮。",
+      "category": "按钮 · 迁移发布管理",
+      "module": "runtime_migration",
+      "module_label": "迁移发布管理",
+      "kind": "button",
+      "order": 840,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false
+    },
+    "runtime_replace_mode": {
+      "label": "替换模式",
+      "description": "迁移发布页，控制替换书架表模式选项。",
+      "category": "按钮 · 迁移发布管理",
+      "module": "runtime_migration",
+      "module_label": "迁移发布管理",
+      "kind": "button",
+      "order": 850,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false
+    },
+    "runtime_overwrite_config": {
+      "label": "覆盖 JSON",
+      "description": "迁移发布页，控制覆盖已有 JSON 配置开关。",
+      "category": "按钮 · 迁移发布管理",
+      "module": "runtime_migration",
+      "module_label": "迁移发布管理",
+      "kind": "button",
+      "order": 860,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false
+    },
+    "organization_tree_management": {
+      "label": "组织树管理",
+      "description": "维护多套独立组织树类型和树形节点。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 88,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "employee_permissions": {
+      "label": "角色权限管理",
+      "description": "维护 RBAC 角色、用户分组、账号状态和飞书 UnionID 映射。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 90,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "admin_console": {
+      "label": "系统控制台",
+      "description": "超级管理员专用，用于控制功能入口和按钮开放范围。",
+      "category": "导航入口",
+      "module": "navigation",
+      "module_label": "左侧导航栏",
+      "kind": "navigation",
+      "order": 100,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "app_password_change": {
+      "label": "修改密码",
+      "description": "右上角账号菜单里的修改密码入口。",
+      "category": "按钮 · 全局顶部栏",
+      "module": "global_shell",
+      "module_label": "全局顶部栏",
+      "kind": "button",
+      "order": 105,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "app_history_clear": {
+      "label": "清空历史",
+      "description": "智能分析页左侧历史区和抽屉里的清空按钮。",
+      "category": "按钮 · 全局侧边栏",
+      "module": "global_shell",
+      "module_label": "全局侧边栏",
+      "kind": "button",
+      "order": 106,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "app_history_delete": {
+      "label": "删除单条历史",
+      "description": "智能分析页历史卡片右侧的单条删除按钮。",
+      "category": "按钮 · 全局侧边栏",
+      "module": "global_shell",
+      "module_label": "全局侧边栏",
+      "kind": "button",
+      "order": 107,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "advanced_capability_save": {
+      "label": "保存进阶能力",
+      "description": "进阶能力中心，控制保存 Skill、MCP、SQL Server 和流程保护配置。",
+      "category": "按钮 · 进阶能力中心",
+      "module": "advanced_capabilities",
+      "module_label": "进阶能力中心",
+      "kind": "button",
+      "order": 651,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": true,
+      "risk": ""
+    },
+    "advanced_skill_import": {
+      "label": "导入 Skill",
+      "description": "进阶能力中心，控制从 JSON Manifest 导入第三方 Skill 定义。",
+      "category": "按钮 · 进阶能力中心",
+      "module": "advanced_capabilities",
+      "module_label": "进阶能力中心",
+      "kind": "button",
+      "order": 652,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": true
+    },
+    "advanced_capability_reset": {
+      "label": "恢复进阶能力默认",
+      "description": "进阶能力中心，控制恢复默认 Skill 和工具配置。",
+      "category": "按钮 · 进阶能力中心",
+      "module": "advanced_capabilities",
+      "module_label": "进阶能力中心",
+      "kind": "button",
+      "order": 653,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": true
+    },
+    "employee_create": {
+      "label": "新增员工",
+      "description": "员工权限页，控制新增账号按钮和新增保存。",
+      "category": "按钮 · 员工权限配置",
+      "module": "employee_permissions",
+      "module_label": "员工权限配置",
+      "kind": "button",
+      "order": 911,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "employee_update": {
+      "label": "编辑员工",
+      "description": "员工权限页，控制编辑账号按钮和编辑保存。",
+      "category": "按钮 · 员工权限配置",
+      "module": "employee_permissions",
+      "module_label": "员工权限配置",
+      "kind": "button",
+      "order": 912,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "employee_status_update": {
+      "label": "启停员工",
+      "description": "员工权限页，控制账号状态开关。",
+      "category": "按钮 · 员工权限配置",
+      "module": "employee_permissions",
+      "module_label": "员工权限配置",
+      "kind": "button",
+      "order": 913,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "employee_bulk_update": {
+      "label": "批量修改员工",
+      "description": "员工权限页，控制批量修改角色、组织和状态。",
+      "category": "按钮 · 员工权限配置",
+      "module": "employee_permissions",
+      "module_label": "员工权限配置",
+      "kind": "button",
+      "order": 914,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "employee_password_reset": {
+      "label": "重置密码",
+      "description": "员工权限页，控制默认密码重置入口。",
+      "category": "按钮 · 员工权限配置",
+      "module": "employee_permissions",
+      "module_label": "员工权限配置",
+      "kind": "button",
+      "order": 920,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false
+    },
+    "employee_delete": {
+      "label": "删除员工",
+      "description": "员工权限页，控制员工账号删除入口。",
+      "category": "按钮 · 员工权限配置",
+      "module": "employee_permissions",
+      "module_label": "员工权限配置",
+      "kind": "button",
+      "order": 930,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false
+    },
+    "organization_tree_type_create": {
+      "label": "新增组织树",
+      "description": "组织树管理页，控制新增组织树类型。",
+      "category": "按钮 · 组织树管理",
+      "module": "organization_tree_management",
+      "module_label": "组织树管理",
+      "kind": "button",
+      "order": 882,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "organization_tree_type_update": {
+      "label": "编辑组织树",
+      "description": "组织树管理页，控制编辑组织树类型。",
+      "category": "按钮 · 组织树管理",
+      "module": "organization_tree_management",
+      "module_label": "组织树管理",
+      "kind": "button",
+      "order": 883,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "organization_tree_type_delete": {
+      "label": "删除组织树",
+      "description": "组织树管理页，控制删除组织树类型。",
+      "category": "按钮 · 组织树管理",
+      "module": "organization_tree_management",
+      "module_label": "组织树管理",
+      "kind": "button",
+      "order": 884,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false
+    },
+    "organization_tree_node_create": {
+      "label": "新增组织节点",
+      "description": "组织树管理页，控制新增根节点和新增下级。",
+      "category": "按钮 · 组织树管理",
+      "module": "organization_tree_management",
+      "module_label": "组织树管理",
+      "kind": "button",
+      "order": 885,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "organization_tree_node_update": {
+      "label": "编辑组织节点",
+      "description": "组织树管理页，控制编辑组织节点。",
+      "category": "按钮 · 组织树管理",
+      "module": "organization_tree_management",
+      "module_label": "组织树管理",
+      "kind": "button",
+      "order": 886,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "organization_tree_node_delete": {
+      "label": "删除组织节点",
+      "description": "组织树管理页，控制删除组织节点。",
+      "category": "按钮 · 组织树管理",
+      "module": "organization_tree_management",
+      "module_label": "组织树管理",
+      "kind": "button",
+      "order": 887,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false
+    },
+    "organization_tree_import_preview": {
+      "label": "预检导入组织树",
+      "description": "组织树管理页，控制组织树导入预检。",
+      "category": "按钮 · 组织树管理",
+      "module": "organization_tree_management",
+      "module_label": "组织树管理",
+      "kind": "button",
+      "order": 888,
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "organization_tree_import_apply": {
+      "label": "确认导入组织树",
+      "description": "组织树管理页，控制确认写入组织树导入结果。",
+      "category": "按钮 · 组织树管理",
+      "module": "organization_tree_management",
+      "module_label": "组织树管理",
+      "kind": "button",
+      "order": 889,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_create": {
+      "label": "新建数据集",
+      "description": "数据资产页，控制左侧数据集新建按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 310,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "dataset_save": {
+      "label": "保存书架",
+      "description": "数据资产页，控制保存书架内容按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 320,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "dataset_delete": {
+      "label": "删除数据集",
+      "description": "数据资产页，控制删除当前数据集按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 330,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": true
+    },
+    "dataset_prompt_generate": {
+      "label": "提示词生成",
+      "description": "数据资产页，控制左侧根据提示词生成数据集按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 335,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": true,
+      "risk": ""
+    },
+    "dataset_autofill": {
+      "label": "自动补齐",
+      "description": "数据资产页，控制基于 DDL 和数据集信息的智能补齐按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 340,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": true,
+      "risk": ""
+    },
+    "dataset_dict_extract": {
+      "label": "DDL 提取字段",
+      "description": "数据资产页，控制从 DDL 提取字段按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 400,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "dataset_source_table": {
+      "label": "从数据源拉表",
+      "description": "数据资产页，控制从数据源拉表和加入当前数据集按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 405,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "dataset_transform_edit": {
+      "label": "数据转换维护",
+      "description": "数据资产页，控制数据转换任务的新增、编辑、删除和手动执行。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 425,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": true,
+      "risk": ""
+    },
+    "dataset_sql_preview_run": {
+      "label": "打开/执行 SQL 调试台",
+      "description": "智能问数页，控制 SQL 调试台导航入口、只读 SQL 查询和问数转 SQL 执行。",
+      "category": "导航 · 智能问数",
+      "module": "smart_ask",
+      "module_label": "智能问数",
+      "kind": "button",
+      "order": 445,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin",
+        "user"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "dataset_sql_preview_copy": {
+      "label": "复制/导出 SQL 调试结果",
+      "description": "智能问数页，控制 SQL 调试台结果复制和 CSV 导出。",
+      "category": "按钮 · 智能问数",
+      "module": "smart_ask",
+      "module_label": "智能问数",
+      "kind": "button",
+      "order": 446,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin",
+        "user"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "datasource_create": {
+      "label": "添加数据源",
+      "description": "数据连接页，控制添加数据源按钮。",
+      "category": "按钮 · 数据连接管理",
+      "module": "database_management",
+      "module_label": "数据连接管理",
+      "kind": "button",
+      "order": 410,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "datasource_test": {
+      "label": "测试连接",
+      "description": "数据连接页，控制单个和批量测试连接按钮。",
+      "category": "按钮 · 数据连接管理",
+      "module": "database_management",
+      "module_label": "数据连接管理",
+      "kind": "button",
+      "order": 420,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "datasource_edit": {
+      "label": "编辑保存",
+      "description": "数据连接页，控制编辑数据源和保存弹窗按钮。",
+      "category": "按钮 · 数据连接管理",
+      "module": "database_management",
+      "module_label": "数据连接管理",
+      "kind": "button",
+      "order": 425,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "datasource_delete": {
+      "label": "删除数据源",
+      "description": "数据连接页，控制删除数据源按钮。",
+      "category": "按钮 · 数据连接管理",
+      "module": "database_management",
+      "module_label": "数据连接管理",
+      "kind": "button",
+      "order": 430,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": true
+    },
+    "agent_config_edit": {
+      "label": "保存配置",
+      "description": "智能体页，控制保存配置和知识片段维护。",
+      "category": "按钮 · 智能体编排配置",
+      "module": "agent_management",
+      "module_label": "智能体编排配置",
+      "kind": "button",
+      "order": 210,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "ai_channel_edit": {
+      "label": "通道维护",
+      "description": "模型服务页，控制通道新增、名称、图标和 API Key。",
+      "category": "按钮 · 模型服务配置",
+      "module": "ai_model_config",
+      "module_label": "模型服务配置",
+      "kind": "button",
+      "order": 510,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "ai_model_edit": {
+      "label": "模型维护",
+      "description": "模型服务页，控制模型新增、编辑、设默认和删除。",
+      "category": "按钮 · 模型服务配置",
+      "module": "ai_model_config",
+      "module_label": "模型服务配置",
+      "kind": "button",
+      "order": 520,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "ai_model_test": {
+      "label": "连接测试",
+      "description": "模型服务页，控制模型测试和全部检测按钮。",
+      "category": "按钮 · 模型服务配置",
+      "module": "ai_model_config",
+      "module_label": "模型服务配置",
+      "kind": "button",
+      "order": 530,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "report_template_edit": {
+      "label": "模板编辑",
+      "description": "报告模板页，控制添加、解析 JSON、重置和保存。",
+      "category": "按钮 · 报告模板配置",
+      "module": "report_config",
+      "module_label": "报告模板配置",
+      "kind": "button",
+      "order": 610,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "report_template_delete": {
+      "label": "删除配置",
+      "description": "报告模板页，控制删除模板配置按钮。",
+      "category": "按钮 · 报告模板配置",
+      "module": "report_config",
+      "module_label": "报告模板配置",
+      "kind": "button",
+      "order": 620,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": true
+    },
+    "feishu_log_clear": {
+      "label": "清空日志",
+      "description": "飞书同步页，控制日志弹窗里的清空按钮。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 740,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "report_fullscreen": {
+      "label": "全屏报告",
+      "description": "智能分析页，控制经营报告全屏查看入口。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 130,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "chart_viewer": {
+      "label": "图表放大",
+      "description": "智能分析页，控制图表放大查看按钮。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 120,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "debug_execution_trace": {
+      "label": "执行详情",
+      "description": "智能分析页，控制右侧执行轨迹详情入口。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 110,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": true,
+      "risk": ""
+    },
+    "smart_new_chat": {
+      "label": "新会话",
+      "description": "智能分析页，控制顶部新会话按钮。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 140,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_send_question": {
+      "label": "发送问题",
+      "description": "智能分析页，控制输入区发送按钮。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 150,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_stop_run": {
+      "label": "停止执行",
+      "description": "智能分析页，控制问数运行中的停止按钮。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 160,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_confirm_scope": {
+      "label": "确认口径",
+      "description": "智能分析页，控制候选口径卡片选择按钮。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 165,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_submit_note": {
+      "label": "补充说明",
+      "description": "智能分析页，控制确认卡片里的发送补充说明按钮。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 166,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_report_details": {
+      "label": "查看详情",
+      "description": "智能分析页，控制中间经营分析报告卡片右上角的查看详情按钮。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 168,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_report_download": {
+      "label": "下载报告",
+      "description": "智能分析页，控制报告下载/导出按钮。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 170,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_sql_copy": {
+      "label": "复制 SQL",
+      "description": "智能分析页，控制 SQL 块右上角复制按钮。",
+      "category": "体验开关",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 180,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_question_copy": {
+      "label": "复制问题",
+      "description": "智能分析页，控制用户问题气泡上的复制按钮。",
+      "category": "按钮 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 190,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_question_edit": {
+      "label": "修改问题",
+      "description": "智能分析页，控制用户问题气泡上的修改按钮。",
+      "category": "按钮 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 191,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_question_rerun": {
+      "label": "重新问",
+      "description": "智能分析页，控制用户问题气泡上的重新执行按钮。",
+      "category": "按钮 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 192,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_dataset_select": {
+      "label": "选择数据集",
+      "description": "智能分析页，控制底部输入区的数据集选择器。",
+      "category": "按钮 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 193,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_model_select": {
+      "label": "选择模型",
+      "description": "智能分析页，控制底部输入区的模型选择器。",
+      "category": "按钮 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 194,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_quick_ask": {
+      "label": "常用问题带入",
+      "description": "智能分析页，控制欢迎页常用问题点击带入。",
+      "category": "按钮 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 195,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "user",
+        "business_admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_quick_refresh": {
+      "label": "刷新常用问题",
+      "description": "智能分析页，控制欢迎页换一批常用问题按钮。",
+      "category": "按钮 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 196,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin",
+        "user"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "smart_chart_auto_infer": {
+      "label": "自动推荐图表",
+      "description": "智能分析页，当后端报告未返回图表配置时，允许前端按结果字段兜底生成推荐图表。",
+      "category": "按钮 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "button",
+      "order": 197,
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false,
+      "risk": ""
+    },
+    "dataset_question_create": {
+      "label": "新增常见问题",
+      "description": "数据资产页，控制常见问题新增按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 351,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_question_update": {
+      "label": "编辑常见问题",
+      "description": "数据资产页，控制常见问题编辑按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 352,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_question_delete": {
+      "label": "删除常见问题",
+      "description": "数据资产页，控制常见问题删除按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 353,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "dataset_regression_create": {
+      "label": "新增回归题",
+      "description": "数据资产页，控制回归题新增按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 361,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_regression_update": {
+      "label": "编辑回归题",
+      "description": "数据资产页，控制回归题编辑按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 362,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_regression_delete": {
+      "label": "删除回归题",
+      "description": "数据资产页，控制回归题删除按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 363,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "dataset_synonym_create": {
+      "label": "新增路由词",
+      "description": "数据资产页，控制路由词新增按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 371,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_synonym_update": {
+      "label": "编辑路由词",
+      "description": "数据资产页，控制路由词编辑按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 372,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_synonym_delete": {
+      "label": "删除路由词",
+      "description": "数据资产页，控制路由词删除按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 373,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "dataset_lld_create": {
+      "label": "新增LLD",
+      "description": "数据资产页，控制LLD新增按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 381,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_lld_update": {
+      "label": "编辑LLD",
+      "description": "数据资产页，控制LLD编辑按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 382,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_lld_delete": {
+      "label": "删除LLD",
+      "description": "数据资产页，控制LLD删除按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 383,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "dataset_dict_create": {
+      "label": "新增字段",
+      "description": "数据资产页，控制字段新增按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 391,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_dict_update": {
+      "label": "编辑字段",
+      "description": "数据资产页，控制字段编辑按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 392,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_dict_delete": {
+      "label": "删除字段",
+      "description": "数据资产页，控制字段删除按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 393,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "dataset_schema_create": {
+      "label": "新增DDL",
+      "description": "数据资产页，控制DDL新增按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 411,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_schema_update": {
+      "label": "编辑DDL",
+      "description": "数据资产页，控制DDL编辑按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 412,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_schema_delete": {
+      "label": "删除DDL",
+      "description": "数据资产页，控制DDL删除按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 413,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "dataset_relation_create": {
+      "label": "新增表关联",
+      "description": "数据资产页，控制表关联新增按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 416,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_relation_update": {
+      "label": "编辑表关联",
+      "description": "数据资产页，控制表关联编辑按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 417,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_relation_delete": {
+      "label": "删除表关联",
+      "description": "数据资产页，控制表关联删除按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 418,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "dataset_golden_create": {
+      "label": "新增训练实例",
+      "description": "数据资产页，控制训练实例新增按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 421,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_golden_update": {
+      "label": "编辑训练实例",
+      "description": "数据资产页，控制训练实例编辑按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 422,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_golden_delete": {
+      "label": "删除训练实例",
+      "description": "数据资产页，控制训练实例删除按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 423,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "dataset_prompt_create": {
+      "label": "新增提示词片段",
+      "description": "数据资产页，控制提示词片段新增按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 431,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_prompt_update": {
+      "label": "编辑提示词片段",
+      "description": "数据资产页，控制提示词片段编辑按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 432,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_prompt_delete": {
+      "label": "删除提示词片段",
+      "description": "数据资产页，控制提示词片段删除按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 433,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "dataset_extcfg_create": {
+      "label": "新增扩展配置",
+      "description": "数据资产页，控制扩展配置新增按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 441,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_extcfg_update": {
+      "label": "编辑扩展配置",
+      "description": "数据资产页，控制扩展配置编辑按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 442,
+      "risk": "normal",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "dataset_extcfg_delete": {
+      "label": "删除扩展配置",
+      "description": "数据资产页，控制扩展配置删除按钮。",
+      "category": "按钮 · 数据资产管理",
+      "module": "dataset_management",
+      "module_label": "数据资产管理",
+      "kind": "button",
+      "order": 443,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "feishu_sync_create": {
+      "label": "新建同步任务",
+      "description": "飞书同步页，控制新建同步任务按钮。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 711,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "feishu_sync_update": {
+      "label": "编辑同步任务",
+      "description": "飞书同步页，控制编辑和保存同步任务。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 712,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "feishu_sync_delete": {
+      "label": "删除同步任务",
+      "description": "飞书同步页，控制删除同步任务。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 713,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "feishu_sync_start": {
+      "label": "立即同步",
+      "description": "飞书同步页，控制立即同步和批量启动同步。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 721,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "feishu_sync_pause": {
+      "label": "暂停同步任务",
+      "description": "飞书同步页，控制暂停同步任务。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 722,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "feishu_sync_resume": {
+      "label": "恢复同步任务",
+      "description": "飞书同步页，控制恢复同步任务。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 723,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "feishu_connection_test": {
+      "label": "测试飞书连接",
+      "description": "飞书同步页，控制测试连接按钮。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 731,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "feishu_link_parse": {
+      "label": "解析飞书链接",
+      "description": "飞书同步页，控制飞书多维表格链接解析按钮。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 732,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "feishu_schema_preview": {
+      "label": "预览飞书字段",
+      "description": "飞书同步页，控制字段元数据和样本预览按钮。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 733,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "feishu_log_view": {
+      "label": "查看同步日志",
+      "description": "飞书同步页，控制查看和刷新同步日志。",
+      "category": "按钮 · 飞书数据同步",
+      "module": "feishu_sync",
+      "module_label": "飞书数据同步",
+      "kind": "button",
+      "order": 741,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "employee_field_name": {
+      "label": "查看员工姓名",
+      "description": "员工权限管理页，控制姓名列是否显示。",
+      "category": "字段 · 员工权限管理",
+      "module": "employee_permissions",
+      "module_label": "员工权限管理",
+      "kind": "field",
+      "order": 901,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "employee_field_phone": {
+      "label": "查看员工电话",
+      "description": "员工权限管理页，控制电话/账号列是否显示。",
+      "category": "字段 · 员工权限管理",
+      "module": "employee_permissions",
+      "module_label": "员工权限管理",
+      "kind": "field",
+      "order": 902,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "employee_field_role": {
+      "label": "查看员工角色",
+      "description": "员工权限管理页，控制角色列是否显示。",
+      "category": "字段 · 员工权限管理",
+      "module": "employee_permissions",
+      "module_label": "员工权限管理",
+      "kind": "field",
+      "order": 903,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "employee_field_status": {
+      "label": "查看员工状态",
+      "description": "员工权限管理页，控制启停状态列是否显示。",
+      "category": "字段 · 员工权限管理",
+      "module": "employee_permissions",
+      "module_label": "员工权限管理",
+      "kind": "field",
+      "order": 904,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "employee_field_org": {
+      "label": "查看员工组织",
+      "description": "员工权限管理页，控制组织列是否显示。",
+      "category": "字段 · 员工权限管理",
+      "module": "employee_permissions",
+      "module_label": "员工权限管理",
+      "kind": "field",
+      "order": 905,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "employee_field_org_code": {
+      "label": "查看组织编码",
+      "description": "员工权限管理页，控制组织编码是否显示。",
+      "category": "字段 · 员工权限管理",
+      "module": "employee_permissions",
+      "module_label": "员工权限管理",
+      "kind": "field",
+      "order": 906,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "employee_field_bookshelf": {
+      "label": "查看书籍信息",
+      "description": "员工权限管理页，控制书籍/飞书信息列是否显示。",
+      "category": "字段 · 员工权限管理",
+      "module": "employee_permissions",
+      "module_label": "员工权限管理",
+      "kind": "field",
+      "order": 907,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "employee_field_actions": {
+      "label": "查看员工操作列",
+      "description": "员工权限管理页，控制编辑、删除等操作列是否显示。",
+      "category": "字段 · 员工权限管理",
+      "module": "employee_permissions",
+      "module_label": "员工权限管理",
+      "kind": "field",
+      "order": 908,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "smart_field_execution_trace": {
+      "label": "查看执行轨迹",
+      "description": "智能分析工作台，控制执行轨迹明细是否展示。",
+      "category": "字段 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "field",
+      "order": 921,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "smart_field_generated_sql": {
+      "label": "查看生成 SQL",
+      "description": "智能分析工作台，控制生成 SQL 是否展示。",
+      "category": "字段 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "field",
+      "order": 922,
+      "risk": "high",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "smart_field_dataset_hit": {
+      "label": "查看命中数据集",
+      "description": "智能分析工作台，控制命中数据集和路由信息是否展示。",
+      "category": "字段 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "field",
+      "order": 923,
+      "risk": "",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin",
+        "user"
+      ],
+      "experimental": false
+    },
+    "smart_field_confidence": {
+      "label": "查看置信度",
+      "description": "智能分析工作台，控制路由/结果置信度是否展示。",
+      "category": "字段 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "field",
+      "order": 924,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin",
+        "business_admin"
+      ],
+      "experimental": false
+    },
+    "smart_field_token_usage": {
+      "label": "查看 token 用量",
+      "description": "智能分析工作台和控制台，控制 token 用量明细是否展示。",
+      "category": "字段 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "field",
+      "order": 925,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    },
+    "smart_field_error_detail": {
+      "label": "查看错误详情",
+      "description": "智能分析工作台，控制详细错误和调试信息是否展示。",
+      "category": "字段 · 智能分析工作台",
+      "module": "smart_ask_workspace",
+      "module_label": "智能分析工作台",
+      "kind": "field",
+      "order": 926,
+      "risk": "medium",
+      "enabled": true,
+      "roles": [
+        "super_admin",
+        "admin"
+      ],
+      "experimental": false
+    }
+  }
+}

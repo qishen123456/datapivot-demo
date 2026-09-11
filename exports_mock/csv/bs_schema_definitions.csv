@@ -1,0 +1,129 @@
+﻿id,dataset_id,table_name,ddl_sql,description,is_active,created_at,updated_at,source_id
+165,63,v_feishu_tblshangyongv2,"CREATE OR REPLACE VIEW public.v_feishu_tblshangyongv2 AS
+WITH parsed_base AS (
+    SELECT 
+      COALESCE(NULLIF(regexp_replace(fields->>'MYear', '[^0-9]', '', 'g'), ''), '0')::INTEGER AS current_year,
+      COALESCE(NULLIF(regexp_replace(fields->>'MMonth', '[^0-9]', '', 'g'), ''), '0')::INTEGER AS current_month,
+      COALESCE(fields->>'AreaName', '') AS f_area,
+      COALESCE(fields->>'RegionName', '') AS f_region,
+      COALESCE(fields->>'BusinessManager', '') AS f_manager,
+      COALESCE(fields->>'IndustryLine', '') AS f_industry,
+      COALESCE(NULLIF(regexp_replace(fields->>'TargetAmount', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS target_amount,
+      COALESCE(NULLIF(regexp_replace(fields->>'SellInAmount', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS billing_amount,
+      COALESCE(NULLIF(regexp_replace(fields->>'SellInAmount_LastYear', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS billing_last_year
+    FROM public.feishu_tblshangyongv2
+)
+SELECT 
+  current_year AS 年份,
+  current_month AS 月份,
+  CASE 
+    WHEN f_area = '' AND f_region = '' AND f_manager = '' THEN '事业群层级'
+    WHEN f_area LIKE '%战区' THEN '区域线'
+    WHEN f_area LIKE '%行业部' THEN '行业线'
+    ELSE '区域线'
+  END AS 线,
+  CASE 
+    WHEN f_area = '' AND f_region = '' AND f_manager = '' THEN '事业群'
+    WHEN f_area <> '' AND f_region = '' AND f_manager = '' THEN '战区'
+    WHEN f_area <> '' AND f_region <> '' AND f_manager = '' THEN '片区'
+    WHEN f_area <> '' AND f_manager <> '' THEN '客户经理'
+    ELSE '未知'
+  END AS 层级,
+  CASE 
+    WHEN f_area = '' AND f_region = '' AND f_manager = '' THEN '商用事业群'
+    WHEN f_area <> '' AND f_region = '' AND f_manager = '' THEN f_area
+    WHEN f_area <> '' AND f_region <> '' AND f_manager = '' THEN f_region
+    WHEN f_area <> '' AND f_manager <> '' THEN f_manager
+    ELSE '未知'
+  END AS 节点名称,
+  CASE 
+    WHEN f_area = '' AND f_region = '' AND f_manager = '' THEN '无'
+    WHEN f_area <> '' AND f_region = '' AND f_manager = '' THEN '商用事业群'
+    WHEN f_area <> '' AND f_region <> '' AND f_manager = '' THEN f_area
+    WHEN f_area <> '' AND f_region <> '' AND f_manager <> '' THEN f_region
+    WHEN f_area <> '' AND f_region = '' AND f_manager <> '' THEN f_area
+    ELSE '无'
+  END AS 上级名称,
+  CASE 
+    WHEN f_industry = '' THEN '总额(未拆分)'
+    ELSE f_industry
+  END AS 行业线,
+  target_amount AS 总任务金额,
+  billing_amount AS 年度开单金额,
+  billing_last_year AS 去年同期开单,
+  CASE WHEN target_amount > 0 THEN ROUND(billing_amount / target_amount * 100, 2) ELSE 0 END AS 达成率,
+  ROUND(target_amount - billing_amount, 2) AS 剩余任务金额
+FROM parsed_base;",商用事业群月度经营分析关系型中文标准视图（支持物理层防零除转换和数值规范）,True,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00,1
+166,63,v_reporting_nodes,"CREATE OR REPLACE VIEW public.v_reporting_nodes AS
+SELECT 
+  年份 AS current_year,
+  月份 AS current_month,
+  线 AS line_type,
+  层级 AS node_level,
+  节点名称 AS node_name,
+  上级名称 AS parent_node,
+  行业线 AS segment_name,
+  总任务金额 AS target_amount,
+  年度开单金额 AS billing_amount,
+  去年同期开单 AS billing_last_year,
+  达成率 AS achievement_rate,
+  剩余任务金额 AS remaining_target
+FROM public.v_feishu_tblshangyongv2;",给智能 Agent 与 NL2SQL 翻译器调用的标准英文语义视图（列名已完全转换为驼峰和下划线，结构与标准中文视图一比一镜像）,True,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00,1
+167,13,public.feishu_tbl_xioafeizhe,"CREATE TABLE public.feishu_tbl_xioafeizhe (
+    id BIGSERIAL PRIMARY KEY,
+    fields JSONB NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);",飞书多维表格同步表，业务字段存储在fields JSONB中,True,2026-06-26 07:37:11.907836+00:00,2026-06-26 07:37:11.907836+00:00,1
+262,3,datapivot_core_data,"CREATE TABLE datapivot_core_data (id BIGSERIAL PRIMARY KEY, fields JSONB NOT NULL, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW());",飞书多维表格商用事业群 2026 销售业绩数据,True,2026-06-27 12:03:29.129775+00:00,2026-06-27 12:03:29.129775+00:00,5
+334,62,v_feishu_tbldianshang,"CREATE OR REPLACE VIEW v_feishu_tbldianshang AS
+SELECT
+  id,
+  record_id,
+  fields->>'状态' AS 审批状态,
+  fields->>'编号' AS 编号,
+  fields->>'经营主体' AS 集团,
+  fields->>'事业群' AS 事业群,
+  NULLIF(fields->>'行业部','') AS 行业部,
+  NULLIF(fields->>'业务承接角色','') AS 细分业务,
+  fields->>'层级级别' AS 层级级别,
+  fields->>'任务承接人' AS 负责人,
+  fields->>'任务维护人' AS 上级负责人,
+  NULLIF(trim(fields->>'总任务（金额）'),'')::numeric AS 年度目标营收,
+  NULLIF(trim(fields->>'年度开单金额'),'')::numeric AS 年度开单金额,
+  NULLIF(trim(fields->>'总任务达成率'),'')::numeric AS 总任务达成率,
+  NULLIF(trim(fields->>'当前月份任务达成率'),'')::numeric AS 当前月份任务达成率,
+  NULLIF(trim(fields->>'截止当前目标阈值达成率'),'')::numeric AS 截止当前目标阈值达成率,
+  NULLIF(trim(fields->>'本月开单金额'),'')::numeric AS 本月开单金额,
+  NULLIF(trim(fields->>'本月当前目标阈值'),'')::numeric AS 本月当前目标阈值,
+  NULLIF(trim(fields->>'年度阈值/开单差额（万）'),'')::numeric AS 年度阈值开单差额万,
+  NULLIF(trim(fields->>'月度阈值/开单差额（万）'),'')::numeric AS 月度阈值开单差额万,
+  NULLIF(trim(fields->>'总金额转换（以万为单位）'),'')::numeric AS 总金额转换万,
+  NULLIF(trim(fields->>'年度开单金额转换（以万为单位）'),'')::numeric AS 年度开单金额转换万,
+  fields->>'链接字段(勿删)' AS 组织路径,
+  fields->>'当前年' AS 当前年,
+  fields->>'当前月' AS 当前月,
+  NULLIF(trim(fields->>'2601'),'')::numeric AS q1目标,
+  NULLIF(trim(fields->>'2602'),'')::numeric AS q2目标,
+  NULLIF(trim(fields->>'2603'),'')::numeric AS q3目标,
+  NULLIF(trim(fields->>'2604'),'')::numeric AS q4目标
+FROM feishu_tbldianshang
+WHERE fields IS NOT NULL AND fields <> '{}'::jsonb
+  AND NULLIF(fields->>'编号','') IS NOT NULL;",飞书电商事业群经营预算展平视图,True,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00,1
+368,2,public.feishu_tbl_xioafeizhe,"-- 飞书多维表同步：消费者事业群任务数据表
+CREATE TABLE public.feishu_tbl_xioafeizhe
+(
+  id BIGINT PRIMARY KEY,
+  record_id VARCHAR(64) NOT NULL,
+  fields JSONB NOT NULL,
+  created_time TIMESTAMP(3),
+  updated_time TIMESTAMP(3),
+  sync_time TIMESTAMP(3)
+);
+COMMENT ON TABLE public.feishu_tbl_xioafeizhe IS '飞书多维表-消费者事业群任务数据（原始表）';
+COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.id IS '主键ID';
+COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.record_id IS '飞书记录ID';
+COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.fields IS '飞书业务JSON字段体';
+COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.created_time IS '创建时间';
+COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.updated_time IS '更新时间';
+COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.sync_time IS '同步时间';",飞书多维表-消费者事业群任务数据（6列固定结构，业务字段在 fields JSONB）,True,2026-07-08 07:41:23.865975+00:00,2026-07-08 07:41:23.865975+00:00,1

@@ -1,0 +1,10 @@
+{
+  "defaultFlow": "basic",
+  "advancedEnabled": false,
+  "advancedRoles": [
+    "super_admin"
+  ],
+  "datasetPolicies": {},
+  "fallbackToBasicOnError": false,
+  "attachMetadata": true
+}

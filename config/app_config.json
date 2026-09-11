@@ -1,0 +1,8 @@
+{
+  "port": 5000,
+  "debug": true,
+  "secret_key": "change-me-local-secret",
+  "chroma_path": "./chroma_db",
+  "app_name": "Vanna 智能问数系统",
+  "version": "1.0.0"
+}

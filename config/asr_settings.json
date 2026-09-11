@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "provider": "feishu",
+  "app_id": "",
+  "app_secret_b64": "",
+  "max_duration_sec": 60,
+  "max_audio_kb": 3072
+}

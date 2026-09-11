@@ -1,0 +1,167 @@
+# =========================
+# SmartAsk Docker Compose
+# 支持双模式：local（本地开发） / production（生产环境）
+#
+# 使用方式：
+#   本地开发：cp .env.local .env && docker-compose up -d
+#   生产部署：cp .env.production .env && docker-compose up -d
+# =========================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: smartask-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${SMARTASK_DB_DATABASE:-postgres}
+      POSTGRES_USER: ${SMARTASK_DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${SMARTASK_POSTGRES_PASSWORD:-${SMARTASK_DB_PASSWORD:-postgres}}
+      TZ: Asia/Shanghai
+    ports:
+      - "${SMARTASK_DOCKER_PG_PORT:-5433}:5432"
+    volumes:
+      - smartask_pg_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SMARTASK_DB_USERNAME:-postgres} -d ${SMARTASK_DB_DATABASE:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - smartask-internal
+      - default
+
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: migrate
+      args:
+        APT_MIRROR: ${SMARTASK_APT_MIRROR-https://mirrors.aliyun.com}
+        PIP_INDEX_URL: ${SMARTASK_PIP_INDEX_URL-https://mirrors.aliyun.com/pypi/simple/}
+        PIP_TRUSTED_HOST: ${SMARTASK_PIP_TRUSTED_HOST-mirrors.aliyun.com}
+        PIP_TIMEOUT: ${SMARTASK_PIP_TIMEOUT-120}
+        PIP_RETRIES: ${SMARTASK_PIP_RETRIES-8}
+    container_name: smartask-migrate
+    restart: "no"
+    env_file:
+      - .env
+    environment:
+      SMARTASK_DB_HOST: postgres
+      SMARTASK_DB_PORT: 5432
+      TZ: Asia/Shanghai
+      PYTHONUNBUFFERED: "1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./config:/app/config
+    networks:
+      - smartask-internal
+      - default
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: backend
+      args:
+        APT_MIRROR: ${SMARTASK_APT_MIRROR-https://mirrors.aliyun.com}
+        PIP_INDEX_URL: ${SMARTASK_PIP_INDEX_URL-https://mirrors.aliyun.com/pypi/simple/}
+        PIP_TRUSTED_HOST: ${SMARTASK_PIP_TRUSTED_HOST-mirrors.aliyun.com}
+        PIP_TIMEOUT: ${SMARTASK_PIP_TIMEOUT-120}
+        PIP_RETRIES: ${SMARTASK_PIP_RETRIES-8}
+    container_name: smartask-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      SMARTASK_BACKEND_PORT: 5002
+      SMARTASK_BOOTSTRAP_SKIP_BUILTINS: ${SMARTASK_BOOTSTRAP_SKIP_BUILTINS:-1}
+      SMARTASK_BOOTSTRAP_SKIP_FIRST_IMPORT: ${SMARTASK_BOOTSTRAP_SKIP_FIRST_IMPORT:-1}
+      SMARTASK_FEISHU_SYNC_ON_STARTUP: ${SMARTASK_FEISHU_SYNC_ON_STARTUP:-auto}
+      SMARTASK_DB_HOST: postgres
+      SMARTASK_DB_PORT: 5432
+      SMARTASK_CHROMA_PATH: /app/chroma_db
+      SMARTASK_CONFIG_DIR: /app/config
+      SMARTASK_RUNTIME_BACKUP_DIR: /app/backups/runtime
+      TZ: Asia/Shanghai
+      PYTHONUNBUFFERED: "1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    # === 端口暴露（local 模式启用，production 模式注释掉）===
+    ports:
+      - "${SMARTASK_BACKEND_PORT:-5002}:5002"
+    volumes:
+      - smartask_chroma:/app/chroma_db
+      - ./logs:/app/logs
+      - ./backend/logs:/app/backend/logs
+      - ./config:/app/config
+      - ./backend/imports:/app/backend/imports
+      - ./backups:/app/backups
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:5002/api/health', timeout=3).status==200 else 1)\""]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - smartask-internal
+      - default
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NPM_REGISTRY: ${SMARTASK_NPM_REGISTRY:-https://registry.npmmirror.com}
+    container_name: smartask-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    # === 端口暴露（local 模式启用，production 模式注释掉）===
+    ports:
+      - "${SMARTASK_FRONTEND_PORT:-8888}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/ >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - smartask-internal
+
+  # === Nginx 反向代理（仅生产模式启用）===
+  nginx:
+    image: nginx:alpine
+    container_name: smartask-nginx
+    restart: unless-stopped
+    # 仅在 DEPLOY_MODE=production 时启动
+    profiles: ["production"]
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      # 如果用 HTTPS，取消注释下面这行
+      # - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      # SSL 证书（如果用 HTTPS）
+      # - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - smartask-internal
+
+volumes:
+  smartask_pg_data:
+    name: smartask_pg_data
+  smartask_chroma:
+    name: smartask_chroma
+
+networks:
+  smartask-internal:
+    driver: bridge

@@ -1,0 +1,559 @@
+{
+  "version": 1,
+  "tree_types": [
+    {
+      "id": "tree_3991b9e4de6d",
+      "name": "星澜",
+      "code": "默认",
+      "description": "",
+      "enabled": true,
+      "sort_order": 100,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-06-30 13:03:36"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node_ea963f252380",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "",
+      "name": "商用事业群",
+      "code": "28b5364e2f181bfg",
+      "description": "",
+      "enabled": true,
+      "sort_order": 1,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_ea963f252380"
+      ],
+      "path_names": [
+        "商用事业群"
+      ],
+      "level": 1
+    },
+    {
+      "id": "node_697e76982cd7",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "",
+      "name": "消费者事业群",
+      "code": "7c38ff2d14dd5515",
+      "description": "",
+      "enabled": true,
+      "sort_order": 2,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7"
+      ],
+      "path_names": [
+        "消费者事业群"
+      ],
+      "level": 1
+    },
+    {
+      "id": "node_ecom_root_62",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "",
+      "name": "电商事业群",
+      "code": "ecom_root_62",
+      "description": "",
+      "enabled": true,
+      "sort_order": 3,
+      "created_at": "2026-07-10 17:05:00",
+      "updated_at": "2026-07-10 17:05:00",
+      "path_ids": [
+        "node_ecom_root_62"
+      ],
+      "path_names": [
+        "电商事业群"
+      ],
+      "level": 1
+    },
+    {
+      "id": "node_2a423ecd0bbd",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_ea963f252380",
+      "name": "沧澜战区",
+      "code": "gg9c5c9ce5c3faa9",
+      "description": "",
+      "enabled": true,
+      "sort_order": 3,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_ea963f252380",
+        "node_2a423ecd0bbd"
+      ],
+      "path_names": [
+        "商用事业群",
+        "沧澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_9b83dd3f8e77",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_ea963f252380",
+      "name": "工业健康行业部",
+      "code": "96a9gc77a35e5ee5",
+      "description": "",
+      "enabled": true,
+      "sort_order": 4,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_ea963f252380",
+        "node_9b83dd3f8e77"
+      ],
+      "path_names": [
+        "商用事业群",
+        "工业健康行业部"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_87c1b660011d",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_ea963f252380",
+      "name": "凛澜战区",
+      "code": "eb2685cfab3651df",
+      "description": "",
+      "enabled": true,
+      "sort_order": 5,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_ea963f252380",
+        "node_87c1b660011d"
+      ],
+      "path_names": [
+        "商用事业群",
+        "凛澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_739c2883d0e9",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_ea963f252380",
+      "name": "漠澜战区",
+      "code": "195c4ac5f864de57",
+      "description": "",
+      "enabled": true,
+      "sort_order": 6,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_ea963f252380",
+        "node_739c2883d0e9"
+      ],
+      "path_names": [
+        "商用事业群",
+        "漠澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_435990951f1f",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_ea963f252380",
+      "name": "楼宇办公行业部",
+      "code": "63aa3gb14a191aee",
+      "description": "",
+      "enabled": true,
+      "sort_order": 7,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_ea963f252380",
+        "node_435990951f1f"
+      ],
+      "path_names": [
+        "商用事业群",
+        "楼宇办公行业部"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_c34ba10a4b8f",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_ea963f252380",
+      "name": "淼澜战区",
+      "code": "b8a3gda6d426a699",
+      "description": "",
+      "enabled": true,
+      "sort_order": 8,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_ea963f252380",
+        "node_c34ba10a4b8f"
+      ],
+      "path_names": [
+        "商用事业群",
+        "淼澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_d565f7d6b917",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_ea963f252380",
+      "name": "食饮行业部",
+      "code": "ef5bd91dc373gfbg",
+      "description": "",
+      "enabled": true,
+      "sort_order": 9,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_ea963f252380",
+        "node_d565f7d6b917"
+      ],
+      "path_names": [
+        "商用事业群",
+        "食饮行业部"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_3c33a259eb8e",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "苍澜战区",
+      "code": "1f5bc53566bfa5b2",
+      "description": "",
+      "enabled": true,
+      "sort_order": 10,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_3c33a259eb8e"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "苍澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_ada6e8d38ce6",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "岱澜战区",
+      "code": "4c92717a393b3248",
+      "description": "",
+      "enabled": true,
+      "sort_order": 11,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_ada6e8d38ce6"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "岱澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_e3363e1962f4",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "岷澜战区",
+      "code": "e26cc888231cb3c9",
+      "description": "",
+      "enabled": true,
+      "sort_order": 12,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_e3363e1962f4"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "岷澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_9b5374a086ec",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "潇澜战区",
+      "code": "1bbd2a36b2fb686f",
+      "description": "",
+      "enabled": true,
+      "sort_order": 13,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_9b5374a086ec"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "潇澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_1ed70722a8e4",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "碣澜战区",
+      "code": "4b66949a1g2g1e8c",
+      "description": "",
+      "enabled": true,
+      "sort_order": 14,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_1ed70722a8e4"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "碣澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_4c87472449cf",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "浦澜战区",
+      "code": "196873fd1d2cfg85",
+      "description": "",
+      "enabled": true,
+      "sort_order": 15,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_4c87472449cf"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "浦澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_fd3fdc54d540",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "沄澜战区",
+      "code": "843a34aa6g3gg763",
+      "description": "",
+      "enabled": true,
+      "sort_order": 16,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_fd3fdc54d540"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "沄澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_5e935dfaeb01",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "漳澜战区",
+      "code": "b45ddd151517eag6",
+      "description": "",
+      "enabled": true,
+      "sort_order": 17,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_5e935dfaeb01"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "漳澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_dabee0670c0e",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "浔澜战区",
+      "code": "e99798612e98b4d6",
+      "description": "",
+      "enabled": true,
+      "sort_order": 18,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_dabee0670c0e"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "浔澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_bd07ce4168cd",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "衡澜战区",
+      "code": "bg18ddb2efb2gf61",
+      "description": "",
+      "enabled": true,
+      "sort_order": 19,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_bd07ce4168cd"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "衡澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_9d06ef77a918",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "瓯澜战区",
+      "code": "egg37cg26bafg5a9",
+      "description": "",
+      "enabled": true,
+      "sort_order": 20,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_9d06ef77a918"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "瓯澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_572251bc4961",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "朔澜战区",
+      "code": "aa34g4b218a28bgf",
+      "description": "",
+      "enabled": true,
+      "sort_order": 21,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_572251bc4961"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "朔澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_fd939efceec4",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_697e76982cd7",
+      "name": "凉澜战区",
+      "code": "egcc258a8d9c811f",
+      "description": "",
+      "enabled": true,
+      "sort_order": 22,
+      "created_at": "2026-05-18 09:52:55",
+      "updated_at": "2026-05-18 09:52:55",
+      "path_ids": [
+        "node_697e76982cd7",
+        "node_fd939efceec4"
+      ],
+      "path_names": [
+        "消费者事业群",
+        "凉澜战区"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_ecom_domestic_62",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_ecom_root_62",
+      "name": "国内行业部",
+      "code": "ecom_domestic_62",
+      "description": "",
+      "enabled": true,
+      "sort_order": 24,
+      "created_at": "2026-07-10 17:05:00",
+      "updated_at": "2026-07-10 17:05:00",
+      "path_ids": [
+        "node_ecom_root_62",
+        "node_ecom_domestic_62"
+      ],
+      "path_names": [
+        "电商事业群",
+        "国内行业部"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_ecom_retail_62",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_ecom_root_62",
+      "name": "直营零售部",
+      "code": "ecom_retail_62",
+      "description": "",
+      "enabled": true,
+      "sort_order": 25,
+      "created_at": "2026-07-10 17:05:00",
+      "updated_at": "2026-07-10 17:05:00",
+      "path_ids": [
+        "node_ecom_root_62",
+        "node_ecom_retail_62"
+      ],
+      "path_names": [
+        "电商事业群",
+        "直营零售部"
+      ],
+      "level": 2
+    },
+    {
+      "id": "node_ecom_crossborder_62",
+      "tree_type_id": "tree_3991b9e4de6d",
+      "parent_id": "node_ecom_root_62",
+      "name": "跨境行业部",
+      "code": "ecom_crossborder_62",
+      "description": "",
+      "enabled": true,
+      "sort_order": 26,
+      "created_at": "2026-07-10 17:05:00",
+      "updated_at": "2026-07-10 17:05:00",
+      "path_ids": [
+        "node_ecom_root_62",
+        "node_ecom_crossborder_62"
+      ],
+      "path_names": [
+        "电商事业群",
+        "跨境行业部"
+      ],
+      "level": 2
+    }
+  ],
+  "updated_at": "2026-07-10 17:05:00",
+  "updated_by": "admin"
+}

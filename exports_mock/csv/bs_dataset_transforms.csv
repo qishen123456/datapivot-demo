@@ -1,0 +1,1 @@
+﻿id,dataset_id,name,source_table,target_type,target_name,transform_sql,is_active,auto_run_on_sync,sync_dependency,last_run_at,last_run_status,last_run_message,created_at,updated_at

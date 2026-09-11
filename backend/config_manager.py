@@ -18,7 +18,7 @@ from secret_codec import decrypt_secret_value, encrypt_secret_value, is_encrypte
 
 # 配置目录：backend/ 同级的 config/ 文件夹
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONFIG_DIR = os.getenv('SMARTASK_CONFIG_DIR') or os.path.join(BASE_DIR, 'config')
+CONFIG_DIR = os.getenv('DATAPULSE_CONFIG_DIR') or os.path.join(BASE_DIR, 'config')
 LOCAL_OVERRIDE_FILES = {'datasources.json'}
 ENV_PATH = os.path.join(BASE_DIR, '.env')
 ENV_LOCAL_PATH = os.path.join(BASE_DIR, '.env.local')
@@ -252,15 +252,15 @@ def _build_default_datasource() -> Dict[str, Any]:
 
 def _apply_env_datasource_overrides(databases: list) -> list:
     env_keys = (
-        'SMARTASK_DB_LABEL',
-        'SMARTASK_DB_TYPE',
-        'SMARTASK_DB_SQLITE_PATH',
-        'SMARTASK_DB_HOST',
-        'SMARTASK_DB_PORT',
-        'SMARTASK_DB_DATABASE',
-        'SMARTASK_DB_USERNAME',
-        'SMARTASK_DB_PASSWORD',
-        'SMARTASK_DB_DRIVER',
+        'DATAPULSE_DB_LABEL',
+        'DATAPULSE_DB_TYPE',
+        'DATAPULSE_DB_SQLITE_PATH',
+        'DATAPULSE_DB_HOST',
+        'DATAPULSE_DB_PORT',
+        'DATAPULSE_DB_DATABASE',
+        'DATAPULSE_DB_USERNAME',
+        'DATAPULSE_DB_PASSWORD',
+        'DATAPULSE_DB_DRIVER',
     )
     if not _has_any_env(*env_keys):
         return databases
@@ -273,9 +273,9 @@ def _apply_env_datasource_overrides(databases: list) -> list:
     
     # Type-guard: 防止SQLite被错误注入PG连接参数形成畸形配置
     original_type = target.get('type', 'sqlite')
-    env_type = _env_text('SMARTASK_DB_TYPE', None)
-    env_host = _env_text('SMARTASK_DB_HOST', '')
-    env_port = _env_int('SMARTASK_DB_PORT', None)
+    env_type = _env_text('DATAPULSE_DB_TYPE', None)
+    env_host = _env_text('DATAPULSE_DB_HOST', '')
+    env_port = _env_int('DATAPULSE_DB_PORT', None)
     final_type = env_type or original_type
     
     # 如果配置了host但没配置type，且原类型是sqlite，自动修正为postgresql
@@ -288,9 +288,9 @@ def _apply_env_datasource_overrides(databases: list) -> list:
         if env_host or env_port:
             print(f"[WARNING] 数据源类型为sqlite，忽略环境变量中设置的host/port/database/username等PG连接参数")
         target.update({
-            "name": _env_text('SMARTASK_DB_LABEL', target.get('name', '默认数据源')),
+            "name": _env_text('DATAPULSE_DB_LABEL', target.get('name', '默认数据源')),
             "type": "sqlite",
-            "sqlite_path": _env_text('SMARTASK_DB_SQLITE_PATH', target.get('sqlite_path', './test.db')),
+            "sqlite_path": _env_text('DATAPULSE_DB_SQLITE_PATH', target.get('sqlite_path', './test.db')),
             "host": "",
             "port": 0,
             "database_name": "",
@@ -302,20 +302,20 @@ def _apply_env_datasource_overrides(databases: list) -> list:
         })
     else:
         target.update({
-            "name": _env_text('SMARTASK_DB_LABEL', target.get('name', '默认数据源')),
+            "name": _env_text('DATAPULSE_DB_LABEL', target.get('name', '默认数据源')),
             "type": final_type,
             "sqlite_path": "",
             "host": env_host if env_host else target.get('host', 'localhost'),
             "port": env_port if env_port is not None else int(target.get('port', 5432) or 5432),
-            "database_name": _env_text('SMARTASK_DB_DATABASE', target.get('database_name', 'postgres')),
-            "username": _env_text('SMARTASK_DB_USERNAME', target.get('username', 'postgres')),
-            "driver": _env_text('SMARTASK_DB_DRIVER', target.get('driver', 'psycopg2')),
+            "database_name": _env_text('DATAPULSE_DB_DATABASE', target.get('database_name', 'postgres')),
+            "username": _env_text('DATAPULSE_DB_USERNAME', target.get('username', 'postgres')),
+            "driver": _env_text('DATAPULSE_DB_DRIVER', target.get('driver', 'psycopg2')),
             "is_active": True,
             "is_default": True,
             "updated_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         })
 
-    env_password = _env_secret('SMARTASK_DB_PASSWORD', '')
+    env_password = _env_secret('DATAPULSE_DB_PASSWORD', '')
     if env_password and final_type != 'sqlite':
         target['password_b64'] = encode_secret(env_password)
 
@@ -343,11 +343,11 @@ def _build_default_ai_model() -> Dict[str, Any]:
 
 def _apply_env_ai_model_overrides(models: list) -> list:
     env_keys = (
-        'SMARTASK_AI_LABEL',
-        'SMARTASK_AI_PROVIDER',
-        'SMARTASK_AI_MODEL',
-        'SMARTASK_AI_BASE_URL',
-        'SMARTASK_AI_API_KEY',
+        'DATAPULSE_AI_LABEL',
+        'DATAPULSE_AI_PROVIDER',
+        'DATAPULSE_AI_MODEL',
+        'DATAPULSE_AI_BASE_URL',
+        'DATAPULSE_AI_API_KEY',
     )
     if not _has_any_env(*env_keys):
         return models
@@ -357,11 +357,11 @@ def _apply_env_ai_model_overrides(models: list) -> list:
         result = [_build_default_ai_model()]
 
     target = next((item for item in result if item.get('is_default')), None) or result[0]
-    env_api_key = _env_text('SMARTASK_AI_API_KEY', '')  # 使用明文，不经过解密
-    env_label = _env_text('SMARTASK_AI_LABEL', '')
-    env_provider = _env_text('SMARTASK_AI_PROVIDER', '')
-    env_model = _env_text('SMARTASK_AI_MODEL', '')
-    env_base_url = _env_text('SMARTASK_AI_BASE_URL', '')
+    env_api_key = _env_text('DATAPULSE_AI_API_KEY', '')  # 使用明文，不经过解密
+    env_label = _env_text('DATAPULSE_AI_LABEL', '')
+    env_provider = _env_text('DATAPULSE_AI_PROVIDER', '')
+    env_model = _env_text('DATAPULSE_AI_MODEL', '')
+    env_base_url = _env_text('DATAPULSE_AI_BASE_URL', '')
     has_connection_override = any((env_provider, env_model, env_base_url))
 
     target.update({
@@ -421,19 +421,19 @@ def apply_env_feishu_overrides(config: dict) -> dict:
     # base_id/table_id/view_id/target_table/sync_mode/sync_frequency 由前端管理，
     # 避免 .env 中的旧链接把前端新保存的配置冲掉。
     global_env_keys = (
-        'SMARTASK_FEISHU_LABEL',
-        'SMARTASK_FEISHU_DESCRIPTION',
-        'SMARTASK_FEISHU_APP_ID',
-        'SMARTASK_FEISHU_APP_SECRET',
-        'SMARTASK_FEISHU_IS_ACTIVE',
+        'DATAPULSE_FEISHU_LABEL',
+        'DATAPULSE_FEISHU_DESCRIPTION',
+        'DATAPULSE_FEISHU_APP_ID',
+        'DATAPULSE_FEISHU_APP_SECRET',
+        'DATAPULSE_FEISHU_IS_ACTIVE',
     )
     link_env_keys = (
-        'SMARTASK_FEISHU_BASE_ID',
-        'SMARTASK_FEISHU_TABLE_ID',
-        'SMARTASK_FEISHU_VIEW_ID',
-        'SMARTASK_FEISHU_TARGET_TABLE',
-        'SMARTASK_FEISHU_SYNC_MODE',
-        'SMARTASK_FEISHU_SYNC_FREQUENCY',
+        'DATAPULSE_FEISHU_BASE_ID',
+        'DATAPULSE_FEISHU_TABLE_ID',
+        'DATAPULSE_FEISHU_VIEW_ID',
+        'DATAPULSE_FEISHU_TARGET_TABLE',
+        'DATAPULSE_FEISHU_SYNC_MODE',
+        'DATAPULSE_FEISHU_SYNC_FREQUENCY',
     )
     has_global_env = _has_any_env(*global_env_keys)
     has_link_env = _has_any_env(*link_env_keys)
@@ -453,11 +453,11 @@ def apply_env_feishu_overrides(config: dict) -> dict:
 
     target = sync_configs[0]
     target.update({
-        "name": _env_text('SMARTASK_FEISHU_LABEL', target.get('name', '飞书同步配置')),
-        "description": _env_text('SMARTASK_FEISHU_DESCRIPTION', target.get('description', '')),
-        "app_id": _env_text('SMARTASK_FEISHU_APP_ID', target.get('app_id', '')),
-        "app_secret": _env_secret('SMARTASK_FEISHU_APP_SECRET', target.get('app_secret', '')),
-        "is_active": _env_bool('SMARTASK_FEISHU_IS_ACTIVE', bool(target.get('is_active', False))),
+        "name": _env_text('DATAPULSE_FEISHU_LABEL', target.get('name', '飞书同步配置')),
+        "description": _env_text('DATAPULSE_FEISHU_DESCRIPTION', target.get('description', '')),
+        "app_id": _env_text('DATAPULSE_FEISHU_APP_ID', target.get('app_id', '')),
+        "app_secret": _env_secret('DATAPULSE_FEISHU_APP_SECRET', target.get('app_secret', '')),
+        "is_active": _env_bool('DATAPULSE_FEISHU_IS_ACTIVE', bool(target.get('is_active', False))),
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     })
 
@@ -466,12 +466,12 @@ def apply_env_feishu_overrides(config: dict) -> dict:
     is_fresh_config = not config or not config.get('sync_configs')
     if is_fresh_config and has_link_env:
         target.update({
-            "base_id": _env_text('SMARTASK_FEISHU_BASE_ID', target.get('base_id', '')),
-            "table_id": _env_text('SMARTASK_FEISHU_TABLE_ID', target.get('table_id', '')),
-            "view_id": _env_text('SMARTASK_FEISHU_VIEW_ID', target.get('view_id', '')),
-            "target_table": _env_text('SMARTASK_FEISHU_TARGET_TABLE', target.get('target_table', 'feishu_sync_demo')),
-            "sync_mode": _env_text('SMARTASK_FEISHU_SYNC_MODE', target.get('sync_mode', 'incremental')),
-            "sync_frequency": _env_text('SMARTASK_FEISHU_SYNC_FREQUENCY', target.get('sync_frequency', '30')),
+            "base_id": _env_text('DATAPULSE_FEISHU_BASE_ID', target.get('base_id', '')),
+            "table_id": _env_text('DATAPULSE_FEISHU_TABLE_ID', target.get('table_id', '')),
+            "view_id": _env_text('DATAPULSE_FEISHU_VIEW_ID', target.get('view_id', '')),
+            "target_table": _env_text('DATAPULSE_FEISHU_TARGET_TABLE', target.get('target_table', 'feishu_sync_demo')),
+            "sync_mode": _env_text('DATAPULSE_FEISHU_SYNC_MODE', target.get('sync_mode', 'incremental')),
+            "sync_frequency": _env_text('DATAPULSE_FEISHU_SYNC_FREQUENCY', target.get('sync_frequency', '30')),
         })
 
     payload['sync_configs'] = sync_configs
@@ -481,12 +481,12 @@ def apply_env_feishu_overrides(config: dict) -> dict:
 
 def get_app_config() -> dict:
     config = read_json('app_config.json') or deepcopy(DEFAULT_APP_CONFIG)
-    config['port'] = _env_int('SMARTASK_BACKEND_PORT', int(config.get('port', DEFAULT_APP_CONFIG['port'])))
-    config['debug'] = _env_bool('SMARTASK_DEBUG', bool(config.get('debug', DEFAULT_APP_CONFIG['debug'])))
-    config['secret_key'] = _env_secret('SMARTASK_SECRET_KEY', str(config.get('secret_key', DEFAULT_APP_CONFIG['secret_key'])))
-    config['chroma_path'] = _env_text('SMARTASK_CHROMA_PATH', str(config.get('chroma_path', DEFAULT_APP_CONFIG['chroma_path'])))
-    config['app_name'] = _env_text('SMARTASK_APP_NAME', str(config.get('app_name', DEFAULT_APP_CONFIG['app_name'])))
-    config['version'] = _env_text('SMARTASK_APP_VERSION', str(config.get('version', DEFAULT_APP_CONFIG['version'])))
+    config['port'] = _env_int('DATAPULSE_BACKEND_PORT', int(config.get('port', DEFAULT_APP_CONFIG['port'])))
+    config['debug'] = _env_bool('DATAPULSE_DEBUG', bool(config.get('debug', DEFAULT_APP_CONFIG['debug'])))
+    config['secret_key'] = _env_secret('DATAPULSE_SECRET_KEY', str(config.get('secret_key', DEFAULT_APP_CONFIG['secret_key'])))
+    config['chroma_path'] = _env_text('DATAPULSE_CHROMA_PATH', str(config.get('chroma_path', DEFAULT_APP_CONFIG['chroma_path'])))
+    config['app_name'] = _env_text('DATAPULSE_APP_NAME', str(config.get('app_name', DEFAULT_APP_CONFIG['app_name'])))
+    config['version'] = _env_text('DATAPULSE_APP_VERSION', str(config.get('version', DEFAULT_APP_CONFIG['version'])))
     return config
 
 

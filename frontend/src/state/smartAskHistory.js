@@ -1,12 +1,12 @@
 import { ref } from 'vue'
 import {
-  clearSmartAskReportHistory,
-  deleteSmartAskReportHistory,
-  getSmartAskReportHistory,
-  saveSmartAskReportHistory,
+  clearDataPulseReportHistory,
+  deleteDataPulseReportHistory,
+  getDataPulseReportHistory,
+  saveDataPulseReportHistory,
 } from '../api/index.js'
 
-export const SMART_ASK_HISTORY_KEY = 'smartask_history_sessions_v2'
+export const SMART_ASK_HISTORY_KEY = 'datapulse_history_sessions_v2'
 
 const historySessions = ref([])
 const pendingRestoreId = ref('')
@@ -34,7 +34,7 @@ const normalizeScopePart = (value) => String(value || '')
 
 const getScopedHistoryKey = () => `${SMART_ASK_HISTORY_KEY}:${historyScope}`
 
-export const buildSmartAskHistoryScope = (user = {}) => {
+export const buildDataPulseHistoryScope = (user = {}) => {
   const role = normalizeScopePart(user.role || 'user')
   const identity = normalizeScopePart(
     user.username
@@ -48,7 +48,7 @@ export const buildSmartAskHistoryScope = (user = {}) => {
   return `${role}:${identity || 'anonymous'}`
 }
 
-export const setSmartAskHistoryScope = (scope) => {
+export const setDataPulseHistoryScope = (scope) => {
   const nextScope = normalizeScopePart(scope) || 'anonymous'
   if (historyScope === nextScope && loaded) return
   historyScope = nextScope
@@ -56,10 +56,10 @@ export const setSmartAskHistoryScope = (scope) => {
   historySessions.value = []
   activeHistoryId.value = ''
   pendingRestoreId.value = ''
-  loadSmartAskHistory()
+  loadDataPulseHistory()
 }
 
-export const loadSmartAskHistory = () => {
+export const loadDataPulseHistory = () => {
   if (typeof window === 'undefined') {
     historySessions.value = []
     return historySessions.value
@@ -78,7 +78,7 @@ export const loadSmartAskHistory = () => {
 }
 
 const ensureLoaded = () => {
-  if (!loaded) loadSmartAskHistory()
+  if (!loaded) loadDataPulseHistory()
 }
 
 const isQuotaExceededError = (error) => (
@@ -204,7 +204,7 @@ const persistLocalItems = (items) => {
   localStorage.setItem(getScopedHistoryKey(), JSON.stringify(items))
 }
 
-const persistSmartAskHistory = () => {
+const persistDataPulseHistory = () => {
   if (typeof window === 'undefined') return
   // 完全保留快照：先尝试完整保存
   let items = historySessions.value.slice(0, MAX_LOCAL_HISTORY_ITEMS).map(compactHistoryItemForLocal)
@@ -348,7 +348,7 @@ const mergeHistoryItems = (localItems = [], remoteItems = []) => {
 const pushHistoryToServer = async (item) => {
   if (!item?.id || typeof window === 'undefined') return { ok: false, stale: false }
   try {
-    await saveSmartAskReportHistory(item)
+    await saveDataPulseReportHistory(item)
     return { ok: true, stale: false }
   } catch (error) {
     const stale = error?.response?.data?.code === 'stale_history_snapshot'
@@ -378,11 +378,11 @@ const saveHistoryItemInBackground = (item) => {
   pushHistoryToServer(item).then((result) => {
     if (!result.stale) return
     historySessions.value = historySessions.value.filter(entry => entry.id !== item.id)
-    persistSmartAskHistory()
+    persistDataPulseHistory()
   })
 }
 
-export const syncSmartAskHistoryFromServer = async () => {
+export const syncDataPulseHistoryFromServer = async () => {
   ensureLoaded()
   if (typeof window === 'undefined') return historySessions.value
   if (isClearing) {
@@ -395,7 +395,7 @@ export const syncSmartAskHistoryFromServer = async () => {
   console.warn('[smartAskHistory] sync start', { startGeneration, startClearGeneration, len: historySessions.value.length })
   let response = null
   try {
-    response = await getSmartAskReportHistory(50)
+    response = await getDataPulseReportHistory(50)
   } catch (error) {
     console.warn('[smartAskHistory] sync fetch failed', error)
     return historySessions.value
@@ -418,12 +418,12 @@ export const syncSmartAskHistoryFromServer = async () => {
   const rejectedLocalIds = await pushLocalOnlyHistoryItems(localItems, remoteItems)
   const safeLocalItems = removeServerRejectedLocalHistory(localItems, rejectedLocalIds)
   historySessions.value = mergeHistoryItems(safeLocalItems, remoteItems)
-  persistSmartAskHistory()
+  persistDataPulseHistory()
   console.warn('[smartAskHistory] sync done', { len: historySessions.value.length })
   return historySessions.value
 }
 
-export const upsertSmartAskHistory = (payload) => {
+export const upsertDataPulseHistory = (payload) => {
   ensureLoaded()
   if (isClearing) return ''
   const nextItem = normalizeHistoryItem(payload)
@@ -433,23 +433,23 @@ export const upsertSmartAskHistory = (payload) => {
     nextItem,
     ...historySessions.value.filter(item => item.id !== nextItem.id),
   ].slice(0, MAX_HISTORY_ITEMS)
-  persistSmartAskHistory()
+  persistDataPulseHistory()
   return nextItem.id
 }
 
-export const removeSmartAskHistory = (id) => {
+export const removeDataPulseHistory = (id) => {
   ensureLoaded()
   historySessions.value = historySessions.value.filter(item => item.id !== id)
   if (activeHistoryId.value === id) {
     activeHistoryId.value = ''
   }
-  persistSmartAskHistory()
+  persistDataPulseHistory()
   if (id) {
-    deleteSmartAskReportHistory(id).catch(() => {})
+    deleteDataPulseReportHistory(id).catch(() => {})
   }
 }
 
-export const clearSmartAskHistory = async () => {
+export const clearDataPulseHistory = async () => {
   ensureLoaded()
   if (isClearing) {
     console.warn('[smartAskHistory] clear already in progress')
@@ -463,11 +463,11 @@ export const clearSmartAskHistory = async () => {
   activeHistoryId.value = ''
   pendingRestoreId.value = ''
   pendingRestoreOptions.value = {}
-  persistSmartAskHistory()
+  persistDataPulseHistory()
 
   lastClearGeneration += 1
   isClearing = true
-  clearingPromise = clearSmartAskReportHistory()
+  clearingPromise = clearDataPulseReportHistory()
   try {
     await clearingPromise
     console.warn('[smartAskHistory] clear server ok')
@@ -475,7 +475,7 @@ export const clearSmartAskHistory = async () => {
     // 后端清空失败时回滚本地状态，避免给用户“已清空”的假象
     console.warn('[smartAskHistory] clear server failed, rollback', error)
     historySessions.value = rollbackSnapshot
-    persistSmartAskHistory()
+    persistDataPulseHistory()
     throw error
   } finally {
     isClearing = false
@@ -483,12 +483,12 @@ export const clearSmartAskHistory = async () => {
   }
 }
 
-export const findSmartAskHistoryById = (id) => {
+export const findDataPulseHistoryById = (id) => {
   ensureLoaded()
   return historySessions.value.find(item => item.id === id) || null
 }
 
-export const requestSmartAskHistoryRestore = (id, options = {}) => {
+export const requestDataPulseHistoryRestore = (id, options = {}) => {
   pendingRestoreId.value = id || ''
   pendingRestoreOptions.value = options
 }
@@ -499,29 +499,29 @@ export const takePendingRestoreOptions = () => {
   return opts
 }
 
-export const clearSmartAskHistoryRestoreRequest = () => {
+export const clearDataPulseHistoryRestoreRequest = () => {
   pendingRestoreId.value = ''
   pendingRestoreOptions.value = {}
 }
 
-export const setActiveSmartAskHistory = (id) => {
+export const setActiveDataPulseHistory = (id) => {
   activeHistoryId.value = id || ''
 }
 
-export const useSmartAskHistory = () => ({
+export const useDataPulseHistory = () => ({
   historySessions,
   pendingRestoreId,
   activeHistoryId,
-  buildHistoryScope: buildSmartAskHistoryScope,
-  setHistoryScope: setSmartAskHistoryScope,
-  loadHistory: loadSmartAskHistory,
-  syncHistory: syncSmartAskHistoryFromServer,
-  upsertHistory: upsertSmartAskHistory,
-  removeHistory: removeSmartAskHistory,
-  clearHistory: clearSmartAskHistory,
-  findHistoryById: findSmartAskHistoryById,
-  requestRestore: requestSmartAskHistoryRestore,
+  buildHistoryScope: buildDataPulseHistoryScope,
+  setHistoryScope: setDataPulseHistoryScope,
+  loadHistory: loadDataPulseHistory,
+  syncHistory: syncDataPulseHistoryFromServer,
+  upsertHistory: upsertDataPulseHistory,
+  removeHistory: removeDataPulseHistory,
+  clearHistory: clearDataPulseHistory,
+  findHistoryById: findDataPulseHistoryById,
+  requestRestore: requestDataPulseHistoryRestore,
   takePendingRestoreOptions,
-  clearRestoreRequest: clearSmartAskHistoryRestoreRequest,
-  setActiveHistory: setActiveSmartAskHistory,
+  clearRestoreRequest: clearDataPulseHistoryRestoreRequest,
+  setActiveHistory: setActiveDataPulseHistory,
 })

@@ -5,7 +5,7 @@ import { setReadonlySnapshot } from '@/state/smartAskTaskView'
 const clone = (value) => JSON.parse(JSON.stringify(value))
 const MAX_SNAPSHOT_MESSAGES = 30
 
-export const useSmartAskReportHistory = ({
+export const useDataPulseReportHistory = ({
   session,
   messages,
   datasetId,

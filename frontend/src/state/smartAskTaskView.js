@@ -96,7 +96,7 @@ export const clearReadonlySnapshot = () => {
   readonlySnapshot.value = null
 }
 
-export const useSmartAskTaskView = () => ({
+export const useDataPulseTaskView = () => ({
   runningSessionId,
   viewingTaskId,
   isViewingReadonly,

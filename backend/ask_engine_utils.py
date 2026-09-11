@@ -1,4 +1,4 @@
-"""Stable aggregation API for SmartAsk engine helpers."""
+"""Stable aggregation API for DataPulse engine helpers."""
 
 from ask_engine_core import (
     _mask_secret,

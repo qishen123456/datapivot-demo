@@ -18,12 +18,12 @@ from secret_codec import encrypt_secret_value, is_encrypted_secret
 
 
 DEFAULT_SECRET_KEYS = {
-    "SMARTASK_SECRET_KEY",
-    "SMARTASK_AI_API_KEY",
-    "SMARTASK_DB_PASSWORD",
-    "SMARTASK_FEISHU_APP_SECRET",
+    "DATAPULSE_SECRET_KEY",
+    "DATAPULSE_AI_API_KEY",
+    "DATAPULSE_DB_PASSWORD",
+    "DATAPULSE_FEISHU_APP_SECRET",
     "FEISHU_APP_SECRET",
-    "SMARTASK_ADMIN_PASSWORD",
+    "DATAPULSE_ADMIN_PASSWORD",
     "ADMIN_PASSWORD",
 }
 
@@ -82,7 +82,7 @@ def main() -> int:
     if not path.exists():
         raise SystemExit(f"file not found: {path}")
     changed = encrypt_env_file(path, DEFAULT_SECRET_KEYS)
-    print(f"encrypted={changed}; key_file={os.getenv('SMARTASK_SECRET_KEY_FILE') or 'config/.secret_master_key'}")
+    print(f"encrypted={changed}; key_file={os.getenv('DATAPULSE_SECRET_KEY_FILE') or 'config/.secret_master_key'}")
     return 0
 
 

@@ -5,8 +5,8 @@ from typing import Any, Dict
 from flask import Blueprint, jsonify, request
 
 from auth_store import get_current_user
-from smartask_advanced.config_store import import_skills, load_config, reset_config, save_config
-from smartask_advanced.registry import capability_summary
+from datapulse_advanced.config_store import import_skills, load_config, reset_config, save_config
+from datapulse_advanced.registry import capability_summary
 
 
 advanced_capabilities_bp = Blueprint(

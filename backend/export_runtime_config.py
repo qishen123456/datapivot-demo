@@ -15,7 +15,7 @@ Files captured (existing only, missing files are simply skipped):
     config/ask_flow.json
     config/advanced_capabilities.json
     config/query_history.json
-    config/smartask_report_history.json
+    config/datapulse_report_history.json
 
 Sensitive fields (`password_b64`, `api_key_b64`, `app_secret`) are kept AS-IS
 because they are already obfuscated/encrypted by config_manager.
@@ -35,7 +35,7 @@ from typing import Any, Dict
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(CURRENT_DIR)
-CONFIG_DIR = os.getenv("SMARTASK_CONFIG_DIR") or os.path.join(BASE_DIR, "config")
+CONFIG_DIR = os.getenv("DATAPULSE_CONFIG_DIR") or os.path.join(BASE_DIR, "config")
 
 DEFAULT_OUTPUT = os.path.join(CURRENT_DIR, "imports", "runtime_config_bundle.json")
 
@@ -53,7 +53,7 @@ CAPTURED_FILES = [
     "ask_flow.json",
     "advanced_capabilities.json",
     "query_history.json",
-    "smartask_report_history.json",
+    "datapulse_report_history.json",
 ]
 
 

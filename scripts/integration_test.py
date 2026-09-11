@@ -1,5 +1,5 @@
 """
-SmartAsk Docker deployment — end-to-end integration test.
+DataPulse Docker deployment — end-to-end integration test.
 
 Exercises ONLY the blueprints actually registered in app.py:
     dashboard, datasources, ai_models, feishu(_sync), smart_chat, bookshelf, agents
@@ -46,7 +46,7 @@ class Result:
     def report(self) -> None:
         line = "=" * 72
         print(line)
-        print(" SmartAsk integration test report")
+        print(" DataPulse integration test report")
         print(line)
         passed = sum(1 for _, s, _ in self.records if s == "PASS")
         failed = sum(1 for _, s, _ in self.records if s == "FAIL")
@@ -154,8 +154,8 @@ def test_auth_me(base: str, result: Result) -> None:
 
 
 def test_admin_auth_contract(base: str, result: Result) -> None:
-    username = os.getenv("SMARTASK_ADMIN_USERNAME", "admin")
-    password = os.getenv("SMARTASK_ADMIN_PASSWORD", "")
+    username = os.getenv("DATAPULSE_ADMIN_USERNAME", "admin")
+    password = os.getenv("DATAPULSE_ADMIN_PASSWORD", "")
     if not password or password in {"please-change-admin-password", "admin123456"}:
         return result.record("/api/auth/login admin", "SKIP", "admin password not configured for test")
     ok, r = _safe_post(base, "/api/auth/login", {"username": username, "password": password})

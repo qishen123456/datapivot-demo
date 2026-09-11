@@ -6,8 +6,8 @@ from copy import deepcopy
 from typing import Any, Dict, Iterable, Optional
 
 from config_manager import read_json
-from smartask_basic.service import basic_ask_service
-from smartask_advanced.service import advanced_ask_service
+from datapulse_basic.service import basic_ask_service
+from datapulse_advanced.service import advanced_ask_service
 
 from .contracts import AskRequest, ConfirmRequest, FlowDecision
 
@@ -40,11 +40,11 @@ class AskFlowController:
                 elif key in config:
                     config[key] = value
 
-        env_default = (os.getenv("SMARTASK_DEFAULT_FLOW") or "").strip().lower()
+        env_default = (os.getenv("DATAPULSE_DEFAULT_FLOW") or "").strip().lower()
         if env_default in ("basic", "advanced"):
             config["defaultFlow"] = env_default
 
-        env_advanced = (os.getenv("SMARTASK_ADVANCED_FLOW_ENABLED") or "").strip().lower()
+        env_advanced = (os.getenv("DATAPULSE_ADVANCED_FLOW_ENABLED") or "").strip().lower()
         if env_advanced in ("1", "true", "yes", "on"):
             config["advancedEnabled"] = True
         elif env_advanced in ("0", "false", "no", "off"):

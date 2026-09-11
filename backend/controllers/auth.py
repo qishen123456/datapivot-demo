@@ -52,21 +52,21 @@ def _env(*names: str, default: str = "") -> str:
 
 def _feishu_config() -> dict:
     return {
-        "app_id": _env("FEISHU_APP_ID", "SMARTASK_FEISHU_APP_ID"),
-        "app_secret": _env("FEISHU_APP_SECRET", "SMARTASK_FEISHU_APP_SECRET"),
-        "base_url": _env("FEISHU_BASE_URL", "SMARTASK_FEISHU_BASE_URL", default="https://open.feishu.cn").rstrip("/"),
-        "backend_url": _env("BACKEND_URL", "SMARTASK_BACKEND_URL").rstrip("/"),
-        "frontend_url": _env("FRONTEND_URL", "SMARTASK_FRONTEND_URL", default="http://localhost:5173").rstrip("/"),
-        "redirect_uri": _env("FEISHU_REDIRECT_URI", "SMARTASK_FEISHU_REDIRECT_URI").strip(),
-        "frontend_callback_url": _env("FEISHU_FRONTEND_CALLBACK_URL", "SMARTASK_FEISHU_FRONTEND_CALLBACK_URL").strip(),
+        "app_id": _env("FEISHU_APP_ID", "DATAPULSE_FEISHU_APP_ID"),
+        "app_secret": _env("FEISHU_APP_SECRET", "DATAPULSE_FEISHU_APP_SECRET"),
+        "base_url": _env("FEISHU_BASE_URL", "DATAPULSE_FEISHU_BASE_URL", default="https://open.feishu.cn").rstrip("/"),
+        "backend_url": _env("BACKEND_URL", "DATAPULSE_BACKEND_URL").rstrip("/"),
+        "frontend_url": _env("FRONTEND_URL", "DATAPULSE_FRONTEND_URL", default="http://localhost:5173").rstrip("/"),
+        "redirect_uri": _env("FEISHU_REDIRECT_URI", "DATAPULSE_FEISHU_REDIRECT_URI").strip(),
+        "frontend_callback_url": _env("FEISHU_FRONTEND_CALLBACK_URL", "DATAPULSE_FEISHU_FRONTEND_CALLBACK_URL").strip(),
     }
 
 
 def _admin_config() -> dict:
     return {
-        "username": _env("SMARTASK_ADMIN_USERNAME", "ADMIN_USERNAME", default="admin"),
-        "password": _env("SMARTASK_ADMIN_PASSWORD", "ADMIN_PASSWORD"),
-        "display_name": _env("SMARTASK_ADMIN_DISPLAY_NAME", default="超级管理员"),
+        "username": _env("DATAPULSE_ADMIN_USERNAME", "ADMIN_USERNAME", default="admin"),
+        "password": _env("DATAPULSE_ADMIN_PASSWORD", "ADMIN_PASSWORD"),
+        "display_name": _env("DATAPULSE_ADMIN_DISPLAY_NAME", default="超级管理员"),
     }
 
 
@@ -762,7 +762,7 @@ def change_password():
     if not username:
         return jsonify({"success": False, "error": "请先登录后再修改密码"}), 401
     if user.get("role") == "super_admin":
-        return jsonify({"success": False, "error": "超级管理员密码由 .env 管理，请修改 SMARTASK_ADMIN_PASSWORD"}), 400
+        return jsonify({"success": False, "error": "超级管理员密码由 .env 管理，请修改 DATAPULSE_ADMIN_PASSWORD"}), 400
     payload = request.get_json() or {}
     old_password = str(payload.get("old_password") or "")
     new_password = str(payload.get("new_password") or "")

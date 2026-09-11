@@ -59,11 +59,11 @@ def _check_postgres() -> Tuple[bool, str]:
     ds = get_default_datasource() or {}
     try:
         conn = psycopg2.connect(
-            host=ds.get("host") or os.getenv("SMARTASK_DB_HOST", "postgres"),
-            port=int(ds.get("port") or os.getenv("SMARTASK_DB_PORT", "5432") or 5432),
-            database=ds.get("database_name") or os.getenv("SMARTASK_DB_DATABASE", "postgres"),
-            user=ds.get("username") or os.getenv("SMARTASK_DB_USERNAME", "postgres"),
-            password=ds.get("password") or os.getenv("SMARTASK_DB_PASSWORD", "postgres"),
+            host=ds.get("host") or os.getenv("DATAPULSE_DB_HOST", "postgres"),
+            port=int(ds.get("port") or os.getenv("DATAPULSE_DB_PORT", "5432") or 5432),
+            database=ds.get("database_name") or os.getenv("DATAPULSE_DB_DATABASE", "postgres"),
+            user=ds.get("username") or os.getenv("DATAPULSE_DB_USERNAME", "postgres"),
+            password=ds.get("password") or os.getenv("DATAPULSE_DB_PASSWORD", "postgres"),
             connect_timeout=5,
         )
         conn.close()
@@ -81,11 +81,11 @@ def _check_tables() -> List[Tuple[str, bool, str]]:
     ds = get_default_datasource() or {}
     try:
         conn = psycopg2.connect(
-            host=ds.get("host") or os.getenv("SMARTASK_DB_HOST", "postgres"),
-            port=int(ds.get("port") or os.getenv("SMARTASK_DB_PORT", "5432") or 5432),
-            database=ds.get("database_name") or os.getenv("SMARTASK_DB_DATABASE", "postgres"),
-            user=ds.get("username") or os.getenv("SMARTASK_DB_USERNAME", "postgres"),
-            password=ds.get("password") or os.getenv("SMARTASK_DB_PASSWORD", "postgres"),
+            host=ds.get("host") or os.getenv("DATAPULSE_DB_HOST", "postgres"),
+            port=int(ds.get("port") or os.getenv("DATAPULSE_DB_PORT", "5432") or 5432),
+            database=ds.get("database_name") or os.getenv("DATAPULSE_DB_DATABASE", "postgres"),
+            user=ds.get("username") or os.getenv("DATAPULSE_DB_USERNAME", "postgres"),
+            password=ds.get("password") or os.getenv("DATAPULSE_DB_PASSWORD", "postgres"),
             connect_timeout=5,
         )
     except Exception as exc:
@@ -113,7 +113,7 @@ def _check_http() -> List[Tuple[str, bool, str]]:
     except Exception:
         return [("http", False, "未安装 requests")]
 
-    backend_port = os.getenv("SMARTASK_BACKEND_PORT", "5002")
+    backend_port = os.getenv("DATAPULSE_BACKEND_PORT", "5002")
     base = f"http://localhost:{backend_port}"
     out: List[Tuple[str, bool, str]] = []
     protected_paths = {"/api/datasources", "/api/ai-models"}
@@ -173,7 +173,7 @@ def _check_report_contract() -> List[Tuple[str, bool, str]]:
 
 def main() -> int:
     print("==================================================")
-    print(" SmartAsk 部署自检")
+    print(" DataPulse 部署自检")
     print("==================================================")
 
     overall_ok = True

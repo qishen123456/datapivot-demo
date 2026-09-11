@@ -33,7 +33,7 @@ from memory import ShortTermMemoryStore
 from organization_route_resolver import OrganizationRouteResolver
 from trace_logger import TraceLogger
 from llm_client import LLMClient
-from smartask_engine.intent import IntentResolver, IntentPorts
+from datapulse_engine.intent import IntentResolver, IntentPorts
 
 
 def _extract_json_block(text: str) -> str:
@@ -59,7 +59,7 @@ class FourAgentAskService:
         self.disambiguation_arbiter = DisambiguationArbiter()
         self.organization_route_resolver = OrganizationRouteResolver()
         self._dataset_node_index = self._load_dataset_node_index()
-        self._trace_file_path = os.path.join(CURRENT_DIR, "logs", "smartask_trace.jsonl")
+        self._trace_file_path = os.path.join(CURRENT_DIR, "logs", "datapulse_trace.jsonl")
         self.trace_logger = TraceLogger(self._trace_file_path)
         self._trace_logger = self._build_trace_logger()
         self.llm_client = self._build_llm_component()
@@ -99,7 +99,7 @@ class FourAgentAskService:
             file_path = getattr(
                 self,
                 "_trace_file_path",
-                os.path.join(CURRENT_DIR, "logs", "smartask_trace.jsonl"),
+                os.path.join(CURRENT_DIR, "logs", "datapulse_trace.jsonl"),
             )
             component = TraceLogger(file_path)
             self.trace_logger = component
@@ -150,14 +150,14 @@ class FourAgentAskService:
         self._llm_component()._preferred_model_id = value
 
     def _build_trace_logger(self) -> logging.Logger:
-        logger = logging.getLogger("smartask.trace")
+        logger = logging.getLogger("datapulse.trace")
         if logger.handlers:
             return logger
         logger.setLevel(logging.INFO)
         logger.propagate = False
         log_dir = os.path.join(CURRENT_DIR, "logs")
         os.makedirs(log_dir, exist_ok=True)
-        file_handler = logging.FileHandler(os.path.join(log_dir, "smartask_trace.jsonl"), encoding="utf-8")
+        file_handler = logging.FileHandler(os.path.join(log_dir, "datapulse_trace.jsonl"), encoding="utf-8")
         file_handler.setFormatter(logging.Formatter("%(message)s"))
         logger.addHandler(file_handler)
         return logger
@@ -2867,7 +2867,7 @@ class FourAgentAskService:
     ) -> Dict[str, Any]:
         catalog = self._node_index_resolution_catalog(context)
         system_prompt = (
-            "你是 SmartAsk 语义结构化拆解器。你的任务不是生成 SQL，而是把用户问题拆成稳定的结构化意图，"
+            "你是 DataPulse 语义结构化拆解器。你的任务不是生成 SQL，而是把用户问题拆成稳定的结构化意图，"
             "并用给定的真实节点索引和字段层级做事实校验。不要编造节点；没有点名具体节点时 entities 留空。"
         )
         user_prompt = f"""

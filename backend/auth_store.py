@@ -25,7 +25,7 @@ _auth_diag_logger = logging.getLogger("auth_store.diag")
 
 
 TOKEN_FILE = "auth_tokens.json"
-TOKEN_TTL_DAYS = int(os.getenv("SMARTASK_AUTH_TOKEN_TTL_DAYS", "7") or 7)
+TOKEN_TTL_DAYS = int(os.getenv("DATAPULSE_AUTH_TOKEN_TTL_DAYS", "7") or 7)
 ROLE_LABELS = {
     "super_admin": "超级管理员",
     "admin": "管理员",

@@ -349,7 +349,7 @@ def _sql_literal(value: str) -> str:
 
 
 def _row_json_text(candidate: str) -> str:
-    return f"(to_jsonb(__smartask_row_scope)->>{_sql_literal(candidate)})"
+    return f"(to_jsonb(__datapulse_row_scope)->>{_sql_literal(candidate)})"
 
 
 def _nodes_for_scope(node_ids: List[str], tree_type_id: str) -> List[Dict[str, Any]]:
@@ -476,7 +476,7 @@ def apply_row_level_filter(sql: str, user: Dict[str, Any], dataset_id: int, perm
         return sql
     if not rule:
         # 无规则 → 默认 deny（fail-closed），防止未配置的数据集越权
-        return f"SELECT * FROM (\n{sql.strip().rstrip(';')}\n) AS __smartask_row_scope\nWHERE 1 = 0"
+        return f"SELECT * FROM (\n{sql.strip().rstrip(';')}\n) AS __datapulse_row_scope\nWHERE 1 = 0"
     if rule.get("mode") != "org_tree":
         # 有规则但非 org_tree（如 public）→ 有意放行
         return sql
@@ -517,7 +517,7 @@ def apply_row_level_filter(sql: str, user: Dict[str, Any], dataset_id: int, perm
                 for name in names:
                     add_condition(f"POSITION({_sql_literal(name)} IN COALESCE({_row_json_text(candidate)}, '')) > 0")
         condition = "(" + " OR ".join(conditions) + ")" if conditions else "1 = 0"
-    return f"SELECT * FROM (\n{sql.strip().rstrip(';')}\n) AS __smartask_row_scope\nWHERE {condition}"
+    return f"SELECT * FROM (\n{sql.strip().rstrip(';')}\n) AS __datapulse_row_scope\nWHERE {condition}"
 
 
 def filter_dataset_rows_for_user(rows: List[Dict[str, Any]], user: Dict[str, Any]) -> List[Dict[str, Any]]:

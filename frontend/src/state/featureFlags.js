@@ -7,7 +7,7 @@ let loadingPromise = null
 let eventBound = false
 let requestSeq = 0
 
-const FEATURE_FLAGS_UPDATED_EVENT = 'smartask-feature-flags-updated'
+const FEATURE_FLAGS_UPDATED_EVENT = 'datapulse-feature-flags-updated'
 
 export const loadFeatureFlags = async (force = false) => {
   if (loadingPromise && !force) return loadingPromise

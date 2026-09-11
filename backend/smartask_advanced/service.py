@@ -5,7 +5,7 @@ import time
 from typing import Any, Dict, List
 from uuid import uuid4
 
-from smartask_basic.service import basic_ask_service
+from datapulse_basic.service import basic_ask_service
 
 from .config_store import load_config
 from .registry import build_skill_plan, capability_summary

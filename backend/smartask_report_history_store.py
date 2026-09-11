@@ -1,5 +1,5 @@
 """
-Persistent SmartAsk report history.
+Persistent DataPulse report history.
 
 The UI keeps a localStorage cache for speed, but production deployments need a
 server-side copy that survives frontend rebuilds, container recreates, and code
@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional
 from config_manager import read_json, write_json
 
 
-HISTORY_FILE = "smartask_report_history.json"
+HISTORY_FILE = "datapulse_report_history.json"
 MAX_ITEMS_PER_SCOPE = 30
 _LOCK = threading.RLock()
 

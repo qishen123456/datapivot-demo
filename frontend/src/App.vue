@@ -12,10 +12,10 @@
     <el-aside class="sidebar sa-dark-panel" :class="{ 'sidebar-collapsed': collapsed }" :width="collapsed ? '72px' : '248px'">
       <div class="brand">
         <div class="brand-pill" :class="{ 'is-collapsed': collapsed }">
-          <img src="/datapivot-logo.svg" alt="DataPivot" class="brand-logo" />
+          <img src="/datapivot-logo.svg" alt="DataPulse" class="brand-logo" />
           <div v-if="!collapsed" class="brand-text">
-            <div class="brand-title">DataPivot</div>
-            <div class="brand-subtitle">数枢智能问数</div>
+            <div class="brand-title">DataPulse</div>
+            <div class="brand-subtitle">DataPulse 脉策智能 / 脉策问数</div>
           </div>
           <span v-if="!collapsed" class="brand-caret" aria-hidden="true"></span>
         </div>
@@ -256,7 +256,7 @@
     </el-aside>
 
     <el-container class="main-shell">
-      <el-header class="topbar sa-dark-panel" :class="{ 'topbar-smart': isSmartAskRoute }">
+      <el-header class="topbar sa-dark-panel" :class="{ 'topbar-smart': isDataPulseRoute }">
         <div class="topbar-heading">
           <div class="topbar-title-row">
             <div class="topbar-workspace">{{ currentTitle }}</div>
@@ -300,7 +300,7 @@
         </div>
       </el-header>
 
-      <el-main class="page-wrap" :class="{ 'page-wrap-smart': isSmartAskRoute }">
+      <el-main class="page-wrap" :class="{ 'page-wrap-smart': isDataPulseRoute }">
         <router-view v-slot="{ Component }">
           <keep-alive :include="cachedPageNames">
             <component :is="Component" />
@@ -431,14 +431,14 @@ import SqlDebugFloat from './components/SqlDebugFloat.vue'
 import TaskStatusIndicator from './components/TaskStatusIndicator.vue'
 import { preloadRouteComponents } from './router'
 import { changePassword, clearAuthToken, getCurrentUser, healthCheck, logout } from './api/index.js'
-import { useSmartAskSession } from './state/smartAskSession.js'
-import { useSmartAskHistory } from './state/smartAskHistory.js'
-import { useSmartAskTaskView } from './state/smartAskTaskView.js'
+import { useDataPulseSession } from './state/smartAskSession.js'
+import { useDataPulseHistory } from './state/smartAskHistory.js'
+import { useDataPulseTaskView } from './state/smartAskTaskView.js'
 import { useFeatureFlags } from './state/featureFlags.js'
 
 const route = useRoute()
 const router = useRouter()
-const session = useSmartAskSession()
+const session = useDataPulseSession()
 const {
   historySessions,
   activeHistoryId,
@@ -450,7 +450,7 @@ const {
   clearHistory,
   requestRestore,
   setActiveHistory,
-} = useSmartAskHistory()
+} = useDataPulseHistory()
 const {
   runningSessionId,
   runningTaskStatus,
@@ -462,7 +462,7 @@ const {
   switchViewToDefault,
   clearRunningSessionId,
   switchViewToRunning,
-} = useSmartAskTaskView()
+} = useDataPulseTaskView()
 const {
   features: featureFlags,
   ready: featureFlagsReady,
@@ -526,7 +526,7 @@ const menuItems = [
 ]
 
 const routeComponentNamesByPath = {
-  '/smart-ask': 'SmartAsk',
+  '/smart-ask': 'DataPulse',
   '/sql-debug': 'SqlDebug',
   '/agents': 'AgentManagement',
   '/datasets': 'DatasetManagement',
@@ -559,7 +559,7 @@ const subtitleMap = {
 
 const activeMenu = computed(() => route.path)
 const isAuthCallbackRoute = computed(() => route.path === '/auth/callback')
-const isSmartAskRoute = computed(() => route.path === '/smart-ask')
+const isDataPulseRoute = computed(() => route.path === '/smart-ask')
 const showBackToConsole = computed(() => route.query?.from === 'admin-console' && route.path !== '/admin-console')
 const authRole = computed(() => authUser.value?.role || 'user')
 const authRoleLabel = computed(() => ({ super_admin: '超级管理员', admin: '管理员', business_admin: '业务管理员', user: '普通用户' }[authRole.value] || '普通用户'))
@@ -715,7 +715,7 @@ const handleAuthenticated = async (user) => {
 const submitPasswordChange = async () => {
   if (passwordSaving.value) return
   if (authRole.value === 'super_admin') {
-    ElMessage.warning('超级管理员密码由 .env 管理，请修改 SMARTASK_ADMIN_PASSWORD')
+    ElMessage.warning('超级管理员密码由 .env 管理，请修改 DATAPULSE_ADMIN_PASSWORD')
     return
   }
   if (!passwordForm.value.old_password || !passwordForm.value.new_password) {
@@ -767,7 +767,7 @@ const openPasswordDialog = () => {
   passwordDialogVisible.value = true
 }
 
-const ADMIN_CONSOLE_LAST_ROUTE_KEY = 'smartask_admin_console_last_route'
+const ADMIN_CONSOLE_LAST_ROUTE_KEY = 'datapulse_admin_console_last_route'
 
 const getAdminConsoleTarget = () => {
   const fallback = '/admin-console'
@@ -784,9 +784,9 @@ const backToConsole = () => {
   router.push(getAdminConsoleTarget())
 }
 
-const ADMIN_CONSOLE_FLOAT_POSITION_KEY = 'smartask_admin_console_float_position'
-const ADMIN_CONSOLE_FLOAT_HIDDEN_KEY = 'smartask_admin_console_float_hidden'
-const ADMIN_CONSOLE_FLOAT_TOGGLE_EVENT = 'smartask-admin-console-float-toggle'
+const ADMIN_CONSOLE_FLOAT_POSITION_KEY = 'datapulse_admin_console_float_position'
+const ADMIN_CONSOLE_FLOAT_HIDDEN_KEY = 'datapulse_admin_console_float_hidden'
+const ADMIN_CONSOLE_FLOAT_TOGGLE_EVENT = 'datapulse-admin-console-float-toggle'
 const adminConsoleFloatVisible = ref(false)
 const adminConsoleFloatDragging = ref(false)
 const adminConsoleFloatPosition = ref({ x: 0, y: 0 })
@@ -991,7 +991,7 @@ const createFreshChat = async () => {
   setActiveHistory('')
   switchViewToDefault()
   await router.push('/smart-ask')
-  window.dispatchEvent(new CustomEvent('smartask-create-fresh-chat'))
+  window.dispatchEvent(new CustomEvent('datapulse-create-fresh-chat'))
   pulseHistoryPanel()
 }
 
@@ -1084,9 +1084,9 @@ onMounted(() => {
   refreshAuthUser()
   clockTimer = setInterval(refreshClock, 1000)
   healthTimer = setInterval(pingBackend, 10000)
-  window.addEventListener('smartask-history-focus', handleHistoryFocus)
+  window.addEventListener('datapulse-history-focus', handleHistoryFocus)
   window.addEventListener('click', handleGlobalClick)
-  window.addEventListener('smartask-feature-flags-updated', handleFeatureFlagsUpdated)
+  window.addEventListener('datapulse-feature-flags-updated', handleFeatureFlagsUpdated)
 })
 
 onUnmounted(() => {
@@ -1095,9 +1095,9 @@ onUnmounted(() => {
   if (historyFocusTimer) {
     clearTimeout(historyFocusTimer)
   }
-  window.removeEventListener('smartask-history-focus', handleHistoryFocus)
+  window.removeEventListener('datapulse-history-focus', handleHistoryFocus)
   window.removeEventListener('click', handleGlobalClick)
-  window.removeEventListener('smartask-feature-flags-updated', handleFeatureFlagsUpdated)
+  window.removeEventListener('datapulse-feature-flags-updated', handleFeatureFlagsUpdated)
 })
 
 watch(() => route.path, (path) => {

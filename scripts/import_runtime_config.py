@@ -1,5 +1,5 @@
 """
-Import SmartAsk runtime resources from a portable JSON bundle.
+Import DataPulse runtime resources from a portable JSON bundle.
 
 Examples:
   python scripts/import_runtime_config.py --input runtime_config.json --dry-run
@@ -23,7 +23,7 @@ from runtime_migration import import_runtime_bundle, load_bundle_file
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Import SmartAsk runtime resources.")
+    parser = argparse.ArgumentParser(description="Import DataPulse runtime resources.")
     parser.add_argument("--input", "-i", required=True, help="Runtime bundle JSON path.")
     parser.add_argument("--mode", choices=["merge", "replace"], default="merge")
     parser.add_argument("--overwrite-configs", action="store_true", help="Overwrite existing JSON config files.")

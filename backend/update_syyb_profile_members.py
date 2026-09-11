@@ -1,14 +1,14 @@
 """
 从 datapivot_core_data 表抽取商用事业群客户经理名单，
-更新 smartask/backend/data/dataset_dimension_profiles.json 中
+更新 datapulse/backend/data/dataset_dimension_profiles.json 中
 datapivot_business_2026 数据集「业务员」维度的 members。
 
 运行方式：
   # 在容器内（推荐，与后端同一网络）
-  docker exec -it smartask-backend python /app/backend/update_syyb_profile_members.py
+  docker exec -it datapulse-backend python /app/backend/update_syyb_profile_members.py
 
   # 在宿主机（.env 中 DB_HOST 需要可访问，如 localhost:5433）
-  cd smartask/backend
+  cd datapulse/backend
   python update_syyb_profile_members.py
 """
 
@@ -29,7 +29,7 @@ ENV_PATH = CURRENT_DIR.parent / ".env"
 
 
 def _load_env() -> Dict[str, str]:
-    """简单解析 .env 文件，只读取 SMARTASK_DB_* 相关变量。"""
+    """简单解析 .env 文件，只读取 DATAPULSE_DB_* 相关变量。"""
     config: Dict[str, str] = {}
     if not ENV_PATH.exists():
         return config
@@ -42,7 +42,7 @@ def _load_env() -> Dict[str, str]:
                 continue
             key, value = line.split("=", 1)
             key = key.strip()
-            if key.startswith("SMARTASK_DB_"):
+            if key.startswith("DATAPULSE_DB_"):
                 config[key] = value.strip().strip('"').strip("'")
     return config
 
@@ -53,18 +53,18 @@ def _db_kwargs(env: Dict[str, str]) -> Dict[str, Any]:
         return os.environ.get(key) or env.get(key, default)
 
     return {
-        "host": get("SMARTASK_DB_HOST", "smartask-postgres"),
-        "port": int(get("SMARTASK_DB_PORT", "5432") or 5432),
-        "database": get("SMARTASK_DB_DATABASE", "postgres"),
-        "user": get("SMARTASK_DB_USERNAME", "postgres"),
-        "password": get("SMARTASK_DB_PASSWORD", "postgres"),
+        "host": get("DATAPULSE_DB_HOST", "datapulse-postgres"),
+        "port": int(get("DATAPULSE_DB_PORT", "5432") or 5432),
+        "database": get("DATAPULSE_DB_DATABASE", "postgres"),
+        "user": get("DATAPULSE_DB_USERNAME", "postgres"),
+        "password": get("DATAPULSE_DB_PASSWORD", "postgres"),
     }
 
 
 def _try_connect(kwargs: Dict[str, Any]):
-    """尝试连接；如果连不上 smartask-postgres，fallback 到 localhost:5433。"""
+    """尝试连接；如果连不上 datapulse-postgres，fallback 到 localhost:5433。"""
     candidates = [dict(kwargs)]
-    if kwargs.get("host") == "smartask-postgres":
+    if kwargs.get("host") == "datapulse-postgres":
         fallback = dict(kwargs)
         fallback["host"] = "localhost"
         fallback["port"] = 5433

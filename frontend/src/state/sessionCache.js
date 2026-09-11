@@ -2,7 +2,7 @@
  * 全局会话缓存 — 使用 sessionStorage 持久化关键状态，
  * 确保页面跳转后输入内容、选中数据集/模型等完美还原。
  */
-const CACHE_KEY = 'smartask-session-cache-v1'
+const CACHE_KEY = 'datapulse-session-cache-v1'
 
 function read() {
   try {

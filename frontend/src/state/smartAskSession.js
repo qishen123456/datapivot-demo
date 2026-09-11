@@ -2146,7 +2146,7 @@ hydrate()
 
 export const smartAskSession = state
 
-export const useSmartAskSession = () => {
+export const useDataPulseSession = () => {
   const latestLog = computed(() => state.logs[state.logs.length - 1] || null)
   const activeDatasetIds = computed(() => state.result?.route?.dataset_ids || [])
   // 是否有真实进行中的问数（activeAbortController 非空）。

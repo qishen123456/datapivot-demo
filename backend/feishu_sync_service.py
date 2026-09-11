@@ -918,7 +918,7 @@ class FeishuSyncService:
                 ).tag(f"feishu_sync_{config['id']}")
         
         # 读取启动同步模式环境变量
-        sync_on_startup = str(os.getenv('SMARTASK_FEISHU_SYNC_ON_STARTUP', 'auto')).strip().lower()
+        sync_on_startup = str(os.getenv('DATAPULSE_FEISHU_SYNC_ON_STARTUP', 'auto')).strip().lower()
         print(f"飞书同步启动模式: {sync_on_startup}")
         
         if sync_on_startup in ('force', '1', 'true', 'yes'):
@@ -933,7 +933,7 @@ class FeishuSyncService:
         else:
             # 默认auto模式：智能判断，空表才同步
             if sync_on_startup != 'auto':
-                print(f"[WARNING] 未识别的 SMARTASK_FEISHU_SYNC_ON_STARTUP 值 '{sync_on_startup}'，按 auto 模式处理")
+                print(f"[WARNING] 未识别的 DATAPULSE_FEISHU_SYNC_ON_STARTUP 值 '{sync_on_startup}'，按 auto 模式处理")
             print("智能启动同步模式：仅同步空表/新表，已有数据表跳过启动同步")
             
             if not active_configs:

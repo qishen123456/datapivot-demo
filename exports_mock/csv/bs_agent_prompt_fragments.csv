@@ -72,7 +72,7 @@
 SELECT 节点名称 AS 大区,
        SUM(年度开单金额) AS 累计开单
 FROM public.v_feishu_tblshangyongv2
-WHERE 层级='战区' AND 线='区域线' AND 行业线='总额(未拆分)' AND 年份='2026'
+WHERE 层级='战区' AND 线='区域线' AND business_line='总额(未拆分)' AND 年份='2026'
 GROUP BY 节点名称
 ORDER BY 累计开单 DESC
 LIMIT 5;
@@ -84,7 +84,7 @@ FROM (
          CASE WHEN SUM(总任务金额)>0 THEN ROUND(SUM(年度开单金额)/SUM(总任务金额)*100,2) ELSE 0 END AS 达成率,
          ROW_NUMBER() OVER (PARTITION BY 上级名称 ORDER BY CASE WHEN SUM(总任务金额)>0 THEN SUM(年度开单金额)/SUM(总任务金额) ELSE 0 END ASC) AS rn
   FROM public.v_feishu_tblshangyongv2
-  WHERE 层级='片区' AND 行业线='总额(未拆分)' AND 年份='2026'
+  WHERE 层级='片区' AND business_line='总额(未拆分)' AND 年份='2026'
   GROUP BY 上级名称, 节点名称
 ) t
 WHERE rn = 1;
@@ -96,7 +96,7 @@ WHERE rn = 1;
 
 # 核心规则
 1. 明确指定行业线时，WHERE 中过滤 行业线='食饮部'|'楼宇办公'|'工业健康'，不再过滤 总额(未拆分)。
-2. 占比查询：分子用指定行业的 SUM(年度开单金额)，分母用该节点 行业线='总额(未拆分)' 的 SUM(年度开单金额)，必须零除保护。
+2. 占比查询：分子用指定行业的 SUM(年度开单金额)，分母用该节点 business_line='总额(未拆分)' 的 SUM(年度开单金额)，必须零除保护。
 3. 同比 YoY：比较 SUM(年度开单金额) 与 SUM(去年同期开单)，公式 (今年-去年)/去年。
 4. 环比 MoM：用 LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) 计算上月值。
 5. 对账审计：用 CTE 分别取父级节点和子级节点的 SUM(总任务金额)，再相减得到未分配额度。禁止在单表上交叉 SUM 产生笛卡尔积。
@@ -106,9 +106,9 @@ WHERE rn = 1;
 # 示例
 【行业线占比】
 SELECT SUM(CASE WHEN 行业线='楼宇办公' THEN 年度开单金额 ELSE 0 END) AS 办公开单,
-       SUM(CASE WHEN 行业线='总额(未拆分)' THEN 年度开单金额 ELSE 0 END) AS 大盘开单,
-       CASE WHEN SUM(CASE WHEN 行业线='总额(未拆分)' THEN 年度开单金额 ELSE 0 END)>0
-            THEN ROUND(SUM(CASE WHEN 行业线='楼宇办公' THEN 年度开单金额 ELSE 0 END)/SUM(CASE WHEN 行业线='总额(未拆分)' THEN 年度开单金额 ELSE 0 END)*100,2)
+       SUM(CASE WHEN business_line='总额(未拆分)' THEN 年度开单金额 ELSE 0 END) AS 大盘开单,
+       CASE WHEN SUM(CASE WHEN business_line='总额(未拆分)' THEN 年度开单金额 ELSE 0 END)>0
+            THEN ROUND(SUM(CASE WHEN 行业线='楼宇办公' THEN 年度开单金额 ELSE 0 END)/SUM(CASE WHEN business_line='总额(未拆分)' THEN 年度开单金额 ELSE 0 END)*100,2)
             ELSE 0 END AS 办公占比
 FROM public.v_feishu_tblshangyongv2
 WHERE 节点名称='云梦片区' AND 层级='片区' AND 年份='2026' AND 月份 BETWEEN 1 AND 3;
@@ -124,12 +124,12 @@ WHERE 节点名称='商用事业群' AND 层级='事业群' AND 行业线='工�
 WITH parent_target AS (
   SELECT SUM(总任务金额) AS p_target
   FROM public.v_feishu_tblshangyongv2
-  WHERE 节点名称='沧澜战区' AND 层级='战区' AND 行业线='总额(未拆分)' AND 年份='2026'
+  WHERE 节点名称='沧澜战区' AND 层级='战区' AND business_line='总额(未拆分)' AND 年份='2026'
 ),
 children_sum AS (
   SELECT SUM(总任务金额) AS c_target
   FROM public.v_feishu_tblshangyongv2
-  WHERE 上级名称='沧澜战区' AND 层级='片区' AND 行业线='总额(未拆分)' AND 年份='2026'
+  WHERE 上级名称='沧澜战区' AND 层级='片区' AND business_line='总额(未拆分)' AND 年份='2026'
 )
 SELECT p_target, c_target, (p_target - c_target) AS 未分配额度
 FROM parent_target, children_sum;
@@ -148,7 +148,7 @@ FROM parent_target, children_sum;
 2. 大盘防重：未指明具体行业线时，必须 AND 行业线 = '总额(未拆分)'。
 3. 线隔离：查询战区/大区/区域时，必须 AND 线 = '区域线'；查询行业部/行业线时，必须 AND 线 = '行业线'。
 4. 零除保护：所有除法必须包在 CASE WHEN SUM(分母) > 0 THEN ... ELSE 0 END 中。
-5. Truth of Source：查询父级节点大盘指标时，直接定位该节点的预存汇总行（节点名称='xxx' AND 层级='yyy' AND 行业线='总额(未拆分)'），禁止用下属明细 GROUP BY 累加替代父级官方值。
+5. Truth of Source：查询父级节点大盘指标时，直接定位该节点的预存汇总行（节点名称='xxx' AND 层级='yyy' AND business_line='总额(未拆分)'），禁止用下属明细 GROUP BY 累加替代父级官方值。
 6. 比率过滤：达成率<30%、完成率>50% 等条件必须在 GROUP BY 后用 HAVING 对 SUM 比值重算，不能 WHERE 达成率 < 0.30。
 7. 时间翻译：严格按锚点转换，上半年=月份 BETWEEN 1 AND 6，Q1=月份 IN (1,2,3)，上个月=月份=5，今年=年份='2026'。
 8. 只读：禁止 INSERT/UPDATE/DELETE/DROP/TRUNCATE/ALTER/CREATE。
@@ -159,26 +159,26 @@ SELECT SUM(总任务金额) AS 总任务,
        SUM(年度开单金额) AS 总开单,
        CASE WHEN SUM(总任务金额) > 0 THEN ROUND(SUM(年度开单金额)/SUM(总任务金额)*100,2) ELSE 0 END AS 达成率
 FROM public.v_feishu_tblshangyongv2
-WHERE 节点名称='商用事业群' AND 层级='事业群' AND 行业线='总额(未拆分)' AND 年份='2026' AND 月份 BETWEEN 1 AND 6;
+WHERE 节点名称='商用事业群' AND 层级='事业群' AND business_line='总额(未拆分)' AND 年份='2026' AND 月份 BETWEEN 1 AND 6;
 
 【战区/大区查询】
 SELECT 节点名称, SUM(总任务金额) AS 总任务, SUM(年度开单金额) AS 总开单
 FROM public.v_feishu_tblshangyongv2
-WHERE 层级='战区' AND 线='区域线' AND 行业线='总额(未拆分)' AND 年份='2026' AND 月份=5
+WHERE 层级='战区' AND 线='区域线' AND business_line='总额(未拆分)' AND 年份='2026' AND 月份=5
 GROUP BY 节点名称
 ORDER BY 总开单 DESC;
 
 【片区下钻】
 SELECT 节点名称, SUM(总任务金额) AS 总任务, SUM(年度开单金额) AS 总开单
 FROM public.v_feishu_tblshangyongv2
-WHERE 上级名称='沧澜战区' AND 层级='片区' AND 行业线='总额(未拆分)' AND 年份='2026'
+WHERE 上级名称='沧澜战区' AND 层级='片区' AND business_line='总额(未拆分)' AND 年份='2026'
 GROUP BY 节点名称;
 
 【筛选比率（必须用 HAVING）】
 SELECT 节点名称,
        CASE WHEN SUM(总任务金额)>0 THEN ROUND(SUM(年度开单金额)/SUM(总任务金额)*100,2) ELSE 0 END AS 达成率
 FROM public.v_feishu_tblshangyongv2
-WHERE 层级='片区' AND 行业线='总额(未拆分)' AND 年份='2026'
+WHERE 层级='片区' AND business_line='总额(未拆分)' AND 年份='2026'
 GROUP BY 节点名称
 HAVING CASE WHEN SUM(总任务金额)>0 THEN SUM(年度开单金额)/SUM(总任务金额) ELSE 0 END < 0.30;
 
@@ -190,7 +190,7 @@ HAVING CASE WHEN SUM(总任务金额)>0 THEN SUM(年度开单金额)/SUM(总任�
 # 审计清单
 1. 只读安全：SQL 只能包含 SELECT。出现 INSERT/UPDATE/DELETE/DROP/TRUNCATE/ALTER/CREATE 立即驳回。
 2. 层级锁定：所有 SUM/聚合必须基于单一 层级 过滤，WHERE 中必须存在 层级='事业群'|'战区'|'片区'|'客户经理'。
-3. 大盘防重：未指明具体行业线时，必须包含 行业线='总额(未拆分)'。
+3. 大盘防重：未指明具体行业线时，必须包含 business_line='总额(未拆分)'。
 4. 线隔离：涉及战区/大区/区域时，必须 线='区域线'；涉及行业部/行业线时，必须 线='行业线'。
 5. 零除保护：所有除法必须包在 CASE WHEN SUM(分母)>0 THEN ... ELSE 0 END 或 NULLIF 中。
 6. 比率过滤位置：达成率/完成率等筛选必须出现在 GROUP BY 后的 HAVING 中，不能直接用 WHERE 达成率<0.3。

@@ -65,7 +65,7 @@ from system_log_store import log_event, request_snapshot
 init_default_configs()
 ensure_feature_flags()
 APP_CONFIG = get_app_config()
-BACKEND_PORT = int(APP_CONFIG.get("port") or os.getenv("SMARTASK_BACKEND_PORT", "5002"))
+BACKEND_PORT = int(APP_CONFIG.get("port") or os.getenv("DATAPULSE_BACKEND_PORT", "5002"))
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
@@ -74,7 +74,7 @@ app.config["JSON_AS_ASCII"] = False
 # 导致前端按键序找名称列时恢复历史后显示上级组织名而不是节点名。
 app.json.sort_keys = False
 app.json.ensure_ascii = False
-app.secret_key = str(APP_CONFIG.get("secret_key") or decrypt_secret_value(os.getenv("SMARTASK_SECRET_KEY", "vanna-local-secret-2026")))
+app.secret_key = str(APP_CONFIG.get("secret_key") or decrypt_secret_value(os.getenv("DATAPULSE_SECRET_KEY", "vanna-local-secret-2026")))
 
 # 路径前缀中间件：自动剥离 /smart-ask 前缀，兼容反向代理子路径部署
 class PrefixMiddleware:
@@ -106,8 +106,8 @@ CORS_ORIGINS = [
     "http://127.0.0.1:5175",
     os.getenv("FRONTEND_URL", ""),
     os.getenv("BACKEND_URL", ""),
-    os.getenv("SMARTASK_FRONTEND_URL", ""),
-    os.getenv("SMARTASK_BACKEND_URL", ""),
+    os.getenv("DATAPULSE_FRONTEND_URL", ""),
+    os.getenv("DATAPULSE_BACKEND_URL", ""),
 ]
 
 CORS(
@@ -193,7 +193,7 @@ def _http_error_guidance(path: str, status_code: int, error_message: str) -> dic
 
 @app.before_request
 def _mark_request_start():
-    request._smartask_started_at = time.time()
+    request._datapulse_started_at = time.time()
 
 
 @app.after_request
@@ -202,9 +202,9 @@ def _record_access_log(response):
     if _skip_access_log(path):
         return response
     try:
-        duration_ms = int((time.time() - getattr(request, "_smartask_started_at", time.time())) * 1000)
+        duration_ms = int((time.time() - getattr(request, "_datapulse_started_at", time.time())) * 1000)
         status_code = int(response.status_code or 0)
-        if status_code >= 400 and getattr(request, "_smartask_event_logged", False):
+        if status_code >= 400 and getattr(request, "_datapulse_event_logged", False):
             return response
         if status_code >= 400:
             category = "error"

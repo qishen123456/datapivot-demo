@@ -31,7 +31,7 @@
               <template v-else-if="runningTaskStatus === 'completed'">后台任务已执行完成，点击此处查看结果</template>
               <template v-else>后台任务执行失败，点击此处查看详情</template>
             </span>
-            <!-- i18n: smartask.task.readonlyBanner -->
+            <!-- i18n: datapulse.task.readonlyBanner -->
           </div>
 
           <!-- 会话滚动区-->
@@ -67,7 +67,7 @@
                 <!-- AI 回复 -->
                 <div v-else class="sa-ai-wrap">
                   <div class="sa-ai-meta">
-                    <div class="sa-ai-avatar" aria-label="数枢经营分析助手头像">
+                    <div class="sa-ai-avatar" aria-label="脉策经营分析助手头像">
                       <svg class="sa-ai-avatar-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                         <defs>
                           <linearGradient id="aiAuraChat" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -86,7 +86,7 @@
                         <circle cx="72" cy="44" r="4.5" fill="#0E9488" />
                       </svg>
                     </div>
-                    <span class="sa-ai-name">数枢经营分析顾问</span>
+                    <span class="sa-ai-name">DataPulse AI 经营分析顾问</span>
                   </div>
                   <div class="sa-ai-cards">
                     <!-- 加载中-->
@@ -1326,28 +1326,28 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { marked } from 'marked'
 import * as echarts from 'echarts'
 import { getBookshelfDatasets, getCommonQuestions, getActiveAIModels, recordParseBarFeedback } from '../api/index'
-import { useSmartAskSession } from '../state/smartAskSession'
+import { useDataPulseSession } from '../state/smartAskSession'
 import { getSessionCache, setSessionCache } from '../state/sessionCache'
 import { useFeatureFlags } from '../state/featureFlags'
 
-defineOptions({ name: 'SmartAsk' })
-import ChatHeader from '../components/smartask/ChatHeader.vue'
-import WelcomeScreen from '../components/smartask/WelcomeScreen.vue'
-import UserBubble from '../components/smartask/UserBubble.vue'
-import PlanCard from '../components/smartask/PlanCard.vue'
-import ParseBar from '../components/smartask/ParseBar.vue'
-import ThinkingCard from '../components/smartask/ThinkingCard.vue'
-import LiveExecutionFeed from '../components/smartask/LiveExecutionFeed.vue'
-import ResultDigestCard from '../components/smartask/ResultDigestCard.vue'
-import ComposerArea from '../components/smartask/ComposerArea.vue'
-import LogTimeline from '../components/smartask/LogTimeline.vue'
-import SqlBlock from '../components/smartask/SqlBlock.vue'
-import { useSmartAskHistory } from '../state/smartAskHistory'
-import { useSmartAskTaskView } from '../state/smartAskTaskView'
-import { useSmartAskReportHistory } from '../composables/useSmartAskReportHistory'
+defineOptions({ name: 'DataPulse' })
+import ChatHeader from '../components/datapulse/ChatHeader.vue'
+import WelcomeScreen from '../components/datapulse/WelcomeScreen.vue'
+import UserBubble from '../components/datapulse/UserBubble.vue'
+import PlanCard from '../components/datapulse/PlanCard.vue'
+import ParseBar from '../components/datapulse/ParseBar.vue'
+import ThinkingCard from '../components/datapulse/ThinkingCard.vue'
+import LiveExecutionFeed from '../components/datapulse/LiveExecutionFeed.vue'
+import ResultDigestCard from '../components/datapulse/ResultDigestCard.vue'
+import ComposerArea from '../components/datapulse/ComposerArea.vue'
+import LogTimeline from '../components/datapulse/LogTimeline.vue'
+import SqlBlock from '../components/datapulse/SqlBlock.vue'
+import { useDataPulseHistory } from '../state/smartAskHistory'
+import { useDataPulseTaskView } from '../state/smartAskTaskView'
+import { useDataPulseReportHistory } from '../composables/useDataPulseReportHistory'
 import { buildOrgTree, getDefaultConfig as getDefaultReportTreeConfig } from '../composables/useOrgTree'
 
-const session = useSmartAskSession()
+const session = useDataPulseSession()
 const { isFeatureEnabled, loadFeatureFlags } = useFeatureFlags()
 const smartFeatureKeys = [
   'debug_execution_trace',
@@ -1384,7 +1384,7 @@ const {
   clearRestoreRequest,
   setActiveHistory,
   takePendingRestoreOptions,
-} = useSmartAskHistory()
+} = useDataPulseHistory()
 const {
   runningSessionId,
   viewingTaskId,
@@ -1400,7 +1400,7 @@ const {
   markRunningTaskFailed,
   switchViewToRunning,
   switchViewToDefault,
-} = useSmartAskTaskView()
+} = useDataPulseTaskView()
 const query = ref('')
 const datasetId = ref(null)
 const modelId = ref(null)
@@ -4865,7 +4865,7 @@ const handleNewChat = async () => {
 }
 
 const focusSidebarHistory = () => {
-  window.dispatchEvent(new CustomEvent('smartask-history-focus'))
+  window.dispatchEvent(new CustomEvent('datapulse-history-focus'))
 }
 
 const datasetNameMap = computed(() => new Map(
@@ -5238,7 +5238,7 @@ const scrollPanel = (behavior = 'auto', force = false) => nextTick(() => {
 const {
   saveCurrentToHistory,
   restoreHistory,
-} = useSmartAskReportHistory({
+} = useDataPulseReportHistory({
   session,
   messages,
   datasetId,
@@ -5899,7 +5899,7 @@ const sanitizeModelSelection = () => {
 }
 
 onMounted(async () => {
-  window.addEventListener('smartask-create-fresh-chat', handleExternalFreshChat)
+  window.addEventListener('datapulse-create-fresh-chat', handleExternalFreshChat)
   loadFeatureFlags()
   loadHistory()
 
@@ -5962,7 +5962,7 @@ onDeactivated(() => {
 })
 
 onUnmounted(() => {
-  window.removeEventListener('smartask-create-fresh-chat', handleExternalFreshChat)
+  window.removeEventListener('datapulse-create-fresh-chat', handleExternalFreshChat)
   stopTimer()
   if (chatScrollTimer) clearTimeout(chatScrollTimer)
   if (panelScrollTimer) clearTimeout(panelScrollTimer)

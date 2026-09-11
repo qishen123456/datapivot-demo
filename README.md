@@ -1,4 +1,4 @@
-# 数枢 DataPivot · 智能问数系统（演示版）
+# DataPulse 脉策智能 / 脉策问数 · 智能问数系统（演示版）
 
 > **这是一套对外演示版本。** 仓库中的业务数据全部为**虚构的脱敏模拟数据**
 > （占位品牌「星澜集团」），与任何真实企业无关，可安全用于演示与评审。
@@ -21,10 +21,10 @@
 # 1. 准备环境变量（首次必须）
 cp .env.example .env
 #    然后编辑 .env，至少填写：
-#      SMARTASK_DB_PASSWORD   —— 数据库密码（自行设定）
-#      SMARTASK_AI_API_KEY    —— 大模型 API Key（问数功能必需）
-#      SMARTASK_AI_BASE_URL   —— 模型服务地址
-#      SMARTASK_AI_MODEL      —— 模型名称
+#      DATAPULSE_DB_PASSWORD   —— 数据库密码（自行设定）
+#      DATAPULSE_AI_API_KEY    —— 大模型 API Key（问数功能必需）
+#      DATAPULSE_AI_BASE_URL   —— 模型服务地址
+#      DATAPULSE_AI_MODEL      —— 模型名称
 
 # 2. 启动全部服务
 docker compose up -d
@@ -40,9 +40,9 @@ docker compose up -d
 
 | 服务 | 容器名 | 端口 |
 |---|---|---|
-| 前端 Web | `smartask-frontend` | **8888** |
-| 后端 API | `smartask-backend` | 5002 |
-| PostgreSQL | `smartask-postgres` | 5433（容器内 5432） |
+| 前端 Web | `datapulse-frontend` | **8888** |
+| 后端 API | `datapulse-backend` | 5002 |
+| PostgreSQL | `datapulse-postgres` | 5433（容器内 5432） |
 
 ### 演示账号
 
@@ -80,7 +80,7 @@ docker compose up -d
 ├── config/                 # 运行时配置（业务配置；凭证类需自行填写）
 ├── exports_mock/           # ★ 脱敏后的模拟数据
 │   ├── csv/                #   各表数据（CSV 形式）
-│   └── smartask_database_dump.sql   # 完整数据库转储（导入脚本使用）
+│   └── datapulse_database_dump.sql   # 完整数据库转储（导入脚本使用）
 ├── nginx/                  # 反向代理配置
 ├── scripts/
 │   └── load_demo_data.sh   # ★ 脱敏数据导入脚本
@@ -107,7 +107,7 @@ docker compose up -d
 A：确认已执行 `./scripts/load_demo_data.sh`，且容器名与 `.env` 中的数据库名一致。
 
 **Q：问数没有结果 / 报模型错误？**
-A：检查 `.env` 中的 `SMARTASK_AI_API_KEY`、`SMARTASK_AI_BASE_URL`、`SMARTASK_AI_MODEL` 是否配置正确。
+A：检查 `.env` 中的 `DATAPULSE_AI_API_KEY`、`DATAPULSE_AI_BASE_URL`、`DATAPULSE_AI_MODEL` 是否配置正确。
 
 **Q：想重新导入数据？**
 A：直接再次执行 `./scripts/load_demo_data.sh` 即可（脚本会先重建 schema，幂等）。

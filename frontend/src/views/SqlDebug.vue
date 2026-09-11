@@ -134,9 +134,9 @@ import { useFeatureFlags } from '../state/featureFlags'
 
 defineOptions({ name: 'SqlDebug' })
 
-const STATE_KEY = 'smartask_sql_debug_page_state'
-const FLOAT_ENABLED_KEY = 'smartask_sql_debug_float_enabled'
-const FLOAT_TOGGLE_EVENT = 'smartask-sql-debug-float-toggle'
+const STATE_KEY = 'datapulse_sql_debug_page_state'
+const FLOAT_ENABLED_KEY = 'datapulse_sql_debug_float_enabled'
+const FLOAT_TOGGLE_EVENT = 'datapulse-sql-debug-float-toggle'
 
 const createEmptyResult = () => ({
   columns: [],

@@ -85,7 +85,7 @@
 
         <div class="upload-zone" :class="{ ready: !!selectedFileName }">
           <div>
-            <strong>{{ selectedFileName || '选择 smartask_runtime_*.json' }}</strong>
+            <strong>{{ selectedFileName || '选择 datapulse_runtime_*.json' }}</strong>
             <p>支持从 Windows 测试环境导出的运行态包，也支持命令行脚本导出的包。</p>
           </div>
           <label v-if="runtimeFileSelectEnabled" class="file-picker">
@@ -336,7 +336,7 @@ const handleExport = async () => {
   try {
     const blob = await exportRuntimeMigrationBundle()
     const url = URL.createObjectURL(blob)
-    const filename = `smartask_runtime_${new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '')}.json`
+    const filename = `datapulse_runtime_${new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '')}.json`
     const link = document.createElement('a')
     link.href = url
     link.download = filename
@@ -443,7 +443,7 @@ const configFileLabel = (file) => ({
   'ask_flow.json': '问数流程配置',
   'advanced_capabilities.json': '进阶问数能力配置',
   'query_history.json': '问数历史',
-  'smartask_report_history.json': '问数报告历史',
+  'datapulse_report_history.json': '问数报告历史',
 }[file] || file)
 
 const tableLabel = (table) => ({

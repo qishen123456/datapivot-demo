@@ -29,7 +29,7 @@ from auth_store import get_current_user
 from data_permission_store import allowed_dataset_ids_for_user
 from feature_flags import feature_available
 from system_log_store import log_event, request_snapshot
-from smartask_report_history_store import (
+from datapulse_report_history_store import (
     StaleHistorySnapshotError,
     clear_history as clear_report_history,
     filter_history_dataset_results,
@@ -146,7 +146,7 @@ def _permission_denied_response(user: dict, requested_dataset_ids, allowed_datas
 
 def _mark_request_event_logged() -> None:
     try:
-        request._smartask_event_logged = True
+        request._datapulse_event_logged = True
     except Exception:
         pass
 
@@ -179,7 +179,7 @@ def _log_smart_chat_rejection(
             "event_name": title or "智能问数请求被拒绝",
             "what_happened": error_message or "问数请求在进入执行链路前被拒绝。",
             "suggested_action": "检查问题内容、功能权限、数据集权限或确认会话是否过期。",
-            "code_hint": "backend/controllers/smart_chat.py；backend/four_agent_ask.py；frontend/src/views/SmartAsk.vue。",
+            "code_hint": "backend/controllers/smart_chat.py；backend/four_agent_ask.py；frontend/src/views/DataPulse.vue。",
             **(details or {}),
         },
     )

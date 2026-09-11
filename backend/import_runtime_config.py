@@ -5,7 +5,7 @@ Default behaviour (idempotent / non-destructive):
     - Files that already exist in config/ are KEPT (so user edits survive).
     - Files that are missing are written from the bundle.
 
-Set force_overwrite=True (or env SMARTASK_BOOTSTRAP_FORCE_CONFIG=1) to overwrite
+Set force_overwrite=True (or env DATAPULSE_BOOTSTRAP_FORCE_CONFIG=1) to overwrite
 all captured files.
 
 Usage:
@@ -22,7 +22,7 @@ from typing import Any, Dict, List
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(CURRENT_DIR)
-CONFIG_DIR = os.getenv("SMARTASK_CONFIG_DIR") or os.path.join(BASE_DIR, "config")
+CONFIG_DIR = os.getenv("DATAPULSE_CONFIG_DIR") or os.path.join(BASE_DIR, "config")
 
 
 def import_bundle(bundle_path: str, force_overwrite: bool = False) -> Dict[str, Any]:
@@ -75,7 +75,7 @@ def main() -> None:
         raise SystemExit("Usage: python import_runtime_config.py /path/to/runtime_config_bundle.json [--force]")
 
     bundle_path = sys.argv[1]
-    force = "--force" in sys.argv[2:] or os.getenv("SMARTASK_BOOTSTRAP_FORCE_CONFIG", "").lower() in {"1", "true", "yes"}
+    force = "--force" in sys.argv[2:] or os.getenv("DATAPULSE_BOOTSTRAP_FORCE_CONFIG", "").lower() in {"1", "true", "yes"}
 
     result = import_bundle(bundle_path, force_overwrite=force)
     print(json.dumps(result, ensure_ascii=False, indent=2))

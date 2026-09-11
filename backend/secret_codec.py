@@ -28,11 +28,11 @@ def is_encrypted_secret(value: str | None) -> bool:
 
 
 def _key_file_path() -> Path:
-    return Path(os.getenv("SMARTASK_SECRET_KEY_FILE") or DEFAULT_KEY_FILE)
+    return Path(os.getenv("DATAPULSE_SECRET_KEY_FILE") or DEFAULT_KEY_FILE)
 
 
 def _read_master_key(*, create: bool = False) -> str:
-    env_key = os.getenv("SMARTASK_SECRET_MASTER_KEY")
+    env_key = os.getenv("DATAPULSE_SECRET_MASTER_KEY")
     if env_key:
         return env_key.strip()
 
@@ -42,7 +42,7 @@ def _read_master_key(*, create: bool = False) -> str:
 
     if not create:
         raise RuntimeError(
-            "缺少密钥文件，无法解密 enc:v1 密文。请设置 SMARTASK_SECRET_MASTER_KEY "
+            "缺少密钥文件，无法解密 enc:v1 密文。请设置 DATAPULSE_SECRET_MASTER_KEY "
             f"或创建 {key_path}"
         )
 

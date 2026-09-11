@@ -2,10 +2,10 @@
   <main class="auth-login-page">
     <section class="auth-hero">
       <div class="auth-hero-mark">
-        <img src="/datapivot-logo.svg" alt="DataPivot" class="auth-hero-logo" />
+        <img src="/datapivot-logo.svg" alt="DataPulse" class="auth-hero-logo" />
       </div>
       <p class="auth-kicker">DATAPIVOT INTELLIGENCE</p>
-      <h1>数枢智能问数</h1>
+      <h1>DataPulse 脉策智能 / 脉策问数</h1>
       <p class="auth-desc">登录后根据员工权限加载分析、配置与管理能力。</p>
       <div class="auth-capabilities">
         <span>统一身份</span>
@@ -121,7 +121,7 @@ const startFeishu = async () => {
 </script>
 
 <style scoped>
-/* ===== 登录页：数枢品牌企业工作台感 ===== */
+/* ===== 登录页：脉策品牌企业工作台感 ===== */
 .auth-login-page {
   min-height: 100vh;
   display: grid;
@@ -180,7 +180,7 @@ const startFeishu = async () => {
   width: 72px;
   height: auto;
   object-fit: contain;
-  /* 数枢方形图标 logo */
+  /* 脉策方形图标 logo */
   opacity: 0.95;
   display: block;
 }

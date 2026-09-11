@@ -1,6 +1,6 @@
 import { feishuInAppAuth, setAuthToken } from '../api/index.js'
 
-const FEISHU_INIT_KEY = 'smartask_feishu_init_done'
+const FEISHU_INIT_KEY = 'datapulse_feishu_init_done'
 
 export const isInFeishu = () => {
   const ua = navigator.userAgent || ''

@@ -35,9 +35,9 @@ import { ElIcon, ElMessage } from 'element-plus'
 import { Monitor } from '@element-plus/icons-vue'
 import { useFeatureFlags } from '../state/featureFlags'
 
-const FLOAT_ENABLED_KEY = 'smartask_sql_debug_float_enabled'
-const FLOAT_POSITION_KEY = 'smartask_sql_debug_float_position'
-const FLOAT_TOGGLE_EVENT = 'smartask-sql-debug-float-toggle'
+const FLOAT_ENABLED_KEY = 'datapulse_sql_debug_float_enabled'
+const FLOAT_POSITION_KEY = 'datapulse_sql_debug_float_position'
+const FLOAT_TOGGLE_EVENT = 'datapulse-sql-debug-float-toggle'
 
 const router = useRouter()
 const { isFeatureEnabled, loadFeatureFlags } = useFeatureFlags()

@@ -21,7 +21,7 @@
         </svg>
       </div>
       <div class="sa-welcome-copy">
-        <div class="sa-welcome-label">数枢经营分析顾问</div>
+        <div class="sa-welcome-label">DataPulse AI 经营分析顾问</div>
         <div class="sa-welcome-text" :class="{ 'is-typing': isTyping }">{{ displayText }}</div>
       </div>
     </div>

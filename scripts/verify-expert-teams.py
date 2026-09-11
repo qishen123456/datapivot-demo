@@ -2,7 +2,7 @@
 """双专家团队配置综合校验脚本（临时）"""
 import yaml, os, re
 
-os.chdir('/Users/ltl123/smartask/sa1.0/smartask')
+os.chdir('/Users/ltl123/datapulse/sa1.0/datapulse')
 
 errors = []
 warnings = []

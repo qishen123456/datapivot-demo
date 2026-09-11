@@ -1,5 +1,5 @@
 """
-Export SmartAsk runtime resources into a portable JSON bundle.
+Export DataPulse runtime resources into a portable JSON bundle.
 
 Examples:
   python scripts/export_runtime_config.py --output runtime_config.json
@@ -22,7 +22,7 @@ from runtime_migration import export_runtime_bundle, summarize_bundle
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Export SmartAsk runtime resources.")
+    parser = argparse.ArgumentParser(description="Export DataPulse runtime resources.")
     parser.add_argument("--output", "-o", default=os.path.join(ROOT_DIR, "runtime_config_bundle.json"))
     args = parser.parse_args()
 

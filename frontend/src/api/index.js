@@ -299,10 +299,10 @@ export const sendSmartChatStream = (question, signal, selectedDatasetIds, onEven
     skip_typo_check: options?.skipTypoCheck || undefined,
   }, signal, onEvent)
 
-export const getSmartAskReportHistory = (limit = 50) => api.get('/smart-chat/report-history', { params: { limit }, timeout: 5000, silent: true })
-export const saveSmartAskReportHistory = (item) => api.post('/smart-chat/report-history', { item }, { silent: true })
-export const deleteSmartAskReportHistory = (id) => api.delete(`/smart-chat/report-history/${encodeURIComponent(id)}`, { silent: true })
-export const clearSmartAskReportHistory = () => api.delete('/smart-chat/report-history', { silent: true })
+export const getDataPulseReportHistory = (limit = 50) => api.get('/smart-chat/report-history', { params: { limit }, timeout: 5000, silent: true })
+export const saveDataPulseReportHistory = (item) => api.post('/smart-chat/report-history', { item }, { silent: true })
+export const deleteDataPulseReportHistory = (id) => api.delete(`/smart-chat/report-history/${encodeURIComponent(id)}`, { silent: true })
+export const clearDataPulseReportHistory = () => api.delete('/smart-chat/report-history', { silent: true })
 
 export const confirmByBoss = (payload) => api.post('/smart-chat/confirm-by-boss', payload)
 export const confirmByBossStream = (payload, signal, onEvent) =>

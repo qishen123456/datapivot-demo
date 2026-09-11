@@ -6,7 +6,7 @@ import { dirname, resolve } from 'node:path'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const viteCacheDir = process.env.SMARTASK_VITE_CACHE_DIR || resolve(tmpdir(), 'smartask-vite-cache')
+const viteCacheDir = process.env.DATAPULSE_VITE_CACHE_DIR || resolve(tmpdir(), 'datapulse-vite-cache')
 
 export default defineConfig({
   // 部署子路径：通过BASE_PATH环境变量配置，服务器部署设为/smart-ask/，本地开发默认/

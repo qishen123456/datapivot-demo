@@ -39,7 +39,7 @@ def _request_bundle() -> dict:
     bundle = data.get("bundle") if isinstance(data, dict) else None
     if isinstance(bundle, dict):
         return bundle
-    if isinstance(data, dict) and data.get("type") == "smartask_runtime_bundle":
+    if isinstance(data, dict) and data.get("type") == "datapulse_runtime_bundle":
         return data
     raise ValueError("缺少运行态导入包")
 
@@ -58,7 +58,7 @@ def export_bundle():
     if error:
         return error
     bundle = export_runtime_bundle()
-    filename = f"smartask_runtime_{bundle.get('exported_at', '').replace(':', '').replace('-', '').replace('T', '_')}.json"
+    filename = f"datapulse_runtime_{bundle.get('exported_at', '').replace(':', '').replace('-', '').replace('T', '_')}.json"
     payload = json.dumps(bundle, ensure_ascii=False, indent=2, default=_json_default)
     return Response(
         payload,

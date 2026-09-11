@@ -1,5 +1,5 @@
 """
-SmartAsk container/local one-shot bootstrap.
+DataPulse container/local one-shot bootstrap.
 
 After the bootstrap / migrate split (see ``migrate.py``), this module no
 longer performs schema migrations, bundle imports, or built-in dataset
@@ -82,11 +82,11 @@ def _datasource_kwargs() -> dict:
         ds = {}
 
     return dict(
-        host=ds.get("host") or _env_value("SMARTASK_DB_HOST", "postgres"),
-        port=int(ds.get("port") or _env_value("SMARTASK_DB_PORT", "5432") or 5432),
-        database=ds.get("database_name") or _env_value("SMARTASK_DB_DATABASE", "postgres"),
-        user=ds.get("username") or _env_value("SMARTASK_DB_USERNAME", "postgres"),
-        password=ds.get("password") or _env_value("SMARTASK_DB_PASSWORD", "postgres"),
+        host=ds.get("host") or _env_value("DATAPULSE_DB_HOST", "postgres"),
+        port=int(ds.get("port") or _env_value("DATAPULSE_DB_PORT", "5432") or 5432),
+        database=ds.get("database_name") or _env_value("DATAPULSE_DB_DATABASE", "postgres"),
+        user=ds.get("username") or _env_value("DATAPULSE_DB_USERNAME", "postgres"),
+        password=ds.get("password") or _env_value("DATAPULSE_DB_PASSWORD", "postgres"),
         connect_timeout=8,
     )
 
@@ -179,7 +179,7 @@ def _import_runtime_config() -> None:
     try:
         from import_runtime_config import import_bundle
 
-        force = os.getenv("SMARTASK_BOOTSTRAP_FORCE_CONFIG", "").lower() in {"1", "true", "yes"}
+        force = os.getenv("DATAPULSE_BOOTSTRAP_FORCE_CONFIG", "").lower() in {"1", "true", "yes"}
         result = import_bundle(RUNTIME_CONFIG_BUNDLE, force_overwrite=force)
         log(f"运行时配置恢复: {result.get('written_files')}")
     except Exception as exc:
@@ -232,8 +232,8 @@ ECOMMERCE_COMMON_QUESTIONS = [
 
 
 def _sync_builtin_datasets() -> None:
-    if os.getenv("SMARTASK_BOOTSTRAP_SKIP_BUILTINS", "").lower() in {"1", "true", "yes"}:
-        log("SMARTASK_BOOTSTRAP_SKIP_BUILTINS=1，跳过内置数据集模板同步")
+    if os.getenv("DATAPULSE_BOOTSTRAP_SKIP_BUILTINS", "").lower() in {"1", "true", "yes"}:
+        log("DATAPULSE_BOOTSTRAP_SKIP_BUILTINS=1，跳过内置数据集模板同步")
         return
     try:
         from create_consumer_standard_dataset import apply_payload_direct
@@ -256,8 +256,8 @@ def _sync_default_dataset_transforms() -> None:
     就自动为其创建对应的视图/表转换任务。如果源表已有数据，立即执行一次，
     让视图在飞书同步前或同步后都能自动出现，无需手动跑脚本。
     """
-    if os.getenv("SMARTASK_BOOTSTRAP_SKIP_BUILTINS", "").lower() in {"1", "true", "yes"}:
-        log("SMARTASK_BOOTSTRAP_SKIP_BUILTINS=1，跳过默认转换任务同步")
+    if os.getenv("DATAPULSE_BOOTSTRAP_SKIP_BUILTINS", "").lower() in {"1", "true", "yes"}:
+        log("DATAPULSE_BOOTSTRAP_SKIP_BUILTINS=1，跳过默认转换任务同步")
         return
     if not os.path.exists(DEFAULT_TRANSFORMS_BUNDLE):
         log("未找到 default_dataset_transforms.json，跳过默认转换任务同步")
@@ -370,7 +370,7 @@ def _sync_default_dataset_transforms() -> None:
 
 def _sync_ecommerce_common_questions() -> None:
     """同步电商数据集常用问题（该数据集由标准视图迁移创建，无 payload 模板）。"""
-    if os.getenv("SMARTASK_BOOTSTRAP_SKIP_BUILTINS", "").lower() in {"1", "true", "yes"}:
+    if os.getenv("DATAPULSE_BOOTSTRAP_SKIP_BUILTINS", "").lower() in {"1", "true", "yes"}:
         return
     try:
         import psycopg2
@@ -408,7 +408,7 @@ def _sync_ecommerce_common_questions() -> None:
 
 
 def main() -> None:
-    log("========== SmartAsk Bootstrap 开始 ==========")
+    log("========== DataPulse Bootstrap 开始 ==========")
     log("⚠️ Bootstrap 不再执行迁移/数据同步；如需初始化数据库，请先运行 backend/migrate.py。")
     log("本次启动仅作为向后兼容入口，直接交棒给 Flask。")
 

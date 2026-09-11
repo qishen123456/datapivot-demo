@@ -883,10 +883,10 @@ const roles = [
   { value: 'user', label: '普通用户' }
 ]
 const roleOrder = roles.map((item) => item.value)
-const FEATURE_FLAGS_UPDATED_EVENT = 'smartask-feature-flags-updated'
-const ADMIN_CONSOLE_LAST_ROUTE_KEY = 'smartask_admin_console_last_route'
-const ADMIN_CONSOLE_FLOAT_HIDDEN_KEY = 'smartask_admin_console_float_hidden'
-const ADMIN_CONSOLE_FLOAT_TOGGLE_EVENT = 'smartask-admin-console-float-toggle'
+const FEATURE_FLAGS_UPDATED_EVENT = 'datapulse-feature-flags-updated'
+const ADMIN_CONSOLE_LAST_ROUTE_KEY = 'datapulse_admin_console_last_route'
+const ADMIN_CONSOLE_FLOAT_HIDDEN_KEY = 'datapulse_admin_console_float_hidden'
+const ADMIN_CONSOLE_FLOAT_TOGGLE_EVENT = 'datapulse-admin-console-float-toggle'
 const consoleTabs = ['dashboard', 'permissions', 'ask-flow', 'fields', 'data', 'logs']
 
 const loading = ref(false)
@@ -2178,7 +2178,7 @@ const actionSuggestion = (row) => {
 const codeHint = (row) => {
   const details = eventDetails(row)
   if (details.code_hint) return details.code_hint
-  if (row?.request_path?.includes('/smart-chat')) return 'backend/controllers/smart_chat.py；backend/four_agent_ask.py；frontend/src/views/SmartAsk.vue。'
+  if (row?.request_path?.includes('/smart-chat')) return 'backend/controllers/smart_chat.py；backend/four_agent_ask.py；frontend/src/views/DataPulse.vue。'
   if (row?.request_path?.includes('/bookshelves')) return 'backend/controllers/bookshelf.py；frontend/src/views/DatasetManagement.vue。'
   if (row?.request_path?.includes('/admin/system-logs')) return 'backend/controllers/system_logs.py；backend/system_log_store.py；frontend/src/views/AdminConsole.vue。'
   return 'backend/controllers/*.py 中搜索请求路径；frontend/src/api/index.js 中搜索对应 API 方法。'

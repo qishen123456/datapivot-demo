@@ -1,4 +1,4 @@
-"""Pure helpers for the SmartAsk engine."""
+"""Pure helpers for the DataPulse engine."""
 
 from __future__ import annotations
 

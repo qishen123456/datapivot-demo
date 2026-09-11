@@ -1,7 +1,7 @@
 """
 Runtime configuration export/import service.
 
-This module packages the mutable SmartAsk resources that should survive code
+This module packages the mutable DataPulse resources that should survive code
 deployments: JSON configs plus Bookshelf metadata stored in PostgreSQL. Imports
 are intentionally conservative: dry-run is supported, and non-dry-run imports
 create a rollback bundle before any write.
@@ -24,9 +24,9 @@ from system_log_store import SYSTEM_LOG_SCHEMA_SQL
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(CURRENT_DIR)
-CONFIG_DIR = os.getenv("SMARTASK_CONFIG_DIR") or os.path.join(BASE_DIR, "config")
-BACKUP_DIR = os.getenv("SMARTASK_RUNTIME_BACKUP_DIR") or os.path.join(BASE_DIR, "backups", "runtime")
-RUNTIME_LOG_RETENTION_DAYS = int(os.getenv("SMARTASK_RUNTIME_LOG_RETENTION_DAYS", "7") or "7")
+CONFIG_DIR = os.getenv("DATAPULSE_CONFIG_DIR") or os.path.join(BASE_DIR, "config")
+BACKUP_DIR = os.getenv("DATAPULSE_RUNTIME_BACKUP_DIR") or os.path.join(BASE_DIR, "backups", "runtime")
+RUNTIME_LOG_RETENTION_DAYS = int(os.getenv("DATAPULSE_RUNTIME_LOG_RETENTION_DAYS", "7") or "7")
 
 RUNTIME_CONFIG_FILES = [
     "datasources.json",
@@ -42,7 +42,7 @@ RUNTIME_CONFIG_FILES = [
     "ask_flow.json",
     "advanced_capabilities.json",
     "query_history.json",
-    "smartask_report_history.json",
+    "datapulse_report_history.json",
 ]
 
 CONFIG_FILE_LABELS = {
@@ -59,7 +59,7 @@ CONFIG_FILE_LABELS = {
     "ask_flow.json": "问数流程配置",
     "advanced_capabilities.json": "进阶问数能力配置",
     "query_history.json": "问数历史",
-    "smartask_report_history.json": "问数报告历史",
+    "datapulse_report_history.json": "问数报告历史",
 }
 
 EXCLUDED_CONFIG_FILES = {
@@ -524,7 +524,7 @@ def _runtime_config_summary(configs: Dict[str, Any]) -> List[Dict[str, Any]]:
                 enabled = sum(1 for item in skills if isinstance(item, dict) and item.get("enabled") is not False)
                 count = len(skills) or 1
                 description = f"{enabled} 个启用进阶 Skill/工具"
-            elif filename in {"query_history.json", "smartask_report_history.json"}:
+            elif filename in {"query_history.json", "datapulse_report_history.json"}:
                 count = len(payload)
                 description = "按用户隔离的历史记录"
             else:
@@ -849,15 +849,15 @@ def _upsert_rows(
         elif conflict_columns:
             sql += f" ON CONFLICT ({', '.join(conflict_columns)}) DO NOTHING"
         sql += ";"
-        cur.execute("SAVEPOINT smartask_runtime_import_row;")
+        cur.execute("SAVEPOINT datapulse_runtime_import_row;")
         try:
             cur.execute(sql, values)
             affected = cur.rowcount if cur.rowcount and cur.rowcount > 0 else 0
-            cur.execute("RELEASE SAVEPOINT smartask_runtime_import_row;")
+            cur.execute("RELEASE SAVEPOINT datapulse_runtime_import_row;")
             inserted += affected
         except Exception as exc:
-            cur.execute("ROLLBACK TO SAVEPOINT smartask_runtime_import_row;")
-            cur.execute("RELEASE SAVEPOINT smartask_runtime_import_row;")
+            cur.execute("ROLLBACK TO SAVEPOINT datapulse_runtime_import_row;")
+            cur.execute("RELEASE SAVEPOINT datapulse_runtime_import_row;")
             if skipped_rows is not None:
                 skipped_rows.append(
                     _skip_detail(
@@ -880,7 +880,7 @@ def export_runtime_bundle(output_path: str | None = None) -> Dict[str, Any]:
 
     bundle: Dict[str, Any] = {
         "version": 2,
-        "type": "smartask_runtime_bundle",
+        "type": "datapulse_runtime_bundle",
         "exported_at": datetime.now().isoformat(timespec="seconds"),
         "configs": {},
         "bookshelf": {"tables": {}},
@@ -1006,7 +1006,7 @@ def summarize_runtime_state() -> Dict[str, Any]:
 
     log_stats = _collect_log_file_stats(log_cutoff)
     return {
-        "type": "smartask_runtime_bundle",
+        "type": "datapulse_runtime_bundle",
         "version": 2,
         "exported_at": datetime.now().isoformat(timespec="seconds"),
         "config_counts": {name: 1 for name in configs.keys()},
@@ -1206,7 +1206,7 @@ def import_runtime_bundle(
 
         for table_name in RUNTIME_TABLES:
             rows = tables.get(table_name) or []
-            cur.execute("SAVEPOINT smartask_runtime_import_table;")
+            cur.execute("SAVEPOINT datapulse_runtime_import_table;")
             try:
                 imported_counts[table_name] = _upsert_rows(
                     cur,
@@ -1216,10 +1216,10 @@ def import_runtime_bundle(
                     skipped_table_rows,
                     dataset_id_map,
                 )
-                cur.execute("RELEASE SAVEPOINT smartask_runtime_import_table;")
+                cur.execute("RELEASE SAVEPOINT datapulse_runtime_import_table;")
             except Exception as exc:
-                cur.execute("ROLLBACK TO SAVEPOINT smartask_runtime_import_table;")
-                cur.execute("RELEASE SAVEPOINT smartask_runtime_import_table;")
+                cur.execute("ROLLBACK TO SAVEPOINT datapulse_runtime_import_table;")
+                cur.execute("RELEASE SAVEPOINT datapulse_runtime_import_table;")
                 imported_counts[table_name] = 0
                 skipped_table_rows.append(
                     _skip_detail(

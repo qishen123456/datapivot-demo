@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const viewLoaders = {
-  SmartAsk: () => import('../views/SmartAsk.vue'),
+  DataPulse: () => import('../views/DataPulse.vue'),
   SqlDebug: () => import('../views/SqlDebug.vue'),
   AuthCallback: () => import('../views/AuthCallback.vue'),
   AgentManagement: () => import('../views/AgentManagement.vue'),
@@ -26,8 +26,8 @@ const routes = [
   },
   {
     path: '/smart-ask',
-    name: 'SmartAsk',
-    component: viewLoaders.SmartAsk,
+    name: 'DataPulse',
+    component: viewLoaders.DataPulse,
     meta: { title: '智能分析工作台', roles: ['super_admin', 'admin', 'user'] }
   },
   {
@@ -149,7 +149,7 @@ export const preloadRouteComponents = (routeNames = []) => {
 }
 
 router.afterEach((to) => {
-  document.title = `${to.meta.title || '智能分析'} - 数枢 DataPivot`
+  document.title = `${to.meta.title || '智能分析'} - DataPulse 脉策智能 / 脉策问数`
 })
 
 export default router

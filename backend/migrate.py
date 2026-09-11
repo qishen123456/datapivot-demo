@@ -1,5 +1,5 @@
 """
-SmartAsk one-shot database migrator.
+DataPulse one-shot database migrator.
 
 Run as a Docker Compose ``migrate`` service (or manually) before the backend
 container starts. Idempotent — safe to re-run on every deploy.
@@ -11,7 +11,7 @@ Order of operations (each step is best-effort unless marked fatal):
        existing user-edited config/*.json is preserved)
     3. Restore runtime config bundle               [non-fatal]
        (_import_runtime_config only fills missing config/*.json;
-       set SMARTASK_BOOTSTRAP_FORCE_CONFIG=1 to overwrite)
+       set DATAPULSE_BOOTSTRAP_FORCE_CONFIG=1 to overwrite)
     4. Apply schema migrations under backend/migrations
        Each migration is run with autocommit; the first failure aborts
        the run with a non-zero exit code.                        [fatal: exit 1]
@@ -99,7 +99,7 @@ def _run_all_migrations() -> None:
 
 
 def main() -> int:
-    log("========== SmartAsk Migrate 开始 ==========")
+    log("========== DataPulse Migrate 开始 ==========")
 
     if not _wait_for_postgres():
         _fail("PostgreSQL 不可达，migrate 终止。请检查 postgres 服务状态与网络连通性。")
@@ -112,7 +112,7 @@ def main() -> int:
     except Exception as exc:
         _fail(f"迁移过程出现致命错误: {exc}")
 
-    log("========== SmartAsk Migrate 完成 ==========")
+    log("========== DataPulse Migrate 完成 ==========")
     return 0
 
 

@@ -33,11 +33,11 @@ def sanitize_dataframe_for_excel(df: pd.DataFrame) -> pd.DataFrame:
     return excel_df
 
 def main():
-    db_host = os.environ.get("SMARTASK_DB_HOST", "postgres")
-    db_port = os.environ.get("SMARTASK_DB_PORT", "5432")
-    db_user = os.environ.get("SMARTASK_DB_USERNAME", "postgres")
-    db_password = os.environ.get("SMARTASK_POSTGRES_PASSWORD", os.environ.get("SMARTASK_DB_PASSWORD", "6670326"))
-    db_name = os.environ.get("SMARTASK_DB_DATABASE", "postgres")
+    db_host = os.environ.get("DATAPULSE_DB_HOST", "postgres")
+    db_port = os.environ.get("DATAPULSE_DB_PORT", "5432")
+    db_user = os.environ.get("DATAPULSE_DB_USERNAME", "postgres")
+    db_password = os.environ.get("DATAPULSE_POSTGRES_PASSWORD", os.environ.get("DATAPULSE_DB_PASSWORD", "6670326"))
+    db_name = os.environ.get("DATAPULSE_DB_DATABASE", "postgres")
 
     conn_str = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
     print(f"Connecting to database: {db_host}:{db_port}/{db_name} ...")
@@ -49,7 +49,7 @@ def main():
     os.makedirs(csv_dir, exist_ok=True)
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    excel_path = os.path.join(export_dir, f"smartask_all_tables_{timestamp}.xlsx")
+    excel_path = os.path.join(export_dir, f"datapulse_all_tables_{timestamp}.xlsx")
 
     inspector = inspect(engine)
     tables = inspector.get_table_names(schema="public")

@@ -116,7 +116,7 @@ const ariaLabel = computed(() => {
 }
 
 .task-status-indicator.task-status--running {
-  color: var(--el-color-primary, #0E9488);
+  color: var(--el-color-primary, #6366F1);
 }
 
 .task-status-indicator.task-status--completed {

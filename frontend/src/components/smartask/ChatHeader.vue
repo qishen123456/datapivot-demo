@@ -88,7 +88,7 @@ defineEmits(['togglePanel', 'newChat', 'showHistory'])
   padding: 0;
   border-radius: 999px;
   background: transparent;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 12px;
   font-weight: 800;
   box-shadow: none;
@@ -133,18 +133,18 @@ defineEmits(['togglePanel', 'newChat', 'showHistory'])
 }
 
 .sa-solid-btn {
-  border: 1px solid rgba(14, 148, 136, 0.42);
+  border: 1px solid rgba(99, 102, 241, 0.42);
   background: #FFFFFF;
-  color: #0E9488;
+  color: #6366F1;
   box-shadow:
-    0 10px 20px rgba(14, 148, 136, 0.06),
+    0 10px 20px rgba(99, 102, 241, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .sa-solid-btn:hover {
-  border-color: rgba(14, 148, 136, 0.58);
-  background: rgba(14, 148, 136, 0.04);
-  color: #0E9488;
+  border-color: rgba(99, 102, 241, 0.58);
+  background: rgba(99, 102, 241, 0.04);
+  color: #6366F1;
   transform: translateY(-1px);
 }
 

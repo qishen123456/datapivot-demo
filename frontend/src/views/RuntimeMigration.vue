@@ -497,13 +497,13 @@ onMounted(() => {
   gap: 24px;
   padding: 28px;
   background:
-    radial-gradient(circle at right top, rgba(14, 148, 136, 0.16), transparent 32%),
+    radial-gradient(circle at right top, rgba(99, 102, 241, 0.16), transparent 32%),
     linear-gradient(135deg, #ffffff 0%, #F4F7FA 100%);
 }
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -578,7 +578,7 @@ onMounted(() => {
 .permission-card strong {
   display: block;
   margin: 10px 0 4px;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 30px;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
@@ -593,7 +593,7 @@ onMounted(() => {
 
 .permission-card {
   padding: 14px 16px;
-  border: 1px solid #F0FAF8;
+  border: 1px solid #EEF2FF;
   border-radius: 14px;
   background: #F4F7FA;
 }
@@ -629,7 +629,7 @@ onMounted(() => {
   justify-content: space-between;
   gap: 18px;
   padding: 20px;
-  border: 1px dashed #F0FAF8;
+  border: 1px dashed #EEF2FF;
   border-radius: 16px;
   background: #F4F7FA;
 }
@@ -648,7 +648,7 @@ onMounted(() => {
   height: 36px;
   border-radius: 999px;
   color: #fff;
-  background: #0E9488;
+  background: #6366F1;
   cursor: pointer;
 }
 

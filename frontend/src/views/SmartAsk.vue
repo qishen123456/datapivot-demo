@@ -71,7 +71,7 @@
                       <svg class="sa-ai-avatar-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                         <defs>
                           <linearGradient id="aiAuraChat" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#0E9488" />
+                            <stop offset="0%" stop-color="#6366F1" />
                             <stop offset="100%" stop-color="#2DD4BF" />
                           </linearGradient>
                           <linearGradient id="innerBgChatAi" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -82,8 +82,8 @@
                         <circle cx="50" cy="50" r="45" stroke="url(#aiAuraChat)" stroke-width="2.5" />
                         <circle cx="50" cy="50" r="40" fill="url(#innerBgChatAi)" />
                         <circle cx="50" cy="50" r="32" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="2 2" />
-                        <path d="M28 62 L42 40 L52 52 L62 36 L72 44" fill="none" stroke="#0E9488" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-                        <circle cx="72" cy="44" r="4.5" fill="#0E9488" />
+                        <path d="M28 62 L42 40 L52 52 L62 36 L72 44" fill="none" stroke="#6366F1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="72" cy="44" r="4.5" fill="#6366F1" />
                       </svg>
                     </div>
                     <span class="sa-ai-name">DataPulse AI 经营分析顾问</span>
@@ -1331,20 +1331,20 @@ import { getSessionCache, setSessionCache } from '../state/sessionCache'
 import { useFeatureFlags } from '../state/featureFlags'
 
 defineOptions({ name: 'DataPulse' })
-import ChatHeader from '../components/datapulse/ChatHeader.vue'
-import WelcomeScreen from '../components/datapulse/WelcomeScreen.vue'
-import UserBubble from '../components/datapulse/UserBubble.vue'
-import PlanCard from '../components/datapulse/PlanCard.vue'
-import ParseBar from '../components/datapulse/ParseBar.vue'
-import ThinkingCard from '../components/datapulse/ThinkingCard.vue'
-import LiveExecutionFeed from '../components/datapulse/LiveExecutionFeed.vue'
-import ResultDigestCard from '../components/datapulse/ResultDigestCard.vue'
-import ComposerArea from '../components/datapulse/ComposerArea.vue'
-import LogTimeline from '../components/datapulse/LogTimeline.vue'
-import SqlBlock from '../components/datapulse/SqlBlock.vue'
+import ChatHeader from '../components/smartask/ChatHeader.vue'
+import WelcomeScreen from '../components/smartask/WelcomeScreen.vue'
+import UserBubble from '../components/smartask/UserBubble.vue'
+import PlanCard from '../components/smartask/PlanCard.vue'
+import ParseBar from '../components/smartask/ParseBar.vue'
+import ThinkingCard from '../components/smartask/ThinkingCard.vue'
+import LiveExecutionFeed from '../components/smartask/LiveExecutionFeed.vue'
+import ResultDigestCard from '../components/smartask/ResultDigestCard.vue'
+import ComposerArea from '../components/smartask/ComposerArea.vue'
+import LogTimeline from '../components/smartask/LogTimeline.vue'
+import SqlBlock from '../components/smartask/SqlBlock.vue'
 import { useDataPulseHistory } from '../state/smartAskHistory'
 import { useDataPulseTaskView } from '../state/smartAskTaskView'
-import { useDataPulseReportHistory } from '../composables/useDataPulseReportHistory'
+import { useDataPulseReportHistory } from '../composables/useSmartAskReportHistory'
 import { buildOrgTree, getDefaultConfig as getDefaultReportTreeConfig } from '../composables/useOrgTree'
 
 const session = useDataPulseSession()
@@ -5409,15 +5409,15 @@ const refreshCommonQuestions = async () => {
 
 const getStatusColor = (rate) => {
   const value = toNumber(rate)
-  if (value === null) return '#0E9488'
+  if (value === null) return '#6366F1'
   if (value >= 15) return '#10B981'
   if (value >= 10) return '#F59E0B'
-  return '#0E9488'
+  return '#6366F1'
 }
 
 const getMetricColor = (column) => {
   const text = String(column || '')
-  if (/任务|目标/i.test(text)) return '#0E9488'
+  if (/任务|目标/i.test(text)) return '#6366F1'
   if (/开单|完成|实际|销售/i.test(text)) return '#10B981'
   if (/剩余|缺口|差额/i.test(text)) return '#F59E0B'
   if (/率|percent|rate/i.test(text)) return '#f59e0b'
@@ -5442,7 +5442,7 @@ const renderChartSpec = (chart, data) => {
   const dataset = data?.dataset || null
   const preferredSortColumn = data.sortColumn || ''
   const sortedRows = sortRowsForChart(data.rows || [], data.columns || [], Boolean(data.lowFirst), preferredSortColumn)
-  const colorPalette = ['#1A1A1A', '#10B981', '#F59E0B', '#0E9488', '#9CA3AF', '#6B7280']
+  const colorPalette = ['#1A1A1A', '#10B981', '#F59E0B', '#6366F1', '#9CA3AF', '#6B7280']
   const shortSeriesName = (name) => String(name || '')
     .replace(/^年度/, '')
     .replace(/^总/, '')
@@ -6095,15 +6095,15 @@ onUnmounted(() => {
 }
 
 .sa-readonly-banner.banner-running {
-  background: linear-gradient(90deg, rgba(14, 148, 136, 0.06) 0%, rgba(14, 148, 136, 0.02) 100%);
-  border-left: 4px solid #0E9488;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.06) 0%, rgba(99, 102, 241, 0.02) 100%);
+  border-left: 4px solid #6366F1;
   color: #C41E24;
-  box-shadow: 0 3px 10px rgba(14, 148, 136, 0.08);
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.08);
 }
 
 .sa-readonly-banner.banner-running:hover {
-  background: linear-gradient(90deg, rgba(14, 148, 136, 0.1) 0%, rgba(14, 148, 136, 0.04) 100%);
-  box-shadow: 0 4px 14px rgba(14, 148, 136, 0.14);
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.04) 100%);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.14);
 }
 
 .sa-readonly-banner.banner-completed {
@@ -6406,8 +6406,8 @@ onUnmounted(() => {
   max-width: 980px;
   padding: 14px;
   border-radius: 14px;
-  border: 1px solid rgba(14, 148, 136, 0.1);
-  background: linear-gradient(180deg, #F0FAF8 0%, #ffffff 100%);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  background: linear-gradient(180deg, #EEF2FF 0%, #ffffff 100%);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.035);
 }
 
@@ -6426,7 +6426,7 @@ onUnmounted(() => {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .sa-inline-visuals-title {
@@ -6596,9 +6596,9 @@ onUnmounted(() => {
   width: 100%;
   padding: 8px 12px;
   margin-bottom: 8px;
-  border: 1px solid rgba(14, 148, 136, 0.18);
+  border: 1px solid rgba(99, 102, 241, 0.18);
   border-radius: 10px;
-  background: rgba(14, 148, 136, 0.04);
+  background: rgba(99, 102, 241, 0.04);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -6607,8 +6607,8 @@ onUnmounted(() => {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: rgba(14, 148, 136, 0.12);
-  color: #0E9488;
+  background: rgba(99, 102, 241, 0.12);
+  color: #6366F1;
   font-size: 12px;
   font-weight: 600;
   display: inline-flex;
@@ -6630,9 +6630,9 @@ onUnmounted(() => {
   margin-left: auto;
 }
 .sa-clarify-chip {
-  border: 1px solid rgba(14, 148, 136, 0.35);
+  border: 1px solid rgba(99, 102, 241, 0.35);
   background: #fff;
-  color: #0E9488;
+  color: #6366F1;
   border-radius: 999px;
   padding: 3px 12px;
   font-size: 12px;
@@ -6640,7 +6640,7 @@ onUnmounted(() => {
   transition: background 0.15s ease, color 0.15s ease;
 }
 .sa-clarify-chip:hover:not(:disabled) {
-  background: #0E9488;
+  background: #6366F1;
   color: #fff;
 }
 .sa-clarify-chip:disabled {
@@ -6705,9 +6705,9 @@ onUnmounted(() => {
   width: 100%;
   padding: 14px 16px;
   margin-bottom: 8px;
-  border: 1px solid rgba(14, 148, 136, 0.3);
+  border: 1px solid rgba(99, 102, 241, 0.3);
   border-radius: 12px;
-  background: rgba(14, 148, 136, 0.05);
+  background: rgba(99, 102, 241, 0.05);
 }
 .sa-early-clarify-head {
   display: flex;
@@ -6747,7 +6747,7 @@ onUnmounted(() => {
   text-underline-offset: 3px;
 }
 .sa-early-clarify-continue:hover:not(:disabled) {
-  color: #0E9488;
+  color: #6366F1;
 }
 .sa-early-clarify-continue:disabled {
   opacity: 0.5;
@@ -6871,7 +6871,7 @@ onUnmounted(() => {
   flex: 0 0 auto;
   padding: 1px 5px;
   border-radius: 4px;
-  background: #0E9488;
+  background: #6366F1;
   color: #fff;
   font-size: 10px;
   font-weight: 600;
@@ -6949,7 +6949,7 @@ onUnmounted(() => {
   padding: 0 14px;
   border-radius: 8px;
   border: none;
-  background: #0E9488;
+  background: #6366F1;
   color: #fff;
   font-size: 12px;
   font-weight: 600;
@@ -6985,14 +6985,14 @@ onUnmounted(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #0E9488;
-  box-shadow: 0 0 0 5px rgba(14, 148, 136, 0.08);
+  background: #6366F1;
+  box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.08);
 }
 
 .sa-confirm-submitted-title {
   font-size: 13px;
   font-weight: 700;
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .sa-confirm-submitted-desc {
@@ -7013,8 +7013,8 @@ onUnmounted(() => {
 }
 
 .sa-error-card {
-  background: #F0FAF8;
-  border: 1px solid #F0FAF8;
+  background: #EEF2FF;
+  border: 1px solid #EEF2FF;
   color: var(--error);
 }
 
@@ -7027,13 +7027,13 @@ onUnmounted(() => {
   background:
     linear-gradient(90deg, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
     linear-gradient(180deg, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
-    radial-gradient(circle at 12% 18%, rgba(14, 148, 136, 0.16), transparent 30%),
-    linear-gradient(135deg, #F4F7FA 0%, #F0FAF8 54%, #F0FAF8 100%);
+    radial-gradient(circle at 12% 18%, rgba(99, 102, 241, 0.16), transparent 30%),
+    linear-gradient(135deg, #F4F7FA 0%, #EEF2FF 54%, #EEF2FF 100%);
   background-size: 18px 18px, 18px 18px, auto, auto;
-  border: 1px solid rgba(14, 148, 136, 0.22);
+  border: 1px solid rgba(99, 102, 241, 0.22);
   color: #111827;
   box-shadow:
-    0 12px 28px rgba(14, 148, 136, 0.08),
+    0 12px 28px rgba(99, 102, 241, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.84);
 }
 
@@ -7042,7 +7042,7 @@ onUnmounted(() => {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  border-left: 3px solid #0E9488;
+  border-left: 3px solid #6366F1;
   pointer-events: none;
 }
 
@@ -7053,8 +7053,8 @@ onUnmounted(() => {
   top: 13px;
   width: 58px;
   height: 16px;
-  border-top: 1px solid rgba(14, 148, 136, 0.2);
-  border-right: 1px solid rgba(14, 148, 136, 0.42);
+  border-top: 1px solid rgba(99, 102, 241, 0.2);
+  border-right: 1px solid rgba(99, 102, 241, 0.42);
   transform: skewX(-24deg);
   pointer-events: none;
 }
@@ -7070,10 +7070,10 @@ onUnmounted(() => {
   border-radius: 50%;
   background:
     radial-gradient(circle, rgba(255, 255, 255, 0.96) 0 30%, transparent 31%),
-    conic-gradient(from 210deg, rgba(14, 148, 136, 0.18), rgba(14, 148, 136, 0.85), rgba(14, 148, 136, 0.18));
+    conic-gradient(from 210deg, rgba(99, 102, 241, 0.18), rgba(99, 102, 241, 0.85), rgba(99, 102, 241, 0.18));
   box-shadow:
-    0 0 0 4px rgba(14, 148, 136, 0.06),
-    0 0 18px rgba(14, 148, 136, 0.28);
+    0 0 0 4px rgba(99, 102, 241, 0.06),
+    0 0 18px rgba(99, 102, 241, 0.28);
   flex: 0 0 auto;
 }
 
@@ -7081,7 +7081,7 @@ onUnmounted(() => {
 .sa-cancel-icon::after {
   content: '';
   position: absolute;
-  background: #0E9488;
+  background: #6366F1;
   border-radius: 999px;
 }
 
@@ -7101,7 +7101,7 @@ onUnmounted(() => {
   position: absolute;
   inset: 7px;
   border-radius: 50%;
-  border: 1px solid rgba(14, 148, 136, 0.28);
+  border: 1px solid rgba(99, 102, 241, 0.28);
 }
 
 .sa-cancel-copy {
@@ -7112,7 +7112,7 @@ onUnmounted(() => {
 
 .sa-cancel-kicker {
   margin-bottom: 3px;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -7145,7 +7145,7 @@ onUnmounted(() => {
 }
 
 .sa-link-btn.danger {
-  color: #0E9488;
+  color: #6366F1;
 }
 
 /* ===== 右侧面板 ===== */
@@ -7184,7 +7184,7 @@ onUnmounted(() => {
   font-weight: 800;
   letter-spacing: 0;
   text-transform: none;
-  color: #0E9488;
+  color: #6366F1;
 }
 .sa-panel-title-row {
   display: flex;
@@ -7222,8 +7222,8 @@ onUnmounted(() => {
   color: #B45309;
 }
 .sa-panel-state.error {
-  background: rgba(14, 148, 136, 0.1);
-  color: #0E9488;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366F1;
 }
 .sa-panel-state.waiting_confirmation {
   background: rgba(245, 158, 11, 0.12);
@@ -7253,7 +7253,7 @@ onUnmounted(() => {
 
 .sa-panel-close:hover {
   color: #1A1A1A;
-  border-color: rgba(14, 148, 136, 0.14);
+  border-color: rgba(99, 102, 241, 0.14);
   background: rgba(255, 255, 255, 1);
 }
 .sa-panel-content {
@@ -7368,7 +7368,7 @@ onUnmounted(() => {
 }
 
 .sa-kpi-card.is-tone-danger .sa-kpi-value {
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .sa-kpi-value {
@@ -7848,8 +7848,8 @@ onUnmounted(() => {
 
 .sa-business-risk-pill.danger,
 .sa-office-rate.danger {
-  color: #0E9488;
-  background: #F0FAF8;
+  color: #6366F1;
+  background: #EEF2FF;
 }
 
 .sa-business-risk-pill.neutral,
@@ -8011,9 +8011,9 @@ onUnmounted(() => {
 .sa-office-card-head:hover .sa-office-drill-toggle,
 .sa-rep-drill-head:hover .sa-office-drill-toggle,
 .sa-office-drill-toggle.is-open {
-  border-color: var(--office-accent-border, rgba(14, 148, 136, 0.18));
+  border-color: var(--office-accent-border, rgba(99, 102, 241, 0.18));
   background: #ffffff;
-  color: var(--office-accent, #0E9488);
+  color: var(--office-accent, #6366F1);
   opacity: 1;
 }
 
@@ -8124,8 +8124,8 @@ onUnmounted(() => {
   bottom: 4px;
   width: 3px;
   border-radius: 999px;
-  background: var(--office-accent-soft, rgba(14, 148, 136, 0.12));
-  border: 1px solid var(--office-accent-border, rgba(14, 148, 136, 0.16));
+  background: var(--office-accent-soft, rgba(99, 102, 241, 0.12));
+  border: 1px solid var(--office-accent-border, rgba(99, 102, 241, 0.16));
 }
 
 .sa-drill-path {
@@ -8144,7 +8144,7 @@ onUnmounted(() => {
 .sa-drill-path i {
   width: 18px;
   height: 1px;
-  background: var(--office-accent, #0E9488);
+  background: var(--office-accent, #6366F1);
   position: relative;
 }
 
@@ -8155,13 +8155,13 @@ onUnmounted(() => {
   top: -3px;
   width: 6px;
   height: 6px;
-  border-top: 1px solid var(--office-accent, #0E9488);
-  border-right: 1px solid var(--office-accent, #0E9488);
+  border-top: 1px solid var(--office-accent, #6366F1);
+  border-right: 1px solid var(--office-accent, #6366F1);
   transform: rotate(45deg);
 }
 
 .sa-drill-path strong {
-  color: var(--office-accent, #0E9488);
+  color: var(--office-accent, #6366F1);
 }
 
 .sa-drill-insight-grid {
@@ -8200,8 +8200,8 @@ onUnmounted(() => {
 }
 
 .sa-drill-insight-card.is-risk {
-  border-color: rgba(14, 148, 136, 0.14);
-  background: #F0FAF8;
+  border-color: rgba(99, 102, 241, 0.14);
+  background: #EEF2FF;
 }
 
 .sa-chart-copy-drill {
@@ -8255,7 +8255,7 @@ onUnmounted(() => {
 .sa-office-empty-drill {
   margin-top: 8px;
   padding: 14px;
-  border: 1px dashed rgba(14, 148, 136, 0.28);
+  border: 1px dashed rgba(99, 102, 241, 0.28);
   border-radius: 12px;
   background: linear-gradient(180deg, #F4F7FA 0%, #ffffff 100%);
   color: #6B7280;
@@ -8349,8 +8349,8 @@ onUnmounted(() => {
 
 .sa-detail-rate.danger,
 .sa-detail-tag.danger {
-  color: #0E9488;
-  background: #F0FAF8;
+  color: #6366F1;
+  background: #EEF2FF;
 }
 
 .sa-office-bars {
@@ -8412,7 +8412,7 @@ onUnmounted(() => {
 }
 
 .sa-office-bar-track .is-rate.danger {
-  background: #0E9488;
+  background: #6366F1;
 }
 
 .sa-office-bar-track .is-gap {
@@ -9290,7 +9290,7 @@ button.sa-compare-row:hover {
   width: auto;
   max-width: min(420px, calc(100vw - 32px));
   padding: 9px 13px;
-  border: 1px solid rgba(14, 148, 136, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.12);
   border-radius: 10px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 249, 250, 0.98));

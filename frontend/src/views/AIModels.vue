@@ -704,7 +704,7 @@ onMounted(() => {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 18px;
   background:
-    radial-gradient(circle at 82% 8%, rgba(14, 148, 136, 0.13), transparent 28%),
+    radial-gradient(circle at 82% 8%, rgba(99, 102, 241, 0.13), transparent 28%),
     radial-gradient(circle at 30% 0%, rgba(0, 0, 0, 0.09), transparent 24%),
     linear-gradient(135deg, #F4F7FA 0%, #F4F7FA 45%, #ffffff 100%);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.78);
@@ -743,7 +743,7 @@ onMounted(() => {
 }
 
 .cs-sidebar-kicker {
-  color: #0E9488;
+  color: #6366F1;
   font-size: 9px;
   font-weight: 850;
   letter-spacing: 0.14em;
@@ -764,11 +764,11 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #0B7A70;
+  color: #4F46E5;
   font-size: 12px;
   font-weight: 850;
-  background: #F0FAF8;
-  border: 1px solid rgba(14, 148, 136, 0.16);
+  background: #EEF2FF;
+  border: 1px solid rgba(99, 102, 241, 0.16);
 }
 
 .cs-sidebar-scroll {
@@ -796,16 +796,16 @@ onMounted(() => {
 
 .cs-ch-item:hover {
   transform: translateY(-1px);
-  border-color: rgba(14, 148, 136, 0.2);
+  border-color: rgba(99, 102, 241, 0.2);
   background: #ffffff;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.08);
 }
 
 .cs-ch-item.is-active {
-  border-color: rgba(14, 148, 136, 0.26);
+  border-color: rgba(99, 102, 241, 0.26);
   background:
     linear-gradient(135deg, rgba(254, 242, 242, 0.95), rgba(255, 255, 255, 0.96));
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12), inset 4px 0 0 #0E9488;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12), inset 4px 0 0 #6366F1;
 }
 
 .cs-ch-icon {
@@ -816,7 +816,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #1A1A1A 0%, #0E9488 100%);
+  background: linear-gradient(135deg, #1A1A1A 0%, #6366F1 100%);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
@@ -893,7 +893,7 @@ onMounted(() => {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 18px;
   background:
-    radial-gradient(circle at 4% 10%, rgba(14, 148, 136, 0.16), transparent 32%),
+    radial-gradient(circle at 4% 10%, rgba(99, 102, 241, 0.16), transparent 32%),
     linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(248, 249, 250, 0.88));
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.88);
 }
@@ -917,7 +917,7 @@ onMounted(() => {
   cursor: pointer;
   background:
     radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.34), transparent 26%),
-    linear-gradient(135deg, #111827 0%, #1A1A1A 48%, #0E9488 100%);
+    linear-gradient(135deg, #111827 0%, #1A1A1A 48%, #6366F1 100%);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
   transition: all var(--duration-normal, 220ms) var(--ease-out);
 }
@@ -933,7 +933,7 @@ onMounted(() => {
 
 .cs-provider-kicker {
   margin-bottom: 4px;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.12em;
@@ -1040,7 +1040,7 @@ onMounted(() => {
 
 .cs-config-card-key {
   background:
-    radial-gradient(circle at 100% 0%, rgba(14, 148, 136, 0.12), transparent 30%),
+    radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.12), transparent 30%),
     rgba(255, 255, 255, 0.84);
 }
 
@@ -1115,11 +1115,11 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #0B7A70;
+  color: #4F46E5;
   font-size: 12px;
   font-weight: 900;
-  background: #F0FAF8;
-  border: 1px solid rgba(14, 148, 136, 0.16);
+  background: #EEF2FF;
+  border: 1px solid rgba(99, 102, 241, 0.16);
 }
 
 .cs-models-spacer {
@@ -1145,7 +1145,7 @@ onMounted(() => {
 
 .cs-model-row:hover {
   transform: translateY(-1px);
-  border-color: rgba(14, 148, 136, 0.18);
+  border-color: rgba(99, 102, 241, 0.18);
   box-shadow: 0 14px 26px rgba(0, 0, 0, 0.08);
 }
 
@@ -1168,8 +1168,8 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: #F0FAF8;
-  border: 1px solid rgba(14, 148, 136, 0.12);
+  background: #EEF2FF;
+  border: 1px solid rgba(99, 102, 241, 0.12);
 }
 
 .cs-ch-icon :deep(.cs-tech-icon),
@@ -1188,7 +1188,7 @@ onMounted(() => {
 
 .cs-ch-icon,
 .cs-provider-icon {
-  color: #F0FAF8;
+  color: #EEF2FF;
 }
 
 .cs-ch-icon :deep(.cs-tech-icon) {
@@ -1205,7 +1205,7 @@ onMounted(() => {
 }
 
 .cs-model-emoji {
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .cs-model-emoji :deep(.cs-tech-icon) {
@@ -1258,7 +1258,7 @@ onMounted(() => {
 }
 
 .cs-model-dot.is-err {
-  background: #0E9488;
+  background: #6366F1;
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
 }
 
@@ -1309,11 +1309,11 @@ onMounted(() => {
 
 .cs-icon-option:hover,
 .cs-icon-option.is-active {
-  border-color: rgba(14, 148, 136, 0.3);
+  border-color: rgba(99, 102, 241, 0.3);
   background:
     radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.9), transparent 30%),
-    linear-gradient(135deg, #F0FAF8 0%, #ffffff 100%);
-  color: #0B7A70;
+    linear-gradient(135deg, #EEF2FF 0%, #ffffff 100%);
+  color: #4F46E5;
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
 }
@@ -1326,7 +1326,7 @@ onMounted(() => {
 .cs-add-model-bar {
   margin-top: 12px;
   padding: 14px;
-  border: 1px dashed rgba(14, 148, 136, 0.22);
+  border: 1px dashed rgba(99, 102, 241, 0.22);
   border-radius: 14px;
   text-align: center;
   background: rgba(254, 242, 242, 0.38);

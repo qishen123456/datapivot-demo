@@ -249,31 +249,21 @@
         </div>
       </el-drawer>
 
-      <div class="sidebar-footer" @click="collapsed = !collapsed">
-        <el-icon><component :is="collapsed ? 'Expand' : 'Fold'" /></el-icon>
-        <span v-if="!collapsed">收起导航</span>
-      </div>
-    </el-aside>
-
-    <el-container class="main-shell">
-      <el-header class="topbar sa-dark-panel" :class="{ 'topbar-smart': isDataPulseRoute }">
-        <div class="topbar-heading">
-          <div class="topbar-title-row">
-            <div class="topbar-workspace">{{ currentTitle }}</div>
-            <button v-if="showBackToConsole" class="topbar-back-console" type="button" @click="backToConsole">
-              返回控制台
-            </button>
-          </div>
-        </div>
-        <div class="topbar-right">
-          <div class="auth-user-menu">
-            <button class="auth-user-chip" type="button" @click.stop="toggleUserMenu">
-              <span class="auth-user-avatar">{{ authUserInitial }}</span>
-              <span class="auth-user-name">{{ authUserName }}</span>
-              <span class="auth-user-role">{{ authRoleLabel }}</span>
-              <span class="auth-user-arrow" aria-hidden="true"></span>
-            </button>
-            <div v-if="userMenuVisible" class="auth-user-dropdown" @click.stop>
+      <div class="sidebar-footer">
+        <div class="sidebar-user" :class="{ 'is-collapsed': collapsed }">
+          <button class="sidebar-user-chip" type="button" @click.stop="toggleUserMenu">
+            <span class="sidebar-user-avatar">{{ authUserInitial }}</span>
+            <span class="sidebar-user-status" :class="{ 'is-online': backendOk }" aria-hidden="true"></span>
+            <template v-if="!collapsed">
+              <span class="sidebar-user-meta">
+                <span class="sidebar-user-name">{{ authUserName }}</span>
+                <span class="sidebar-user-role">{{ authRoleLabel }}</span>
+              </span>
+              <span class="sidebar-user-arrow" aria-hidden="true"></span>
+            </template>
+          </button>
+          <transition name="user-menu-rise">
+            <div v-if="userMenuVisible" class="sidebar-user-dropdown" @click.stop>
               <button
                 v-if="authRole === 'super_admin' && appFeatureAccess.admin_console"
                 type="button"
@@ -291,7 +281,33 @@
                 <span>清除本机登录状态</span>
               </button>
             </div>
+          </transition>
+        </div>
+        <button class="sidebar-collapse" type="button" @click="collapsed = !collapsed">
+          <el-icon><component :is="collapsed ? 'Expand' : 'Fold'" /></el-icon>
+          <span v-if="!collapsed">收起导航</span>
+        </button>
+      </div>
+    </el-aside>
+
+    <el-container class="main-shell">
+      <el-header class="topbar sa-dark-panel" :class="{ 'topbar-smart': isDataPulseRoute }">
+        <div class="topbar-heading">
+          <div class="topbar-title-row">
+            <div class="topbar-workspace">{{ currentTitle }}</div>
+            <button v-if="showBackToConsole" class="topbar-back-console" type="button" @click="backToConsole">
+              返回控制台
+            </button>
           </div>
+        </div>
+        <div class="topbar-command">
+          <button class="command-trigger" type="button" @click="openCommandPalette">
+            <span class="command-trigger-icon" aria-hidden="true"></span>
+            <span class="command-trigger-text">搜索模块、跳转功能…</span>
+            <span class="command-trigger-kbd">⌘K</span>
+          </button>
+        </div>
+        <div class="topbar-right">
           <span class="backend-status-chip" :class="{ 'is-online': backendOk, 'is-offline': !backendOk }">
             <span class="backend-status-dot"></span>
             {{ backendOk ? '后端在线' : '后端异常' }}
@@ -419,6 +435,48 @@
     </div>
     <SqlDebugFloat />
   </el-container>
+
+  <!-- 全局命令面板（⌘K / Ctrl+K） -->
+  <transition name="palette-fade">
+    <div v-if="commandPaletteVisible" class="command-palette-mask" @click.self="closeCommandPalette">
+      <div class="command-palette" role="dialog" aria-label="命令面板">
+        <div class="command-palette-search">
+          <span class="command-palette-search-icon" aria-hidden="true"></span>
+          <input
+            ref="commandInputRef"
+            v-model="commandQuery"
+            class="command-palette-input"
+            type="text"
+            placeholder="输入模块名称或关键词…"
+            autocomplete="off"
+            @keydown.esc="closeCommandPalette"
+            @keydown.enter.prevent="runActiveCommand"
+            @keydown.up.prevent="moveCommandCursor(-1)"
+            @keydown.down.prevent="moveCommandCursor(1)"
+          />
+          <span class="command-palette-hint">ESC 关闭</span>
+        </div>
+        <div class="command-palette-list">
+          <button
+            v-for="(cmd, idx) in filteredCommands"
+            :key="cmd.path"
+            class="command-palette-item"
+            :class="{ 'is-active': idx === commandCursor }"
+            type="button"
+            @mouseenter="commandCursor = idx"
+            @click="runCommand(cmd)"
+          >
+            <el-icon class="command-palette-item-icon"><component :is="cmd.icon" /></el-icon>
+            <span class="command-palette-item-body">
+              <span class="command-palette-item-label">{{ cmd.label }}</span>
+              <span class="command-palette-item-path">{{ cmd.path }}</span>
+            </span>
+          </button>
+          <div v-if="!filteredCommands.length" class="command-palette-empty">没有匹配的模块</div>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script setup>
@@ -480,6 +538,14 @@ const appFeatureAccess = computed(() => appFeatureKeys.reduce((map, key) => {
   return map
 }, {}))
 const collapsed = ref(false)
+/* ── 窄屏自动收起导航：侧栏 248px 在手机/小平板上会挤得内容不可读 ── */
+const NARROW_NAV_QUERY = '(max-width: 900px)'
+let narrowNavMedia = null
+const handleNarrowNavChange = (event) => {
+  if (event.matches) {
+    collapsed.value = true
+  }
+}
 const backendOk = ref(false)
 const authUser = ref(null)
 const authReady = ref(false)
@@ -501,6 +567,12 @@ const historyPanelHighlighted = ref(false)
 const historyDrawerVisible = ref(false)
 const isClearingHistory = ref(false)
 const userMenuVisible = ref(false)
+
+/* ── 全局命令面板（⌘K / Ctrl+K）── */
+const commandPaletteVisible = ref(false)
+const commandQuery = ref('')
+const commandCursor = ref(0)
+const commandInputRef = ref(null)
 
 const roleRank = {
   super_admin: 4,
@@ -582,6 +654,18 @@ const canAccessMenuItem = (item) => {
 const availableMenuItems = computed(() => menuItems.filter((item) => !item.hidden && canAccessMenuItem(item)))
 const primaryMenuItems = computed(() => availableMenuItems.value.filter((item) => item.path === '/smart-ask' || item.path === '/sql-debug'))
 const managementMenuItems = computed(() => availableMenuItems.value.filter((item) => item.path !== '/smart-ask' && item.path !== '/sql-debug'))
+
+/* 命令面板：按关键词过滤当前账号可访问的模块 */
+const filteredCommands = computed(() => {
+  const q = commandQuery.value.trim().toLowerCase()
+  const list = availableMenuItems.value || []
+  if (!q) return list
+  return list.filter((item) => (
+    String(item.label || '').toLowerCase().includes(q)
+    || String(item.path || '').toLowerCase().includes(q)
+  ))
+})
+
 // bug 2026-08-25：菜单展开时历史区自动折叠让位（动态让位交互）
 // 注意：open/close 事件由 el-menu 发出（el-sub-menu 不发这两个事件）；
 // default-openeds 默认展开不触发 @open，故初始值按当前路由是否在管理页判定
@@ -760,6 +844,47 @@ const toggleUserMenu = () => {
 
 const closeUserMenu = () => {
   userMenuVisible.value = false
+}
+
+/* ── 命令面板行为 ── */
+const openCommandPalette = () => {
+  commandPaletteVisible.value = true
+  commandQuery.value = ''
+  commandCursor.value = 0
+  userMenuVisible.value = false
+  nextTick(() => {
+    commandInputRef.value?.focus()
+  })
+}
+
+const closeCommandPalette = () => {
+  commandPaletteVisible.value = false
+  commandQuery.value = ''
+  commandCursor.value = 0
+}
+
+const moveCommandCursor = (delta) => {
+  const total = filteredCommands.value.length
+  if (!total) return
+  commandCursor.value = (commandCursor.value + delta + total) % total
+}
+
+const runCommand = (cmd) => {
+  if (!cmd) return
+  closeCommandPalette()
+  if (route.path !== cmd.path) router.push(cmd.path)
+}
+
+const runActiveCommand = () => {
+  runCommand(filteredCommands.value[commandCursor.value])
+}
+
+const handleCommandHotkey = (event) => {
+  if ((event.metaKey || event.ctrlKey) && String(event.key).toLowerCase() === 'k') {
+    event.preventDefault()
+    if (commandPaletteVisible.value) closeCommandPalette()
+    else openCommandPalette()
+  }
 }
 
 const openPasswordDialog = () => {
@@ -1025,7 +1150,6 @@ const clearHistoryList = async () => {
     await clearHistory()
     ElMessage.success('任务已清空')
   } catch (error) {
-    console.error('[clearHistoryList] failed to clear history', error)
     ElMessage.error('清空失败，任务记录已恢复，请稍后重试')
   } finally {
     isClearingHistory.value = false
@@ -1078,6 +1202,15 @@ const handleFeatureFlagsUpdated = async () => {
   enforceRouteAccess()
 }
 
+const handleUnauthorized = () => {
+  // 登录态失效（接口 401）：清空当前用户 → 模板回落到登录页
+  if (authUser.value) {
+    authUser.value = null
+    clearFeatureFlags()
+    syncHistoryScope()
+  }
+}
+
 onMounted(() => {
   refreshClock()
   pingBackend()
@@ -1087,6 +1220,19 @@ onMounted(() => {
   window.addEventListener('datapulse-history-focus', handleHistoryFocus)
   window.addEventListener('click', handleGlobalClick)
   window.addEventListener('datapulse-feature-flags-updated', handleFeatureFlagsUpdated)
+  window.addEventListener('datapulse:unauthorized', handleUnauthorized)
+  window.addEventListener('keydown', handleCommandHotkey)
+  if (typeof window.matchMedia === 'function') {
+    narrowNavMedia = window.matchMedia(NARROW_NAV_QUERY)
+    if (narrowNavMedia.matches) {
+      collapsed.value = true
+    }
+    if (typeof narrowNavMedia.addEventListener === 'function') {
+      narrowNavMedia.addEventListener('change', handleNarrowNavChange)
+    } else if (typeof narrowNavMedia.addListener === 'function') {
+      narrowNavMedia.addListener(handleNarrowNavChange)
+    }
+  }
 })
 
 onUnmounted(() => {
@@ -1098,6 +1244,16 @@ onUnmounted(() => {
   window.removeEventListener('datapulse-history-focus', handleHistoryFocus)
   window.removeEventListener('click', handleGlobalClick)
   window.removeEventListener('datapulse-feature-flags-updated', handleFeatureFlagsUpdated)
+  window.removeEventListener('datapulse:unauthorized', handleUnauthorized)
+  window.removeEventListener('keydown', handleCommandHotkey)
+  if (narrowNavMedia) {
+    if (typeof narrowNavMedia.removeEventListener === 'function') {
+      narrowNavMedia.removeEventListener('change', handleNarrowNavChange)
+    } else if (typeof narrowNavMedia.removeListener === 'function') {
+      narrowNavMedia.removeListener(handleNarrowNavChange)
+    }
+    narrowNavMedia = null
+  }
 })
 
 watch(() => route.path, (path) => {
@@ -1134,8 +1290,8 @@ onUnmounted(() => {
   --panel-border: var(--border, #E5E7EB);
   --ink-strong: var(--text-title, #111827);
   --ink-soft: var(--text-muted, #9CA3AF);
-  --brand: #0E9488;
-  --brand-soft: #F0FAF8;
+  --brand: #6366F1;
+  --brand-soft: #EEF2FF;
 }
 
 * {
@@ -1185,7 +1341,7 @@ body,
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: rgba(10, 28, 48, 0.88);
+  background: rgba(23, 20, 60, 0.88);
   animation: auth-loading-pulse 1.2s ease-in-out infinite alternate;
 }
 
@@ -1490,7 +1646,7 @@ body,
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.10) !important;
   color: #ffffff !important;
-  box-shadow: inset 3px 0 0 #0E9488 !important;
+  box-shadow: inset 3px 0 0 #6366F1 !important;
 }
 
 .sidebar.sidebar-collapsed .nav-menu .el-menu-item.is-active .el-icon {
@@ -1506,7 +1662,7 @@ body,
   width: 3px;
   height: 60%;
   border-radius: 0 999px 999px 0;
-  background: #0E9488;
+  background: #6366F1;
   clip-path: none;
   opacity: 1;
   transform: translateY(-50%);
@@ -1669,7 +1825,7 @@ body,
   width: 3px;
   height: 60%;
   border-radius: 0 999px 999px 0;
-  background: #0E9488;
+  background: #6366F1;
   transform: translateY(-50%);
 }
 
@@ -1699,9 +1855,9 @@ body,
 }
 
 .sidebar-history-highlight {
-  border-color: var(--brand-primary, #0E9488);
+  border-color: var(--brand-primary, #6366F1);
   box-shadow:
-    0 0 0 3px var(--brand-primary-focus, rgba(14, 148, 136, 0.16)),
+    0 0 0 3px var(--brand-primary-focus, rgba(99, 102, 241, 0.16)),
     var(--shadow-md, 0 2px 4px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.05));
 }
 
@@ -1733,10 +1889,10 @@ body,
 .sidebar-history-clear {
   height: 28px;
   padding: 0 9px;
-  border: 1px solid var(--error-soft, #F0FAF8);
+  border: 1px solid var(--error-soft, #EEF2FF);
   border-radius: 999px;
-  background: var(--error-soft, #F0FAF8);
-  color: var(--error, #0E9488);
+  background: var(--error-soft, #EEF2FF);
+  color: var(--error, #6366F1);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
@@ -1768,9 +1924,9 @@ body,
 
 .sidebar-history-clear:hover {
   transform: translateY(-1px);
-  border-color: rgba(14, 148, 136, 0.24);
-  background: #D9F0ED;
-  color: var(--brand-primary-hover, #0B7A70);
+  border-color: rgba(99, 102, 241, 0.24);
+  background: #E0E7FF;
+  color: var(--brand-primary-hover, #4F46E5);
   box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
 }
 
@@ -1879,13 +2035,13 @@ body,
 }
 
 .history-item-active {
-  border-color: rgba(14, 148, 136, 0.25);
-  background: rgba(14, 148, 136, 0.1);
-  box-shadow: 0 2px 8px rgba(14, 148, 136, 0.08);
+  border-color: rgba(99, 102, 241, 0.25);
+  background: rgba(99, 102, 241, 0.1);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
 }
 
 .history-item-active::before {
-  background: var(--brand-primary, #0E9488);
+  background: var(--brand-primary, #6366F1);
 }
 
 .history-item-active .history-item-title {
@@ -1943,7 +2099,7 @@ body,
   height: 17px;
   padding: 0 6px;
   border-radius: 999px;
-  background: var(--brand-primary, #0E9488);
+  background: var(--brand-primary, #6366F1);
   color: #ffffff;
   font-size: 10px;
   font-weight: 700;
@@ -1963,8 +2119,8 @@ body,
 /* 虚拟"当前执行任务"行：与历史项区分，左红竖条 + 微红底 */
 .history-item-running {
   position: relative;
-  background: linear-gradient(135deg, rgba(14, 148, 136, 0.1) 0%, rgba(14, 148, 136, 0.06) 100%);
-  border: 1px solid rgba(14, 148, 136, 0.2);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.06) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
   border-radius: 12px;
   margin-bottom: 10px;
   padding-right: 14px;
@@ -1978,7 +2134,7 @@ body,
   bottom: 10px;
   width: 3px;
   border-radius: 2px;
-  background: var(--brand-primary, #0E9488);
+  background: var(--brand-primary, #6366F1);
   opacity: 0.9;
 }
 
@@ -2138,10 +2294,10 @@ body,
 .history-drawer-clear {
   height: 30px;
   padding: 0 12px;
-  border: 1px solid var(--error-soft, #F0FAF8);
+  border: 1px solid var(--error-soft, #EEF2FF);
   border-radius: 999px;
-  background: var(--error-soft, #F0FAF8);
-  color: var(--error, #0E9488);
+  background: var(--error-soft, #EEF2FF);
+  color: var(--error, #6366F1);
   font-size: 11px;
   font-weight: 800;
   cursor: pointer;
@@ -2179,11 +2335,11 @@ body,
 }
 
 .history-drawer-item.history-item-active {
-  border-color: rgba(14, 148, 136, 0.18);
+  border-color: rgba(99, 102, 241, 0.18);
   background: #F5F6F8;
   box-shadow:
     0 10px 24px rgba(15, 23, 42, 0.045),
-    inset 4px 0 0 #0E9488;
+    inset 4px 0 0 #6366F1;
 }
 
 .history-drawer-item.history-item-active::before {
@@ -2325,43 +2481,211 @@ body,
   border-radius: 999px;
 }
 
+/* ===== 侧栏底部：用户条（原顶栏右上角已迁移至此）+ 折叠按钮 ===== */
 .sidebar-footer {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.6);
-  background: transparent;
-  border: 1px solid transparent;
-  font-size: 12px;
-  transition: all var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16,1,0.3,1));
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 8px;
   /* bug 2026-08-25：自动贴底，让 sidebar 整体在视觉上填满 100vh */
   margin-top: auto;
 }
 
+.sidebar-user {
+  position: relative;
+}
+
+.sidebar-user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md, 14px);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--duration-fast, 150ms) var(--ease-out, ease),
+              border-color var(--duration-fast, 150ms) var(--ease-out, ease);
+}
+
+.sidebar-user-chip:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 渐变头像 */
+.sidebar-user-avatar {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--brand-gradient, linear-gradient(135deg, #6366F1 0%, #3B82F6 100%));
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.45);
+}
+
+/* 在线状态点（贴头像右下） */
+.sidebar-user-status {
+  position: absolute;
+  left: 33px;
+  bottom: 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #94A3B8;
+  border: 2px solid rgba(30, 27, 75, 0.95);
+  box-sizing: content-box;
+}
+
+.sidebar-user-status.is-online {
+  background: #10B981;
+}
+
+.sidebar-user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sidebar-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-role {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-arrow {
+  flex: 0 0 auto;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 5px solid rgba(255, 255, 255, 0.55);
+}
+
+/* 向上弹出的用户菜单 */
+.sidebar-user-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 60;
+  padding: 6px;
+  border-radius: var(--radius-md, 14px);
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid var(--border, #DFE3F0);
+  box-shadow: 0 16px 40px rgba(30, 27, 75, 0.3);
+  backdrop-filter: blur(12px);
+}
+
+.sidebar-user-dropdown button {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--duration-fast, 150ms) var(--ease-out, ease);
+}
+
+.sidebar-user-dropdown button:hover {
+  background: var(--brand-primary-soft, #EEF2FF);
+}
+
+.sidebar-user-dropdown button strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-title, #0F172A);
+}
+
+.sidebar-user-dropdown button span {
+  font-size: 11px;
+  color: var(--text-secondary, #64748B);
+}
+
+.sidebar-user-dropdown button.danger strong {
+  color: var(--error, #DC2626);
+}
+
+/* 折叠按钮 */
+.sidebar-collapse {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md, 14px);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.sidebar-collapse:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+/* 折叠态：两个入口都收成方形图标块 */
 .sidebar.sidebar-collapsed .sidebar-footer {
+  padding: 10px 0;
+  align-items: center;
+}
+
+.sidebar.sidebar-collapsed .sidebar-user-chip,
+.sidebar.sidebar-collapsed .sidebar-collapse {
   width: 44px;
   min-width: 44px;
   height: 44px;
   padding: 0;
-  margin: 8px auto 0;
-  border-radius: 12px;
   justify-content: center;
-  align-items: center;
-  align-self: center;
   gap: 0;
-  display: flex;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.6);
 }
 
-.sidebar-footer:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.14);
-  color: #ffffff;
+.sidebar.sidebar-collapsed .sidebar-user-avatar {
+  width: 30px;
+  height: 30px;
+  font-size: 13px;
+}
+
+.sidebar.sidebar-collapsed .sidebar-user-status {
+  left: 27px;
+  bottom: 7px;
+}
+
+/* 折叠态的菜单向左展开，避免被裁切 */
+.sidebar.sidebar-collapsed .sidebar-user-dropdown {
+  left: calc(100% + 10px);
+  right: auto;
+  width: 220px;
+  bottom: 0;
 }
 
 .main-shell {
@@ -2458,6 +2782,85 @@ body,
   flex-shrink: 0;
 }
 
+/* ===== 顶栏中央：命令栏（⌘K 全局命令面板入口） ===== */
+.topbar-command {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 20px;
+}
+
+.command-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  height: 34px;
+  padding: 0 10px 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background var(--duration-fast, 150ms) var(--ease-out, ease),
+              border-color var(--duration-fast, 150ms) var(--ease-out, ease),
+              color var(--duration-fast, 150ms) var(--ease-out, ease);
+}
+
+.command-trigger:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+
+.command-trigger-icon {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  position: relative;
+  opacity: 0.85;
+}
+
+.command-trigger-icon::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 11px;
+  width: 6px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.command-trigger-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.command-trigger-kbd {
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.78);
+}
+
 .admin-login-button,
 .feishu-login-button {
   height: 30px;
@@ -2500,24 +2903,6 @@ body,
   opacity: 0.7;
 }
 
-.auth-user-chip {
-  height: 30px;
-  padding: 3px 5px 3px 3px;
-  border: 1px solid var(--border, #E5E7EB);
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: var(--bg-card, #FFFFFF);
-  color: var(--text-title, #111827);
-  box-shadow: var(--shadow-xs, 0 1px 2px rgba(0,0,0,0.04));
-  cursor: pointer;
-}
-
-.auth-user-menu {
-  position: relative;
-  display: inline-flex;
-}
 
 .admin-console-float {
   position: fixed;
@@ -2580,136 +2965,6 @@ body,
   transform: translateY(-1px);
 }
 
-.auth-user-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--brand-black, #1A1A1A);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.auth-user-name {
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-  font-weight: 750;
-}
-
-.auth-user-role {
-  height: 20px;
-  padding: 0 7px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  background: var(--bg-soft, #F3F4F6);
-  color: var(--text-secondary, #6B7280);
-  font-size: 10px;
-  font-weight: 900;
-}
-
-.auth-user-arrow {
-  width: 18px;
-  height: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  color: var(--text-muted, #9CA3AF);
-  background: var(--bg-soft, #F3F4F6);
-}
-
-.auth-user-arrow::before {
-  content: '';
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 5px solid currentColor;
-  transform: translateY(1px);
-}
-
-.auth-user-dropdown {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  z-index: 40;
-  width: 230px;
-  padding: 8px;
-  border: 1px solid var(--border, #E5E7EB);
-  border-radius: var(--radius-lg, 16px);
-  background: var(--bg-card, #FFFFFF);
-  box-shadow: var(--shadow-lg, 0 4px 8px rgba(0,0,0,0.03), 0 16px 40px rgba(0,0,0,0.07));
-  backdrop-filter: blur(12px);
-}
-
-.auth-user-dropdown::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  right: 24px;
-  width: 10px;
-  height: 10px;
-  border-left: 1px solid var(--border, #E5E7EB);
-  border-top: 1px solid var(--border, #E5E7EB);
-  background: var(--bg-card, #FFFFFF);
-  transform: rotate(45deg);
-}
-
-.auth-user-dropdown button {
-  width: 100%;
-  padding: 11px 12px;
-  border: 0;
-  border-radius: var(--radius-sm, 8px);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-  background: transparent;
-  color: var(--text-title, #111827);
-  cursor: pointer;
-  text-align: left;
-}
-
-.auth-user-dropdown button:hover {
-  background: var(--bg-soft, #F3F4F6);
-}
-
-.auth-user-dropdown button strong {
-  font-size: 13px;
-}
-
-.auth-user-dropdown button span {
-  color: var(--text-secondary, #6B7280);
-  font-size: 12px;
-}
-
-.auth-user-dropdown button.danger strong {
-  color: var(--error, #0E9488);
-}
-
-.auth-logout-button {
-  height: 22px;
-  padding: 0 8px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--bg-soft, #F3F4F6);
-  color: var(--text-secondary, #6B7280);
-  font-size: 11px;
-  font-weight: 750;
-  cursor: pointer;
-}
-
-.auth-logout-button:hover {
-  background: var(--border-light, #F3F4F6);
-}
-
 .admin-login-dialog {
   border-radius: 18px !important;
 }
@@ -2741,8 +2996,8 @@ body,
 }
 
 .admin-login-field input:focus {
-  border-color: var(--brand-primary, #0E9488);
-  box-shadow: 0 0 0 3px var(--brand-primary-focus, rgba(14, 148, 136, 0.16));
+  border-color: var(--brand-primary, #6366F1);
+  box-shadow: 0 0 0 3px var(--brand-primary-focus, rgba(99, 102, 241, 0.16));
 }
 
 .auth-password-button {
@@ -2798,9 +3053,9 @@ body,
   align-items: center;
   gap: 12px;
   padding: 14px;
-  border: 1px solid var(--brand-primary-soft, #F0FAF8);
+  border: 1px solid var(--brand-primary-soft, #EEF2FF);
   border-radius: var(--radius-md, 12px);
-  background: var(--brand-primary-soft, #F0FAF8);
+  background: var(--brand-primary-soft, #EEF2FF);
 }
 
 .password-panel-icon {
@@ -2906,8 +3161,8 @@ body,
 }
 
 .password-form input:focus {
-  border-color: var(--brand-primary, #0E9488);
-  box-shadow: 0 0 0 3px var(--brand-primary-focus, rgba(14, 148, 136, 0.16));
+  border-color: var(--brand-primary, #6366F1);
+  box-shadow: 0 0 0 3px var(--brand-primary-focus, rgba(99, 102, 241, 0.16));
 }
 
 .dialog-ghost-button,
@@ -2929,8 +3184,8 @@ body,
 }
 
 .dialog-primary-button {
-  border: 1px solid var(--brand-primary, #0E9488);
-  background: var(--brand-primary, #0E9488);
+  border: 1px solid var(--brand-primary, #6366F1);
+  background: var(--brand-primary, #6366F1);
   color: #fff;
   box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
 }
@@ -2941,8 +3196,8 @@ body,
 }
 
 .dialog-primary-button:hover {
-  background: var(--brand-primary-hover, #0B7A70);
-  border-color: var(--brand-primary-hover, #0B7A70);
+  background: var(--brand-primary-hover, #4F46E5);
+  border-color: var(--brand-primary-hover, #4F46E5);
 }
 
 .dialog-primary-button:disabled {
@@ -2998,9 +3253,9 @@ body,
 }
 
 .backend-status-chip.is-offline {
-  border-color: rgba(14, 148, 136, 0.2);
-  background: var(--error-soft, #F0FAF8);
-  color: var(--error, #0E9488);
+  border-color: rgba(99, 102, 241, 0.2);
+  background: var(--error-soft, #EEF2FF);
+  color: var(--error, #6366F1);
 }
 
 .backend-status-dot {
@@ -3054,6 +3309,196 @@ body,
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== 全局命令面板（⌘K） ===== */
+.command-palette-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 20px 20px;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: saturate(140%) blur(6px);
+  -webkit-backdrop-filter: saturate(140%) blur(6px);
+}
+
+.command-palette {
+  width: 100%;
+  max-width: 560px;
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-xl, 20px);
+  background: var(--bg-card, #FFFFFF);
+  box-shadow: 0 32px 80px rgba(30, 27, 75, 0.35);
+}
+
+.command-palette-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-light, #EEF2FF);
+  background: var(--brand-gradient-soft, linear-gradient(135deg, #EEF2FF 0%, #EFF6FF 100%));
+}
+
+.command-palette-search-icon {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.8px solid var(--brand-primary, #6366F1);
+  position: relative;
+}
+
+.command-palette-search-icon::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  width: 7px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--brand-primary, #6366F1);
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.command-palette-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text-title, #0F172A);
+  font-size: 15px;
+}
+
+.command-palette-input::placeholder {
+  color: var(--text-placeholder, #CBD5E1);
+}
+
+.command-palette-hint {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted, #94A3B8);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.command-palette-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.command-palette-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius-md, 12px);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--duration-fast, 150ms) var(--ease-out, ease);
+}
+
+.command-palette-item.is-active {
+  background: var(--brand-primary-soft, #EEF2FF);
+}
+
+.command-palette-item-icon {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-gradient-soft, linear-gradient(135deg, #EEF2FF 0%, #EFF6FF 100%));
+  color: var(--brand-primary, #6366F1);
+  font-size: 16px;
+}
+
+.command-palette-item.is-active .command-palette-item-icon {
+  background: var(--brand-gradient, linear-gradient(135deg, #6366F1 0%, #3B82F6 100%));
+  color: #ffffff;
+}
+
+.command-palette-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.command-palette-item-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-title, #0F172A);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.command-palette-item-path {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: var(--text-muted, #94A3B8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.command-palette-empty {
+  padding: 26px 12px;
+  text-align: center;
+  color: var(--text-muted, #94A3B8);
+  font-size: 13px;
+}
+
+/* 面板/菜单过渡动画 */
+.palette-fade-enter-active,
+.palette-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.palette-fade-enter-active .command-palette,
+.palette-fade-leave-active .command-palette {
+  transition: transform 0.22s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.palette-fade-enter-from,
+.palette-fade-leave-to {
+  opacity: 0;
+}
+
+.palette-fade-enter-from .command-palette,
+.palette-fade-leave-to .command-palette {
+  transform: translateY(-12px) scale(0.98);
+}
+
+.user-menu-rise-enter-active,
+.user-menu-rise-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.user-menu-rise-enter-from,
+.user-menu-rise-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
 @media (max-width: 1080px) {
   .topbar {
     align-items: flex-start;
@@ -3062,6 +3507,15 @@ body,
 
   .topbar-title-row {
     gap: 10px;
+  }
+
+  .topbar-command {
+    width: 100%;
+    padding: 0;
+  }
+
+  .command-trigger {
+    max-width: none;
   }
 
   .topbar-right {

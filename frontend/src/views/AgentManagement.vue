@@ -157,10 +157,10 @@ onMounted(() => {
 
 .agent-head-metrics span {
   padding: 8px 12px;
-  border: 1px solid rgba(14, 148, 136, 0.16);
+  border: 1px solid rgba(99, 102, 241, 0.16);
   border-radius: 999px;
   background: #F4F7FA;
-  color: #0B7A70;
+  color: #4F46E5;
   font-weight: 750;
 }
 
@@ -182,7 +182,7 @@ onMounted(() => {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 20px;
   background:
-    radial-gradient(circle at 100% 0%, rgba(14, 148, 136, 0.08), transparent 30%),
+    radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.08), transparent 30%),
     rgba(255, 255, 255, 0.86);
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.82);
   overflow: hidden;
@@ -207,7 +207,7 @@ onMounted(() => {
 .agent-rail-kicker,
 .agent-editor-kicker {
   margin-bottom: 4px;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.12em;
@@ -226,17 +226,17 @@ onMounted(() => {
 }
 
 .agent-card:hover {
-  border-color: rgba(14, 148, 136, 0.2);
+  border-color: rgba(99, 102, 241, 0.2);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.07);
   transform: translateY(-1px);
 }
 
 .agent-card.active {
-  border-color: rgba(14, 148, 136, 0.28);
+  border-color: rgba(99, 102, 241, 0.28);
   background:
-    radial-gradient(circle at 100% 0%, rgba(14, 148, 136, 0.12), transparent 28%),
-    linear-gradient(135deg, #F0FAF8 0%, #ffffff 100%);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12), inset 4px 0 0 #0E9488;
+    radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.12), transparent 28%),
+    linear-gradient(135deg, #EEF2FF 0%, #ffffff 100%);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12), inset 4px 0 0 #6366F1;
 }
 
 .agent-card-no {
@@ -247,11 +247,11 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #0B7A70;
+  color: #4F46E5;
   font-size: 12px;
   font-weight: 900;
-  background: #F0FAF8;
-  border: 1px solid rgba(14, 148, 136, 0.14);
+  background: #EEF2FF;
+  border: 1px solid rgba(99, 102, 241, 0.14);
 }
 
 .agent-card-copy {
@@ -346,10 +346,10 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #0B7A70;
+  color: #4F46E5;
   font-size: 11px;
   font-weight: 900;
-  background: #F0FAF8;
+  background: #EEF2FF;
 }
 
 @media (max-width: 1180px) {

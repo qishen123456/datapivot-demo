@@ -131,7 +131,7 @@ const normalizedSteps = computed(() => {
 
 .sa-check.loading {
   color: #1A1A1A;
-  background: #F0FAF8;
+  background: #EEF2FF;
 }
 
 .sa-thinking-body {
@@ -210,7 +210,7 @@ const normalizedSteps = computed(() => {
 }
 
 .sa-step-status.running {
-  background: #F0FAF8;
+  background: #EEF2FF;
   color: #1A1A1A;
 }
 
@@ -225,7 +225,7 @@ const normalizedSteps = computed(() => {
 }
 
 .sa-step-status.error {
-  background: #F0FAF8;
+  background: #EEF2FF;
   color: #1A1A1A;
 }
 

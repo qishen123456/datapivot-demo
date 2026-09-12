@@ -662,10 +662,10 @@ onMounted(() => {
   cursor: pointer; transition: all var(--duration-fast, 150ms) ease;
   margin-bottom: 2px;
 }
-.rc-ds-item:hover { background: rgba(14, 148, 136, 0.04); }
+.rc-ds-item:hover { background: rgba(99, 102, 241, 0.04); }
 .rc-ds-item.is-active {
-  background: var(--color-primary-light, #F0FAF8);
-  box-shadow: inset 3px 0 0 var(--color-primary, #0E9488);
+  background: var(--color-primary-light, #EEF2FF);
+  box-shadow: inset 3px 0 0 var(--color-primary, #6366F1);
 }
 .rc-ds-icon { font-size: 16px; color: var(--text-muted, #9CA3AF); flex-shrink: 0; }
 .rc-ds-meta { flex: 1; min-width: 0; }

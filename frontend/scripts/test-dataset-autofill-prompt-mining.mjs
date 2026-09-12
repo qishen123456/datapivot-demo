@@ -72,4 +72,3 @@ assert.equal(collection.length, 2)
 assert.equal(collection[0].prompt_content, '人工维护 Agent2，不应被覆盖')
 assert.equal(collection[1].prompt_content, '自动生成 Agent3')
 
-console.log('dataset autofill prompt mining test passed')

@@ -1165,7 +1165,7 @@ onUnmounted(() => {
   padding: 28px;
   color: #111827;
   background:
-    radial-gradient(circle at 8% 0%, rgba(14, 148, 136, 0.13), transparent 30%),
+    radial-gradient(circle at 8% 0%, rgba(99, 102, 241, 0.13), transparent 30%),
     radial-gradient(circle at 90% 16%, rgba(107, 114, 128, 0.13), transparent 28%),
     linear-gradient(180deg, #F4F7FA 0%, #F3F4F6 100%);
 }
@@ -1176,7 +1176,7 @@ onUnmounted(() => {
   min-height: 138px;
   padding: 30px 32px;
   border-radius: 28px;
-  border: 1px solid rgba(14, 148, 136, 0.16);
+  border: 1px solid rgba(99, 102, 241, 0.16);
   background:
     linear-gradient(120deg, rgba(255, 255, 255, 0.96) 0%, rgba(254, 242, 242, 0.92) 54%, rgba(248, 249, 250, 0.96) 100%);
   box-shadow: 0 22px 58px rgba(0, 0, 0, 0.1);
@@ -1193,7 +1193,7 @@ onUnmounted(() => {
   width: 210px;
   height: 210px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(14, 148, 136, 0.28), transparent 62%);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.28), transparent 62%);
   filter: blur(2px);
 }
 
@@ -1207,7 +1207,7 @@ onUnmounted(() => {
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.14em;
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .fs-hero h2 {
@@ -1259,7 +1259,7 @@ onUnmounted(() => {
 
 .fs-btn-primary {
   color: #fff;
-  background: linear-gradient(135deg, #1A1A1A 0%, #0E9488 100%);
+  background: linear-gradient(135deg, #1A1A1A 0%, #6366F1 100%);
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
 }
 
@@ -1298,8 +1298,8 @@ onUnmounted(() => {
   justify-content: center;
   font-size: 18px;
   font-weight: 900;
-  color: #0E9488;
-  background: linear-gradient(180deg, #F0FAF8 0%, #F0FAF8 100%);
+  color: #6366F1;
+  background: linear-gradient(180deg, #EEF2FF 0%, #EEF2FF 100%);
 }
 
 .fs-stat-card.running .fs-stat-icon {
@@ -1308,8 +1308,8 @@ onUnmounted(() => {
 }
 
 .fs-stat-card.failed .fs-stat-icon {
-  color: #0E9488;
-  background: linear-gradient(180deg, #F0FAF8 0%, #F0FAF8 100%);
+  color: #6366F1;
+  background: linear-gradient(180deg, #EEF2FF 0%, #EEF2FF 100%);
 }
 
 .fs-stat-card.quiet .fs-stat-icon {
@@ -1368,8 +1368,8 @@ onUnmounted(() => {
   padding: 0 12px;
   border-radius: 999px;
   background: #F4F7FA;
-  border: 1px solid rgba(14, 148, 136, 0.12);
-  color: #0E9488;
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  color: #6366F1;
   font-size: 12px;
   font-weight: 800;
   display: inline-flex;
@@ -1406,7 +1406,7 @@ onUnmounted(() => {
 }
 
 .fs-ops-tabs :deep(.el-tabs__item.is-active) {
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .fs-tab-label {
@@ -1509,7 +1509,7 @@ onUnmounted(() => {
 }
 
 .fs-next-run.is-waiting {
-  color: #0E9488;
+  color: #6366F1;
   font-weight: 800;
 }
 
@@ -1545,9 +1545,9 @@ onUnmounted(() => {
   background: #9CA3AF;
 }
 
-.fs-task-card.is-success::before { background: linear-gradient(90deg, #0E9488, #10B981); }
+.fs-task-card.is-success::before { background: linear-gradient(90deg, #6366F1, #10B981); }
 .fs-task-card.is-running::before { background: linear-gradient(90deg, #f59e0b, #9CA3AF); }
-.fs-task-card.is-failed::before { background: linear-gradient(90deg, #0E9488, #F87171); }
+.fs-task-card.is-failed::before { background: linear-gradient(90deg, #6366F1, #F87171); }
 
 .fs-task-top {
   display: flex;
@@ -1584,7 +1584,7 @@ onUnmounted(() => {
 }
 
 .is-failed .fs-task-status-dot {
-  background: #0E9488;
+  background: #6366F1;
   box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.12);
 }
 
@@ -1626,8 +1626,8 @@ onUnmounted(() => {
 }
 
 .fs-status-pill.is-failed {
-  color: #0E9488;
-  background: #F0FAF8;
+  color: #6366F1;
+  background: #EEF2FF;
 }
 
 .fs-task-meta {
@@ -1673,7 +1673,7 @@ onUnmounted(() => {
 .fs-task-route i {
   height: 1px;
   flex: 1;
-  background: linear-gradient(90deg, rgba(14, 148, 136, 0.18), rgba(0, 0, 0, 0.38), rgba(14, 148, 136, 0.18));
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.18), rgba(0, 0, 0, 0.38), rgba(99, 102, 241, 0.18));
 }
 
 .fs-task-actions {
@@ -1698,13 +1698,13 @@ onUnmounted(() => {
 }
 
 .fs-action-primary {
-  color: #0E9488;
-  background: #F0FAF8;
+  color: #6366F1;
+  background: #EEF2FF;
 }
 
 .fs-action-danger {
-  color: #0E9488;
-  background: #F0FAF8;
+  color: #6366F1;
+  background: #EEF2FF;
 }
 
 .fs-url-assist,
@@ -1712,9 +1712,9 @@ onUnmounted(() => {
   margin-bottom: 18px;
   padding: 16px;
   border-radius: 18px;
-  border: 1px solid rgba(14, 148, 136, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.12);
   background:
-    radial-gradient(circle at 96% 0%, rgba(14, 148, 136, 0.12), transparent 34%),
+    radial-gradient(circle at 96% 0%, rgba(99, 102, 241, 0.12), transparent 34%),
     #F4F7FA;
 }
 
@@ -1758,7 +1758,7 @@ onUnmounted(() => {
 }
 
 .fs-schema-panel.is-ready {
-  border-color: rgba(14, 148, 136, 0.24);
+  border-color: rgba(99, 102, 241, 0.24);
 }
 
 .fs-schema-summary {
@@ -1799,7 +1799,7 @@ onUnmounted(() => {
   margin-top: 12px;
   padding: 12px 14px;
   border-radius: 15px;
-  border: 1px solid rgba(14, 148, 136, 0.14);
+  border: 1px solid rgba(99, 102, 241, 0.14);
   background: rgba(254, 242, 242, 0.82);
   display: flex;
   align-items: center;
@@ -1837,7 +1837,7 @@ onUnmounted(() => {
 }
 
 .fs-field-box.removed {
-  border-color: rgba(14, 148, 136, 0.16);
+  border-color: rgba(99, 102, 241, 0.16);
 }
 
 .fs-field-box-title {

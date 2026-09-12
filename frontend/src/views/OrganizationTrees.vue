@@ -604,7 +604,7 @@ onMounted(async () => {
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0;
@@ -700,8 +700,8 @@ onMounted(async () => {
 }
 
 .type-item.active {
-  border-color: #0E9488;
-  background: #F0FAF8;
+  border-color: #6366F1;
+  background: #EEF2FF;
 }
 
 .type-item strong,
@@ -727,8 +727,8 @@ onMounted(async () => {
   height: 24px;
   padding: 0 10px;
   border-radius: 999px;
-  background: #F0FAF8;
-  color: #0E9488;
+  background: #EEF2FF;
+  color: #6366F1;
   font-size: 12px;
   font-weight: 800;
 }
@@ -794,7 +794,7 @@ onMounted(async () => {
 
 .tree-node-row button.active {
   background: #ecfdf5;
-  box-shadow: inset 3px 0 0 #0E9488;
+  box-shadow: inset 3px 0 0 #6366F1;
 }
 
 .node-title-line {
@@ -826,8 +826,8 @@ onMounted(async () => {
   flex: 0 0 auto;
   padding: 1px 6px;
   border-radius: 999px;
-  background: #F0FAF8;
-  color: #0E9488;
+  background: #EEF2FF;
+  color: #6366F1;
   font-size: 11px;
   font-style: normal;
   font-weight: 800;

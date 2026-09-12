@@ -1,7 +1,7 @@
 ﻿<template>
   <div class="bookshelf-page">
     <el-row :gutter="16" style="height: 100%;">
-      <el-col :span="6" style="height:100%;">
+      <el-col :xs="24" :sm="24" :md="8" :lg="6" style="height:100%;">
         <el-card class="panel-card">
           <template #header>
             <div class="panel-header">
@@ -24,7 +24,7 @@
         </el-card>
       </el-col>
 
-      <el-col :span="18" style="height:100%;">
+      <el-col :xs="24" :sm="24" :md="16" :lg="18" style="height:100%;">
         <el-card class="panel-card">
           <template #header>
             <div class="panel-header">
@@ -40,36 +40,36 @@
           <template v-else>
             <el-form :model="datasetForm" label-width="110px" class="basic-form">
               <el-row :gutter="12">
-                <el-col :span="8">
+                <el-col :xs="24" :sm="12" :md="8">
                   <el-form-item label="数据集编码">
                     <el-input v-model="datasetForm.dataset_code" />
                   </el-form-item>
                 </el-col>
-                <el-col :span="8">
+                <el-col :xs="24" :sm="12" :md="8">
                   <el-form-item label="数据集名称">
                     <el-input v-model="datasetForm.dataset_name" />
                   </el-form-item>
                 </el-col>
-                <el-col :span="8">
+                <el-col :xs="24" :sm="12" :md="8">
                   <el-form-item label="业务域">
                     <el-input v-model="datasetForm.business_domain" />
                   </el-form-item>
                 </el-col>
               </el-row>
               <el-row :gutter="12">
-                <el-col :span="8">
+                <el-col :xs="24" :sm="12" :md="8">
                   <el-form-item label="绑定数据源">
                     <el-select v-model="datasetForm.source_id" style="width:100%">
                       <el-option v-for="d in dataSources" :key="d.id" :label="d.name" :value="d.id" />
                     </el-select>
                   </el-form-item>
                 </el-col>
-                <el-col :span="8">
+                <el-col :xs="24" :sm="12" :md="8">
                   <el-form-item label="启用状态">
                     <el-switch v-model="datasetForm.is_active" />
                   </el-form-item>
                 </el-col>
-                <el-col :span="8">
+                <el-col :xs="24" :sm="12" :md="8">
                   <el-form-item label="描述">
                     <el-input v-model="datasetForm.description" />
                   </el-form-item>
@@ -370,8 +370,8 @@ onMounted(async () => {
   transform: translateY(-1px);
 }
 .dataset-item.active {
-  border-color: var(--color-primary, #0E9488);
-  background: var(--color-primary-light, #F0FAF8);
+  border-color: var(--color-primary, #6366F1);
+  background: var(--color-primary-light, #EEF2FF);
 }
 .dataset-name {
   font-weight: 600;

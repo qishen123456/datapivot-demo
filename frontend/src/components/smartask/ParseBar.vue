@@ -302,9 +302,9 @@ const confirmAsk = () => {
 }
 
 .sa-parse-token-node {
-  background: #F0FAF8;
+  background: #EEF2FF;
   color: #B91C1C;
-  border: 1px solid #B5E3DE;
+  border: 1px solid #D0D1FB;
 }
 
 .sa-parse-token-inherited {

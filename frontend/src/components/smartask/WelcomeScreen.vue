@@ -5,7 +5,7 @@
         <svg class="sa-welcome-avatar-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
           <defs>
             <linearGradient id="aiAura" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#0E9488" />
+              <stop offset="0%" stop-color="#6366F1" />
               <stop offset="100%" stop-color="#2DD4BF" />
             </linearGradient>
             <linearGradient id="innerBg" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -16,8 +16,8 @@
           <circle cx="50" cy="50" r="45" stroke="url(#aiAura)" stroke-width="2.5" />
           <circle cx="50" cy="50" r="40" fill="url(#innerBg)" />
           <circle cx="50" cy="50" r="32" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="2 2" />
-          <path d="M28 62 L42 40 L52 52 L62 36 L72 44" fill="none" stroke="#0E9488" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-          <circle cx="72" cy="44" r="4.5" fill="#0E9488" />
+          <path d="M28 62 L42 40 L52 52 L62 36 L72 44" fill="none" stroke="#6366F1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="72" cy="44" r="4.5" fill="#6366F1" />
         </svg>
       </div>
       <div class="sa-welcome-copy">
@@ -65,7 +65,7 @@ import { RefreshRight } from '@element-plus/icons-vue'
 const props = defineProps({
   welcomeText: {
     type: String,
-    default: 'hi，我是你的经营分析顾问，今天有什么我可以帮助你的吗？'
+    default: '你好，我是你的经营分析顾问，今天有什么我可以帮助你的吗？'
   },
   commonQuestions: {
     type: Array,
@@ -189,7 +189,7 @@ onMounted(() => {
   padding: 0;
   border-radius: 0;
   background: transparent;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 0;
@@ -210,7 +210,7 @@ onMounted(() => {
 .sa-welcome-text.is-typing::after {
   content: '|';
   margin-left: 5px;
-  color: rgba(14, 148, 136, 0.72);
+  color: rgba(99, 102, 241, 0.72);
   animation: sa-welcome-cursor-blink 1s step-end infinite;
 }
 
@@ -264,7 +264,7 @@ onMounted(() => {
 
 .sa-quick-refresh:hover:not(:disabled) {
   transform: translateY(-1px);
-  border-color: rgba(14, 148, 136, 0.2);
+  border-color: rgba(99, 102, 241, 0.2);
   background: #ffffff;
   color: #111827;
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
@@ -332,7 +332,7 @@ onMounted(() => {
 
 .sa-quick-btn:hover {
   background: #FFFFFF;
-  border-color: rgba(14, 148, 136, 0.14);
+  border-color: rgba(99, 102, 241, 0.14);
   color: #1A1A1A;
   transform: translateY(-2px);
   box-shadow:
@@ -352,7 +352,7 @@ onMounted(() => {
   max-width: 100%;
   padding: 3px 8px;
   border-radius: 999px;
-  background: #D9F0ED;
+  background: #E0E7FF;
   color: #991B1B;
   font-size: 11px;
   font-weight: 800;

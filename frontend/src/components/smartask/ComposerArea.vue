@@ -599,7 +599,7 @@ onUnmounted(() => {
   bottom: 0;
   width: 4px;
   border-radius: 0 999px 999px 0;
-  background: #0E9488;
+  background: #6366F1;
   pointer-events: none;
 }
 
@@ -611,7 +611,7 @@ onUnmounted(() => {
 
 .sa-side-dataset-card.active::before,
 .sa-side-dataset-card:hover::before {
-  background: #0E9488;
+  background: #6366F1;
 }
 
 .sa-side-dataset-head {
@@ -749,7 +749,7 @@ onUnmounted(() => {
 
 .sa-model-option.is-default-model::before {
   width: 4px;
-  background: rgba(14, 148, 136, 0.84);
+  background: rgba(99, 102, 241, 0.84);
   opacity: 1;
 }
 
@@ -957,7 +957,7 @@ onUnmounted(() => {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: rgba(14, 148, 136, 0.82);
+  background: rgba(99, 102, 241, 0.82);
   flex: 0 0 auto;
   animation: pulse 1.2s ease-in-out infinite;
 }
@@ -1015,7 +1015,7 @@ onUnmounted(() => {
   line-height: 1.45;
   color: #111827;
   background: transparent;
-  caret-color: #0E9488;
+  caret-color: #6366F1;
   margin-top: 0;
 }
 
@@ -1141,8 +1141,8 @@ onUnmounted(() => {
   justify-content: center;
   border-radius: 50%;
   background: linear-gradient(180deg, #F4F7FA 0%, #ffffff 100%);
-  border: 1px solid rgba(14, 148, 136, 0.16);
-  color: #0E9488;
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  color: #6366F1;
   color: #111827;
   box-shadow: none;
   pointer-events: none;
@@ -1164,7 +1164,7 @@ onUnmounted(() => {
   min-width: 28px;
   min-height: 28px;
   border-radius: 50%;
-  border: 1px solid rgba(14, 148, 136, 0.18);
+  border: 1px solid rgba(99, 102, 241, 0.18);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1173,19 +1173,19 @@ onUnmounted(() => {
   overflow: hidden;
   color: #ffffff;
   box-shadow:
-    0 4px 12px rgba(14, 148, 136, 0.3),
+    0 4px 12px rgba(99, 102, 241, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
   transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
 .sa-send-btn {
-  background: #0E9488;
+  background: #6366F1;
 }
 
 .sa-send-btn:hover {
   background: #DC1C17;
   box-shadow:
-    0 6px 16px rgba(14, 148, 136, 0.34),
+    0 6px 16px rgba(99, 102, 241, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
 }
@@ -1228,11 +1228,11 @@ onUnmounted(() => {
   height: 18px;
   padding: 0 7px;
   border-radius: 8px;
-  background: rgba(14, 148, 136, 0.08);
-  color: rgba(14, 148, 136, 0.88);
+  background: rgba(99, 102, 241, 0.08);
+  color: rgba(99, 102, 241, 0.88);
   font-size: 10px;
   font-weight: 800;
-  box-shadow: inset 0 0 0 1px rgba(14, 148, 136, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.14);
 }
 
 @property --sa-composer-angle {
@@ -1362,11 +1362,11 @@ onUnmounted(() => {
 }
 .sa-recorder-pill.is-cancel-pending {
   border-color: #FCA5A5;
-  background: #F0FAF8;
+  background: #EEF2FF;
 }
 .sa-recorder-icon {
   display: flex;
-  color: #0E9488;
+  color: #6366F1;
 }
 .sa-recorder-pill.is-recording .sa-recorder-icon {
   animation: sa-recorder-pulse 1.2s ease-in-out infinite;
@@ -1377,7 +1377,7 @@ onUnmounted(() => {
 }
 /* 图标：红→橙→红 变色 + 缩放，比单纯透明度闪更明显 */
 @keyframes sa-recorder-pulse {
-  0%, 100% { color: #0E9488; transform: scale(1); }
+  0%, 100% { color: #6366F1; transform: scale(1); }
   50% { color: #F97316; transform: scale(1.25); }
 }
 /* 外框：边框色 + 红色光晕呼吸 */
@@ -1387,8 +1387,8 @@ onUnmounted(() => {
     box-shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
   }
   50% {
-    border-color: #0E9488;
-    box-shadow: 0 0 0 4px rgba(14, 148, 136, 0.18), 0 1px 6px rgba(14, 148, 136, 0.35);
+    border-color: #6366F1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18), 0 1px 6px rgba(99, 102, 241, 0.35);
   }
 }
 .sa-recorder-timer {
@@ -1492,7 +1492,7 @@ onUnmounted(() => {
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
-  color: #0E9488;
+  color: #6366F1;
 }
 .sa-model-icon-mini svg {
   width: 14px;

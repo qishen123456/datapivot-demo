@@ -508,7 +508,7 @@ onUnmounted(() => {
 
 .sql-debug-workbench {
   display: grid;
-  grid-template-columns: minmax(440px, 0.92fr) minmax(500px, 1.08fr);
+  grid-template-columns: minmax(460px, 1fr) minmax(460px, 1fr);
   gap: 16px;
   min-height: 560px;
 }
@@ -529,12 +529,14 @@ onUnmounted(() => {
   gap: 12px;
   margin-bottom: 12px;
   min-height: 34px;
+  flex-wrap: wrap;
 }
 
 .sql-debug-section-head strong,
 .sql-debug-result-head strong {
   color: #0f172a;
   font-size: 15px;
+  white-space: nowrap;
 }
 
 .sql-debug-result-head span {
@@ -600,8 +602,8 @@ onUnmounted(() => {
 }
 
 .sql-debug-code-copy:not(:disabled):hover {
-  border-color: rgba(45, 212, 191, 0.55);
-  color: #ccfbf1;
+  border-color: rgba(129, 140, 248, 0.55);
+  color: #C7D2FE;
 }
 
 .sql-debug-code-block pre {

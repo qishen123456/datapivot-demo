@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const viewLoaders = {
-  DataPulse: () => import('../views/DataPulse.vue'),
+  DataPulse: () => import('../views/SmartAsk.vue'),
   SqlDebug: () => import('../views/SqlDebug.vue'),
   AuthCallback: () => import('../views/AuthCallback.vue'),
   AgentManagement: () => import('../views/AgentManagement.vue'),

@@ -4,7 +4,7 @@
       <div class="auth-hero-mark">
         <img src="/datapivot-logo.svg" alt="DataPulse" class="auth-hero-logo" />
       </div>
-      <p class="auth-kicker">DATAPIVOT INTELLIGENCE</p>
+      <p class="auth-kicker">DATAPULSE INTELLIGENCE</p>
       <h1>DataPulse 脉策智能 / 脉策问数</h1>
       <p class="auth-desc">登录后根据员工权限加载分析、配置与管理能力。</p>
       <div class="auth-capabilities">
@@ -137,7 +137,7 @@ const startFeishu = async () => {
   flex-direction: column;
   justify-content: center;
   padding: 64px 72px;
-  background: rgba(10, 28, 48, 0.96);
+  background: rgba(23, 20, 60, 0.96);
   overflow: hidden;
 }
 
@@ -147,7 +147,7 @@ const startFeishu = async () => {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 20% 80%, rgba(14, 148, 136, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
   pointer-events: none;
 }
@@ -189,7 +189,7 @@ const startFeishu = async () => {
   position: relative;
   z-index: 1;
   margin: 36px 0 16px;
-  color: rgba(14, 148, 136, 0.85);
+  color: rgba(99, 102, 241, 0.85);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.18em;
@@ -257,7 +257,7 @@ const startFeishu = async () => {
 
 .login-kicker {
   margin: 0 0 10px;
-  color: rgba(10, 28, 48, 0.35);
+  color: rgba(23, 20, 60, 0.35);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.14em;
@@ -275,8 +275,8 @@ const startFeishu = async () => {
 .login-badge {
   padding: 5px 10px;
   border-radius: 999px;
-  background: rgba(10, 28, 48, 0.06);
-  color: rgba(10, 28, 48, 0.45);
+  background: rgba(23, 20, 60, 0.06);
+  color: rgba(23, 20, 60, 0.45);
   font-size: 10px;
   font-weight: 800;
   white-space: nowrap;
@@ -292,7 +292,7 @@ const startFeishu = async () => {
 .login-form label {
   display: grid;
   gap: 7px;
-  color: rgba(10, 28, 48, 0.5);
+  color: rgba(23, 20, 60, 0.5);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -314,8 +314,8 @@ const startFeishu = async () => {
 }
 
 .login-form input:focus {
-  border-color: rgba(10, 28, 48, 0.45);
-  box-shadow: 0 0 0 3px rgba(10, 28, 48, 0.07);
+  border-color: rgba(23, 20, 60, 0.45);
+  box-shadow: 0 0 0 3px rgba(23, 20, 60, 0.07);
 }
 
 .password-control {
@@ -356,8 +356,8 @@ const startFeishu = async () => {
 }
 
 .password-eye:hover {
-  color: rgba(10, 28, 48, 0.6);
-  background: rgba(10, 28, 48, 0.06);
+  color: rgba(23, 20, 60, 0.6);
+  background: rgba(23, 20, 60, 0.06);
 }
 
 .password-eye .el-icon {
@@ -380,7 +380,7 @@ const startFeishu = async () => {
 
 .primary-login {
   margin-top: 6px;
-  background: rgba(10, 28, 48, 0.92);
+  background: rgba(23, 20, 60, 0.92);
   color: #fff;
   letter-spacing: 0.02em;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);

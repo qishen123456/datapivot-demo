@@ -1,4 +1,4 @@
-/* ===== 数枢 DataPivot 品牌设计系统 ===== */
+/* ===== DataPulse 脉策智能 品牌设计系统 ===== */
 /* 只改视觉层：颜色、字体、边框、阴影、圆角、背景、hover/active/focus */
 /* 不改任何业务逻辑、DOM 结构、Vue 模板、路由、状态管理 */
 
@@ -7,28 +7,35 @@
   --font-sans: 'HarmonyOS Sans SC', 'MiSans', 'Source Han Sans SC', 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Segoe UI', 'PingFang SC', sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
 
-  /* ── 品牌色：深青 teal + 藏青灰蓝体系 ── */
-  --brand-primary: #0E9488;
-  --brand-primary-hover: #0B7A70;
-  --brand-primary-active: #096862;
-  --brand-primary-soft: #F0FAF8;
-  --brand-primary-soft-2: #F5FBFA;
-  --brand-primary-focus: rgba(14, 148, 136, 0.16);
-  --brand-primary-focus-strong: rgba(14, 148, 136, 0.24);
+  /* ── 品牌色：紫蓝渐变体系（Indigo #6366F1 → Blue #3B82F6）── */
+  --brand-primary: #6366F1;
+  --brand-primary-hover: #4F46E5;
+  --brand-primary-active: #4338CA;
+  --brand-primary-soft: #EEF2FF;
+  --brand-primary-soft-2: #F5F3FF;
+  --brand-primary-focus: rgba(99, 102, 241, 0.16);
+  --brand-primary-focus-strong: rgba(99, 102, 241, 0.26);
 
-  /* 深藏青底白字为主行动色，深青 teal 作品牌点缀 */
-  --brand-black: rgba(11, 42, 74, 0.94);
-  --brand-black-strong: rgba(8, 32, 58, 0.97);
-  --brand-black-soft: rgba(11, 42, 74, 0.84);
-  --brand-surface-dark: rgba(13, 36, 60, 0.9);
+  /* 品牌渐变（用于侧栏、主按钮、强调块等可显式引用处） */
+  --brand-gradient: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%);
+  --brand-gradient-hover: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%);
+  --brand-gradient-soft: linear-gradient(135deg, #EEF2FF 0%, #EFF6FF 100%);
+  --brand-accent: #3B82F6;
+
+  /* 深靛蓝：承载侧栏与深色面板（替代原藏青） */
+  --brand-black: rgba(30, 27, 75, 0.96);
+  --brand-black-strong: rgba(23, 20, 60, 0.98);
+  --brand-black-soft: rgba(30, 27, 75, 0.86);
+  --brand-surface-dark: rgba(30, 27, 75, 0.94);
   --brand-overlay: rgba(255, 255, 255, 0.72);
 
-  --brand-action: rgba(11, 42, 74, 0.94);
-  --brand-action-hover: rgba(8, 32, 58, 0.97);
-  --brand-action-active: rgba(6, 26, 46, 0.98);
-  --brand-action-soft: #F1F5F9;
-  --brand-action-focus: rgba(11, 42, 74, 0.14);
-  --brand-action-focus-strong: rgba(11, 42, 74, 0.22);
+  /* 主行动色：紫罗兰实色（渐变由 --brand-gradient 承担） */
+  --brand-action: #6366F1;
+  --brand-action-hover: #4F46E5;
+  --brand-action-active: #4338CA;
+  --brand-action-soft: #EEF2FF;
+  --brand-action-focus: rgba(99, 102, 241, 0.14);
+  --brand-action-focus-strong: rgba(99, 102, 241, 0.24);
 
   /* ── 中性色阶 ── */
   --brand-gray-50: #F8FAFC;
@@ -49,19 +56,19 @@
   --text-muted: #94A3B8;
   --text-placeholder: #CBD5E1;
 
-  /* ── 语义背景（冷灰蓝系）── */
-  --bg-page: #EDF2F6;
+  /* ── 语义背景（浅紫灰系）── */
+  --bg-page: #F6F7FC;
   --bg-card: #FFFFFF;
-  --bg-soft: #E6EDF3;
-  --bg-hover: #DCE6EF;
+  --bg-soft: #EEF1FA;
+  --bg-hover: #E4E8F7;
   --bg-elevated: #FFFFFF;
-  --bg-mask: rgba(15, 23, 42, 0.45);
+  --bg-mask: rgba(23, 20, 60, 0.45);
 
   /* ── 语义边框 ── */
-  --border: #D4DEE8;
-  --border-light: #E2E9F0;
-  --border-hover: #B8C7D6;
-  --border-strong: #94A3B8;
+  --border: #DFE3F0;
+  --border-light: #EAEDF7;
+  --border-hover: #C3CADF;
+  --border-strong: #9DA5C0;
 
   /* ── 状态色 ── */
   --success: #10B981;
@@ -73,22 +80,22 @@
   --info: #64748B;
   --info-soft: #F1F5F9;
 
-  /* ── 阴影：轻、柔、中性 ── */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.03), 0 8px 24px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.03), 0 16px 40px rgba(0, 0, 0, 0.07);
-  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.04), 0 24px 56px rgba(0, 0, 0, 0.08);
-  --shadow-focus: 0 0 0 3px rgba(14, 148, 136, 0.12);
-  --shadow-hover: 0 4px 14px rgba(14, 148, 136, 0.06);
+  /* ── 阴影：轻、柔、带紫调 ── */
+  --shadow-xs: 0 1px 2px rgba(30, 27, 75, 0.05);
+  --shadow-sm: 0 1px 3px rgba(30, 27, 75, 0.05), 0 4px 8px rgba(30, 27, 75, 0.04);
+  --shadow-md: 0 2px 4px rgba(30, 27, 75, 0.04), 0 8px 24px rgba(30, 27, 75, 0.07);
+  --shadow-lg: 0 4px 8px rgba(30, 27, 75, 0.04), 0 16px 40px rgba(30, 27, 75, 0.09);
+  --shadow-xl: 0 8px 16px rgba(30, 27, 75, 0.05), 0 24px 56px rgba(30, 27, 75, 0.10);
+  --shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.14);
+  --shadow-hover: 0 4px 14px rgba(99, 102, 241, 0.10);
 
-  /* ── 圆角 ── */
-  --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-card: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  /* ── 圆角（现代风：整体加大）── */
+  --radius-xs: 8px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-card: 16px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
   --radius-pill: 999px;
 
   /* ── 间距 ── */
@@ -108,17 +115,17 @@
   --duration-slow: 350ms;
 
   /* ── 兼容旧引用 ── */
-  --radius-card-mid: 12px;
-  --color-primary: #0E9488;
-  --color-primary-hover: #0B7A70;
-  --color-primary-active: #096862;
-  --color-primary-light: #F0FAF8;
-  --color-primary-light-hover: #D9F0ED;
-  --color-primary-bg: #F5FBFA;
-  --color-accent: #0E9488;
-  --color-accent-hover: #0B7A70;
-  --color-accent-light: #F0FAF8;
-  --color-action-ink: #0F172A;
+  --radius-card-mid: 14px;
+  --color-primary: #6366F1;
+  --color-primary-hover: #4F46E5;
+  --color-primary-active: #4338CA;
+  --color-primary-light: #EEF2FF;
+  --color-primary-light-hover: #E0E7FF;
+  --color-primary-bg: #F5F3FF;
+  --color-accent: #3B82F6;
+  --color-accent-hover: #2563EB;
+  --color-accent-light: #EFF6FF;
+  --color-action-ink: #1E1B4B;
   --gray-50: #F8FAFC;
   --gray-100: #F1F5F9;
   --gray-200: #E2E8F0;
@@ -133,13 +140,13 @@
 
 /* ===== Element Plus CSS Variables 映射 ===== */
 :root {
-  --el-color-primary: #0E9488;
-  --el-color-primary-light-3: #f87171;
-  --el-color-primary-light-5: #fca5a5;
-  --el-color-primary-light-7: #B5E3DE;
-  --el-color-primary-light-8: #D9F0ED;
-  --el-color-primary-light-9: #F0FAF8;
-  --el-color-primary-dark-2: #0B7A70;
+  --el-color-primary: #6366F1;
+  --el-color-primary-light-3: #9294F5;
+  --el-color-primary-light-5: #B1B3F8;
+  --el-color-primary-light-7: #D0D1FB;
+  --el-color-primary-light-8: #E0E0FC;
+  --el-color-primary-light-9: #EFF0FE;
+  --el-color-primary-dark-2: #4F46E5;
 
   --el-color-success: #10B981;
   --el-color-success-light-3: #34d399;
@@ -360,7 +367,7 @@ html, body, #app, .el-popper, .el-overlay {
 }
 
 .el-button--primary.is-plain {
-  border-color: rgba(11, 42, 74, 0.22) !important;
+  border-color: rgba(30, 27, 75, 0.22) !important;
   background: var(--brand-action-soft) !important;
   color: var(--brand-action) !important;
   box-shadow: var(--shadow-xs);
@@ -676,7 +683,7 @@ html, body, #app, .el-popper, .el-overlay {
 
 .el-tag--primary {
   background: var(--brand-primary-soft);
-  border-color: #B5E3DE;
+  border-color: #D0D1FB;
   color: var(--brand-primary);
 }
 
@@ -1095,7 +1102,7 @@ select:focus-visible,
 
 /* 深色面板通用类：深烟灰 + 毛玻璃感 */
 .sa-dark-panel {
-  background: rgba(10, 28, 48, 0.94);
+  background: rgba(23, 20, 60, 0.94);
   backdrop-filter: saturate(160%) blur(24px);
   -webkit-backdrop-filter: saturate(160%) blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -1103,7 +1110,7 @@ select:focus-visible,
 }
 
 .sa-dark-panel-soft {
-  background: rgba(13, 34, 56, 0.86);
+  background: rgba(30, 27, 75, 0.86);
   backdrop-filter: saturate(160%) blur(16px);
   -webkit-backdrop-filter: saturate(160%) blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.05);

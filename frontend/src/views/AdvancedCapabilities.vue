@@ -509,7 +509,7 @@ onMounted(() => {
   margin: 0 0 8px;
   font-size: 12px;
   font-weight: 700;
-  color: #0E9488;
+  color: #6366F1;
   letter-spacing: 0;
 }
 

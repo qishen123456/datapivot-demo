@@ -53,7 +53,7 @@
             <el-switch
               class="status-switch"
               :model-value="row.enabled !== false"
-              active-color="#0E9488"
+              active-color="#6366F1"
               inactive-color="#D1D5DB"
               :disabled="!isFeatureEnabled('employee_status_update')"
               @change="toggleUserEnabled(row)"
@@ -336,7 +336,6 @@ const loadActiveModels = async () => {
       }
     }
   } catch (e) {
-    console.error('加载模型列表失败:', e)
   }
 }
 
@@ -701,7 +700,7 @@ onMounted(() => {
 
 .kicker {
   margin: 0 0 8px;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 12px;
   font-weight: 800;
 }
@@ -923,7 +922,7 @@ onMounted(() => {
 }
 
 :deep(.status-switch.el-switch) {
-  --el-switch-on-color: #0E9488;
+  --el-switch-on-color: #6366F1;
   --el-switch-off-color: #D1D5DB;
   height: 24px;
 }

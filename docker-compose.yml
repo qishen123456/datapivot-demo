@@ -82,6 +82,22 @@ services:
       SMARTASK_FEISHU_SYNC_ON_STARTUP: ${SMARTASK_FEISHU_SYNC_ON_STARTUP:-auto}
       SMARTASK_DB_HOST: postgres
       SMARTASK_DB_PORT: 5432
+      # 后端代码只读 DATAPULSE_*：补齐关键连接项，保证全新克隆也能连上库
+      DATAPULSE_DB_HOST: postgres
+      DATAPULSE_DB_PORT: 5432
+      DATAPULSE_DB_DATABASE: postgres
+      DATAPULSE_DB_USERNAME: postgres
+      # 密码与 SMARTASK_DB_PASSWORD 同源，避免 .env 里明文/密文不一致导致连不上
+      DATAPULSE_DB_PASSWORD: ${SMARTASK_DB_PASSWORD}
+      DATAPULSE_CHROMA_PATH: /app/chroma_db
+      DATAPULSE_FEISHU_SYNC_ON_STARTUP: skip
+      # AI 模型：后端只读 DATAPULSE_AI_*，这里从 SMARTASK_AI_* 桥接
+      # （不桥接的话全新克隆拿不到 AI Key，问数无法调用大模型）
+      DATAPULSE_AI_LABEL: ${SMARTASK_AI_LABEL:-}
+      DATAPULSE_AI_PROVIDER: ${SMARTASK_AI_PROVIDER:-}
+      DATAPULSE_AI_MODEL: ${SMARTASK_AI_MODEL:-}
+      DATAPULSE_AI_BASE_URL: ${SMARTASK_AI_BASE_URL:-}
+      DATAPULSE_AI_API_KEY: ${SMARTASK_AI_API_KEY:-}
       SMARTASK_CHROMA_PATH: /app/chroma_db
       SMARTASK_CONFIG_DIR: /app/config
       SMARTASK_RUNTIME_BACKUP_DIR: /app/backups/runtime
@@ -158,9 +174,13 @@ services:
 
 volumes:
   smartask_pg_data:
-    name: smartask_pg_data
+    # 演示版使用独立数据卷，不与 docker-setup 项目共用同一个卷：
+    #   1) 旧库残留的 schema（如视图列名「事业部」）会让本项目的迁移脚本报错；
+    #   2) scripts/load_demo_data.sh 会 DROP SCHEMA public CASCADE，
+    #      共用卷会误删另一项目的数据。
+    name: datapulse_pg_data
   smartask_chroma:
-    name: smartask_chroma
+    name: datapulse_chroma
 
 networks:
   smartask-internal:

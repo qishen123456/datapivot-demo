@@ -31,10 +31,29 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// 这些接口的 401 属于「凭据错误」而非「登录态过期」，需展示后端原始提示
+const AUTH_ENDPOINT_HINTS = ['/auth/login', '/auth/feishu', '/feishu/auth']
+
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    const status = error.response?.status
+    const url = error.config?.url || ''
     const message = error.response?.data?.error || error.message || '请求失败'
+    const isAuthEndpoint = AUTH_ENDPOINT_HINTS.some((hint) => url.includes(hint))
+    if (status === 401 && !isAuthEndpoint) {
+      // 登录态失效：清除本地 token 并通知应用切回登录页（避免只弹 toast 不跳登录）
+      clearAuthToken()
+      try {
+        window.dispatchEvent(new CustomEvent('datapulse:unauthorized'))
+      } catch {
+        // 忽略事件派发异常
+      }
+      if (!error.config?.silent) {
+        ElMessage.error('登录已过期，请重新登录')
+      }
+      return Promise.reject(error)
+    }
     if (!error.config?.silent) {
       ElMessage.error(message)
     }

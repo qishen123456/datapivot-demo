@@ -29,7 +29,6 @@ export async function initFeishuEnv() {
     }
   } catch (error) {
     sessionStorage.removeItem(FEISHU_INIT_KEY)
-    console.warn('Feishu auto login failed', error)
   }
   return null
 }

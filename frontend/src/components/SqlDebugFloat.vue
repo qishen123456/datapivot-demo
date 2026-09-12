@@ -167,10 +167,10 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(14, 148, 136, 0.28);
-  background: rgba(14, 148, 136, 0.96);
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  background: rgba(99, 102, 241, 0.96);
   color: #fff;
-  box-shadow: 0 16px 36px rgba(14, 148, 136, 0.24);
+  box-shadow: 0 16px 36px rgba(99, 102, 241, 0.24);
   cursor: pointer;
 }
 
@@ -196,7 +196,7 @@ onUnmounted(() => {
 
 .sql-debug-float-main:hover,
 .sql-debug-float-close:hover {
-  background: #0E9488;
+  background: #6366F1;
   transform: translateY(-1px);
 }
 </style>

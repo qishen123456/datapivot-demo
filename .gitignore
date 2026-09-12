@@ -59,6 +59,9 @@ config/smartask_test_report_*.md
 .env.development.local
 .env.test.local
 .env.production.local
+# 密钥主密钥（用于加解密 config 中的 api_key 等敏感字段）——严禁入库
+.secret_master_key
+**/.secret_master_key
 
 # Temp
 tmp/
@@ -99,6 +102,9 @@ config/query_history.json
 config/smartask_report_history.json
 config/sql_prompts.json
 config/dataset_node_index.json
+# 运行时日志（含 user_id/时间戳），不随仓库分发
+config/*.jsonl
+config/datasource_changes.log
 
 # Frontend build output / caches
 dist/

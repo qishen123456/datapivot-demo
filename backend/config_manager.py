@@ -305,7 +305,7 @@ def _apply_env_datasource_overrides(databases: list) -> list:
             "name": _env_text('DATAPULSE_DB_LABEL', target.get('name', '默认数据源')),
             "type": final_type,
             "sqlite_path": "",
-            "host": env_host if env_host else target.get('host', 'localhost'),
+            "host": env_host if env_host else target.get('host', 'postgres'),
             "port": env_port if env_port is not None else int(target.get('port', 5432) or 5432),
             "database_name": _env_text('DATAPULSE_DB_DATABASE', target.get('database_name', 'postgres')),
             "username": _env_text('DATAPULSE_DB_USERNAME', target.get('username', 'postgres')),

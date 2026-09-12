@@ -2251,8 +2251,8 @@ onMounted(() => {
   padding: 24px 28px 36px;
   color: #111827;
   background:
-    radial-gradient(circle at 8% 6%, rgba(14, 148, 136, 0.12), transparent 28%),
-    linear-gradient(135deg, #F4F7FA 0%, #F4F7FA 54%, #F0FAF8 100%);
+    radial-gradient(circle at 8% 6%, rgba(99, 102, 241, 0.12), transparent 28%),
+    linear-gradient(135deg, #F4F7FA 0%, #F4F7FA 54%, #EEF2FF 100%);
 }
 
 .ask-flow-panel { display: flex; flex-direction: column; gap: 16px; }
@@ -2263,7 +2263,7 @@ onMounted(() => {
   justify-content: space-between;
   gap: 20px;
   padding: 22px;
-  border: 1px solid #F0FAF8;
+  border: 1px solid #EEF2FF;
   border-radius: 8px;
   background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(254, 242, 242, 0.9));
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.07);
@@ -2306,7 +2306,7 @@ onMounted(() => {
   width: 30px;
   height: 30px;
   border-radius: 999px;
-  background: #0E9488;
+  background: #6366F1;
   color: #fff;
   font-weight: 800;
 }
@@ -2333,25 +2333,25 @@ onMounted(() => {
 }
 
 .flow-choice-card:hover {
-  border-color: #F0FAF8;
+  border-color: #EEF2FF;
   background: #ffffff;
 }
 
 .flow-choice-card.active {
-  border-color: #0E9488;
-  background: #F0FAF8;
+  border-color: #6366F1;
+  background: #EEF2FF;
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.10);
 }
 
 .flow-choice-card strong { font-size: 22px; color: #111827; }
 .flow-choice-card small { color: #6B7280; line-height: 1.65; }
-.flow-choice-card i { margin-top: auto; font-style: normal; color: #0E9488; font-weight: 700; }
+.flow-choice-card i { margin-top: auto; font-style: normal; color: #6366F1; font-weight: 700; }
 
 .flow-choice-tag {
   padding: 3px 8px;
   border-radius: 999px;
-  background: #F0FAF8;
-  color: #0E9488;
+  background: #EEF2FF;
+  color: #6366F1;
   font-size: 12px;
   font-weight: 700;
 }
@@ -2484,7 +2484,7 @@ onMounted(() => {
 .card-kicker {
   display: inline-flex;
   margin-bottom: 5px;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -2524,7 +2524,7 @@ onMounted(() => {
   bottom: 28px;
   z-index: 30;
   padding: 8px;
-  border: 1px solid rgba(14, 148, 136, 0.18);
+  border: 1px solid rgba(99, 102, 241, 0.18);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
@@ -2608,7 +2608,7 @@ onMounted(() => {
 }
 
 .dashboard-card.is-danger strong {
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .dashboard-card.is-warning strong {
@@ -2620,7 +2620,7 @@ onMounted(() => {
 }
 
 .dashboard-card.is-primary strong {
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .dashboard-panels {
@@ -2690,7 +2690,7 @@ onMounted(() => {
 }
 
 .rank-metric.is-primary {
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .rank-metric.is-success {
@@ -2698,7 +2698,7 @@ onMounted(() => {
 }
 
 .rank-metric.is-danger {
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .rank-metric.is-warning {
@@ -2715,7 +2715,7 @@ onMounted(() => {
 
 .summary-strip strong {
   display: block;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 21px;
   line-height: 1.1;
 }
@@ -2752,7 +2752,7 @@ onMounted(() => {
 
 .console-tabs button.active {
   color: #ffffff;
-  background: linear-gradient(135deg, #0E9488 0%, #0B7A70 100%);
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
 }
 
@@ -2850,8 +2850,8 @@ onMounted(() => {
   margin-left: 8px;
   padding: 2px 7px;
   border-radius: 999px;
-  color: #0E9488;
-  background: #F0FAF8;
+  color: #6366F1;
+  background: #EEF2FF;
   font-size: 11px;
 }
 
@@ -2888,8 +2888,8 @@ onMounted(() => {
 }
 
 .role-head.checked small {
-  color: #0E9488;
-  background: #F0FAF8;
+  color: #6366F1;
+  background: #EEF2FF;
 }
 
 .role-head input,
@@ -2910,9 +2910,9 @@ onMounted(() => {
 
 .role-head.checked .check-box,
 .permission-check.checked .check-box {
-  border-color: #0E9488;
-  background: #0E9488;
-  box-shadow: inset 0 0 0 3px #0E9488;
+  border-color: #6366F1;
+  background: #6366F1;
+  box-shadow: inset 0 0 0 3px #6366F1;
 }
 
 .role-head.checked .check-box::after,
@@ -3040,8 +3040,8 @@ onMounted(() => {
   flex-shrink: 0;
   padding: 3px 8px;
   border-radius: 999px;
-  background: #F0FAF8;
-  color: #0E9488;
+  background: #EEF2FF;
+  color: #6366F1;
   font-size: 12px;
   font-style: normal;
   font-weight: 800;
@@ -3053,8 +3053,8 @@ onMounted(() => {
   margin: 0 8px 3px 0;
   padding: 2px 7px;
   border-radius: 999px;
-  background: #F0FAF8;
-  color: #0E9488;
+  background: #EEF2FF;
+  color: #6366F1;
   font-size: 11px;
   font-weight: 800;
   vertical-align: middle;
@@ -3095,8 +3095,8 @@ onMounted(() => {
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
-  color: #0E9488;
-  background: #F0FAF8;
+  color: #6366F1;
+  background: #EEF2FF;
   font-size: 11px;
   font-weight: 800;
 }
@@ -3121,7 +3121,7 @@ onMounted(() => {
 }
 
 .data-summary-strip strong {
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .data-permission-card {
@@ -3254,8 +3254,8 @@ onMounted(() => {
 }
 
 .detail-highlight {
-  border-color: #F0FAF8;
-  background: #F0FAF8;
+  border-color: #EEF2FF;
+  background: #EEF2FF;
 }
 
 .detail-section h3 {
@@ -3298,7 +3298,7 @@ onMounted(() => {
   border-radius: 16px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 249, 250, 0.96)),
-    radial-gradient(circle at 0 0, rgba(14, 148, 136, 0.1), transparent 34%);
+    radial-gradient(circle at 0 0, rgba(99, 102, 241, 0.1), transparent 34%);
 }
 
 .console-hero h1 {
@@ -3343,7 +3343,7 @@ onMounted(() => {
   top: 0;
   z-index: 2;
   margin-bottom: 2px;
-  background: #F0FAF8;
+  background: #EEF2FF;
 }
 
 .feature-col {
@@ -3375,8 +3375,8 @@ onMounted(() => {
 }
 
 .role-head.checked {
-  border-color: rgba(14, 148, 136, 0.24);
-  background: #F0FAF8;
+  border-color: rgba(99, 102, 241, 0.24);
+  background: #EEF2FF;
 }
 
 .role-head small {
@@ -3425,7 +3425,7 @@ onMounted(() => {
 }
 
 .scope-summary strong {
-  color: #0E9488;
+  color: #6366F1;
   font-size: 18px;
 }
 

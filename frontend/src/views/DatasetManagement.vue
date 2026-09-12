@@ -2248,7 +2248,7 @@ onUnmounted(() => {
 .dataset-status-filter :deep(.el-radio-button__inner) { width: 100%; padding-left: 8px; padding-right: 8px; }
 .dataset-tile { padding: 12px 14px; border-radius: var(--radius-card, 12px); margin-bottom: 8px; border: 1px solid var(--border, #E5E7EB); background: var(--bg-card, #fff); cursor: pointer; transition: all var(--duration-normal, 220ms) var(--ease-out); }
 .dataset-tile:hover { border-color: var(--border-hover, #D1D5DB); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
-.dataset-tile.active { border-color: var(--color-primary, #0E9488); background: var(--color-primary-light, #F0FAF8); box-shadow: var(--shadow-md); }
+.dataset-tile.active { border-color: var(--color-primary, #6366F1); background: var(--color-primary-light, #EEF2FF); box-shadow: var(--shadow-md); }
 .dataset-tile.inactive { background: #F4F7FA; }
 .dataset-tile.readonly { background: #FFFBEB; }
 .dataset-tile-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
@@ -2297,8 +2297,8 @@ onUnmounted(() => {
   background: #F4F7FA;
 }
 .prompt-progress-panel {
-  border: 1px solid #F0FAF8;
-  background: linear-gradient(180deg, #F4F7FA 0%, #F0FAF8 100%);
+  border: 1px solid #EEF2FF;
+  background: linear-gradient(180deg, #F4F7FA 0%, #EEF2FF 100%);
   border-radius: 10px;
   padding: 14px 16px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
@@ -2323,7 +2323,7 @@ onUnmounted(() => {
 }
 .prompt-progress-head em {
   flex: 0 0 auto;
-  color: #0E9488;
+  color: #6366F1;
   font-style: normal;
   font-weight: 600;
 }
@@ -2364,14 +2364,14 @@ onUnmounted(() => {
 }
 .prompt-stage.done,
 .prompt-stage.active {
-  border-color: #F0FAF8;
-  color: #0E9488;
+  border-color: #EEF2FF;
+  color: #6366F1;
   background: #ECFDF5;
 }
 .prompt-stage.done span,
 .prompt-stage.active span {
   color: #fff;
-  background: #0E9488;
+  background: #6366F1;
 }
 .prompt-stage.active {
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);

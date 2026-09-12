@@ -632,7 +632,6 @@ const normalizedRows = computed(() => rows.value.map((row) => {
   const remainValue = deriveRemain(taskValue, actualValue, parseAmountByContract(remainKey ? row[remainKey] : null, remainKey))
   const formattedTask = formatAmountByContract(taskValue)
   if (typeof window !== 'undefined' && /战区/.test(String(row[nameKey] || ''))) {
-    console.warn('[DEBUG task] name=', row[nameKey], 'keys=', Object.keys(row), 'taskKey=', taskKey, 'taskRaw=', row[taskKey], 'taskValue=', taskValue, 'taskText=', formattedTask)
   }
   return {
     name: cleanText(nameKey ? row[nameKey] : ''),
@@ -2863,7 +2862,7 @@ const actionItems = computed(() => {
   width: 100%;
   padding: 15px 17px 16px;
   border-radius: 16px;
-  border: 1px solid rgba(14, 148, 136, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.12);
   background: linear-gradient(180deg, #ffffff 0%, #FFFFFF 100%);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.055);
 }
@@ -2895,7 +2894,7 @@ const actionItems = computed(() => {
 
 .sa-boss-answer-kicker,
 .sa-section-label {
-  color: #0E9488;
+  color: #6366F1;
   font-size: 12px;
   line-height: 1.35;
   font-weight: 800;
@@ -2906,10 +2905,10 @@ const actionItems = computed(() => {
   align-items: center;
   height: 22px;
   padding: 0 8px;
-  border: 1px solid rgba(14, 148, 136, 0.16);
+  border: 1px solid rgba(99, 102, 241, 0.16);
   border-radius: 8px;
   background: #F4F7FA;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 11px;
   font-weight: 800;
   line-height: 1;
@@ -2996,7 +2995,7 @@ const actionItems = computed(() => {
 }
 
 .sa-kpi-rank-badge.is-leader {
-  background: linear-gradient(90deg, rgba(14, 148, 136, 0.10) 0%, rgba(14, 148, 136, 0.05) 100%);
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.10) 0%, rgba(99, 102, 241, 0.05) 100%);
   color: #C41E1A;
 }
 
@@ -3063,7 +3062,7 @@ const actionItems = computed(() => {
 }
 
 .sa-kpi-card.is-danger .sa-kpi-value {
-  color: #0E9488;
+  color: #6366F1;
 }
 
 .sa-insight-grid {
@@ -3158,7 +3157,7 @@ const actionItems = computed(() => {
 
 .sa-drill-section {
   padding: 11px 12px 12px;
-  border: 1px solid rgba(14, 148, 136, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.12);
   border-radius: 14px;
   background: #FFFFFF;
 }
@@ -3220,9 +3219,9 @@ const actionItems = computed(() => {
   gap: 10px;
   align-items: center;
   padding: 10px 12px;
-  border-top: 1px solid rgba(14, 148, 136, 0.08);
-  border-left: 3px solid #0E9488;
-  background: linear-gradient(90deg, rgba(14, 148, 136, 0.08), rgba(14, 148, 136, 0.02));
+  border-top: 1px solid rgba(99, 102, 241, 0.08);
+  border-left: 3px solid #6366F1;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.02));
 }
 
 .sa-drill-table.is-person-ranking .sa-drill-group-row {
@@ -3301,7 +3300,7 @@ const actionItems = computed(() => {
 
 .sa-drill-group-row.is-group-3 {
   border-left-color: #10B981;
-  background: linear-gradient(90deg, rgba(14, 148, 136, 0.1), rgba(14, 148, 136, 0.025));
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.025));
 }
 
 .sa-drill-group-row.is-group-3 .sa-drill-group-node strong,
@@ -3349,7 +3348,7 @@ const actionItems = computed(() => {
 }
 
 .sa-drill-group-node strong {
-  color: #0E9488;
+  color: #6366F1;
   font-size: 13px;
   font-weight: 800;
   overflow: hidden;
@@ -3393,7 +3392,7 @@ const actionItems = computed(() => {
 
 .sa-drill-group-title-only > span {
   min-width: 0;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 13px;
   font-weight: 800;
   overflow: hidden;
@@ -3590,7 +3589,7 @@ const actionItems = computed(() => {
   min-width: 0;
   padding: 11px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(14, 148, 136, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.1);
   background: #ffffff;
 }
 
@@ -3637,7 +3636,7 @@ const actionItems = computed(() => {
 }
 
 .sa-comparison-card.is-leader {
-  border-color: rgba(14, 148, 136, 0.22);
+  border-color: rgba(99, 102, 241, 0.22);
   background: #F4F7FA;
 }
 
@@ -3661,7 +3660,7 @@ const actionItems = computed(() => {
 
 .sa-comparison-card-head strong {
   flex-shrink: 0;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 15px;
   line-height: 1.25;
 }
@@ -3696,12 +3695,12 @@ const actionItems = computed(() => {
   padding: 8px 10px;
   border-radius: 10px;
   background: linear-gradient(180deg, #ffffff 0%, #F4F7FA 100%);
-  border: 1px solid rgba(14, 148, 136, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.12);
 }
 
 .sa-comparison-lane-row.is-leader {
-  border-color: rgba(14, 148, 136, 0.24);
-  box-shadow: 0 6px 18px rgba(14, 148, 136, 0.08);
+  border-color: rgba(99, 102, 241, 0.24);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.08);
 }
 
 .sa-comparison-lane-head {
@@ -3715,7 +3714,7 @@ const actionItems = computed(() => {
 }
 
 .sa-comparison-lane-head strong {
-  color: #0E9488;
+  color: #6366F1;
   font-size: 16px;
   line-height: 1.2;
 }
@@ -3725,7 +3724,7 @@ const actionItems = computed(() => {
   height: 8px;
   margin-top: 8px;
   border-radius: 8px;
-  background: rgba(14, 148, 136, 0.08);
+  background: rgba(99, 102, 241, 0.08);
   overflow: hidden;
 }
 
@@ -3733,7 +3732,7 @@ const actionItems = computed(() => {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #0E9488 0%, #0E9488 100%);
+  background: linear-gradient(90deg, #6366F1 0%, #6366F1 100%);
 }
 
 .sa-comparison-lane-meta {
@@ -3916,9 +3915,9 @@ const actionItems = computed(() => {
   height: 28px;
   padding: 0 11px;
   border-radius: 8px;
-  border: 1px solid rgba(14, 148, 136, 0.18);
+  border: 1px solid rgba(99, 102, 241, 0.18);
   background: #F4F7FA;
-  color: #0E9488;
+  color: #6366F1;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -3978,13 +3977,13 @@ const actionItems = computed(() => {
 }
 
 .sa-report-debug-strip .is-danger {
-  border-color: rgba(14, 148, 136, 0.22);
-  background: #F0FAF8;
-  color: #0E9488;
+  border-color: rgba(99, 102, 241, 0.22);
+  background: #EEF2FF;
+  color: #6366F1;
 }
 
 .sa-report-debug-strip .is-info {
-  border-color: rgba(14, 148, 136, 0.18);
+  border-color: rgba(99, 102, 241, 0.18);
   background: #F4F7FA;
   color: #6B7280;
 }

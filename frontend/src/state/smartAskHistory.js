@@ -215,7 +215,6 @@ const persistDataPulseHistory = () => {
     try {
       persistLocalItems(items)
     } catch (error) {
-      console.warn('[smartAskHistory] failed to persist empty history', error)
     }
     return
   }
@@ -225,10 +224,8 @@ const persistDataPulseHistory = () => {
     return
   } catch (error) {
     if (!isQuotaExceededError(error)) {
-      console.warn('[smartAskHistory] failed to persist local history', error)
       return
     }
-    console.warn('[smartAskHistory] localStorage quota exceeded, fallback to aggressive compaction')
   }
 
   // 容量不足时回退到强压缩
@@ -239,7 +236,6 @@ const persistDataPulseHistory = () => {
       return
     } catch (error) {
       if (!isQuotaExceededError(error)) {
-        console.warn('[smartAskHistory] failed to persist local history', error)
         return
       }
       items = items.slice(0, Math.max(1, items.length - 1))
@@ -386,40 +382,33 @@ export const syncDataPulseHistoryFromServer = async () => {
   ensureLoaded()
   if (typeof window === 'undefined') return historySessions.value
   if (isClearing) {
-    console.warn('[smartAskHistory] sync skipped: clearing')
     return historySessions.value
   }
 
   const startGeneration = ++syncGeneration
   const startClearGeneration = lastClearGeneration
-  console.warn('[smartAskHistory] sync start', { startGeneration, startClearGeneration, len: historySessions.value.length })
   let response = null
   try {
     response = await getDataPulseReportHistory(50)
   } catch (error) {
-    console.warn('[smartAskHistory] sync fetch failed', error)
     return historySessions.value
   }
 
   // 请求飞行期间如果发生过清空，或已经有更新的 sync 请求发出，
   // 丢弃本次结果，避免用旧快照覆盖清空后的状态。
   if (startClearGeneration !== lastClearGeneration) {
-    console.warn('[smartAskHistory] sync aborted: clear happened during fetch')
     return historySessions.value
   }
   if (startGeneration !== syncGeneration) {
-    console.warn('[smartAskHistory] sync aborted: newer sync started')
     return historySessions.value
   }
 
   const localItems = clone(historySessions.value)
   const remoteItems = Array.isArray(response?.history) ? response.history : []
-  console.warn('[smartAskHistory] sync merge', { localLen: localItems.length, remoteLen: remoteItems.length })
   const rejectedLocalIds = await pushLocalOnlyHistoryItems(localItems, remoteItems)
   const safeLocalItems = removeServerRejectedLocalHistory(localItems, rejectedLocalIds)
   historySessions.value = mergeHistoryItems(safeLocalItems, remoteItems)
   persistDataPulseHistory()
-  console.warn('[smartAskHistory] sync done', { len: historySessions.value.length })
   return historySessions.value
 }
 
@@ -452,13 +441,11 @@ export const removeDataPulseHistory = (id) => {
 export const clearDataPulseHistory = async () => {
   ensureLoaded()
   if (isClearing) {
-    console.warn('[smartAskHistory] clear already in progress')
     if (clearingPromise) await clearingPromise
     return
   }
 
   const rollbackSnapshot = clone(historySessions.value)
-  console.warn('[smartAskHistory] clear start', { rollbackLen: rollbackSnapshot.length })
   historySessions.value = []
   activeHistoryId.value = ''
   pendingRestoreId.value = ''
@@ -470,10 +457,8 @@ export const clearDataPulseHistory = async () => {
   clearingPromise = clearDataPulseReportHistory()
   try {
     await clearingPromise
-    console.warn('[smartAskHistory] clear server ok')
   } catch (error) {
     // 后端清空失败时回滚本地状态，避免给用户“已清空”的假象
-    console.warn('[smartAskHistory] clear server failed, rollback', error)
     historySessions.value = rollbackSnapshot
     persistDataPulseHistory()
     throw error

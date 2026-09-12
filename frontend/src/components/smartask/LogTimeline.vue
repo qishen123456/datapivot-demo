@@ -597,7 +597,7 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(17, 24, 39, 0.06);
   box-shadow:
     0 18px 34px rgba(15, 23, 42, 0.055),
-    inset 0 -4px 0 rgba(14, 148, 136, 0.06);
+    inset 0 -4px 0 rgba(99, 102, 241, 0.06);
   transform: perspective(260px) rotateX(18deg);
 }
 
@@ -609,9 +609,9 @@ onBeforeUnmount(() => {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  border: 6px solid rgba(14, 148, 136, 0.68);
+  border: 6px solid rgba(99, 102, 241, 0.68);
   background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 14px 24px rgba(14, 148, 136, 0.12);
+  box-shadow: 0 14px 24px rgba(99, 102, 241, 0.12);
 }
 
 .sa-empty p {
@@ -743,7 +743,7 @@ onBeforeUnmount(() => {
 }
 
 .sa-node-icon.confirm {
-  background: linear-gradient(180deg, #F0FAF8 0%, #F0FAF8 100%);
+  background: linear-gradient(180deg, #EEF2FF 0%, #EEF2FF 100%);
   border-color: rgba(26, 26, 26, 0.16);
 }
 
@@ -753,7 +753,7 @@ onBeforeUnmount(() => {
 }
 
 .sa-node-icon.python {
-  background: linear-gradient(180deg, #F0FAF8 0%, #F0FAF8 100%);
+  background: linear-gradient(180deg, #EEF2FF 0%, #EEF2FF 100%);
   border-color: rgba(107, 114, 128, 0.16);
 }
 

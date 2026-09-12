@@ -14,15 +14,15 @@ from dataset_copilot.syyb_rule_generator import BASE_SQL as SYYB_BASE_SQL
 
 OUTPUT_PATH = Path(__file__).resolve().parent.parent / "config" / "dataset_node_index.json"
 SUPPORTED_DATASET_CODES = (
-    "consumer_business_standard_v1",
-    "datapivot_business_2026_phase1",
-    "feishu_tbldianshang",
+    "yunshu_ops_overview_v1",
+    "panshi_deal_flow_2026_phase1",
+    "feishu_tbl_beta",
     "feishu_tblyongfukaidan",
 )
 SOURCE_TABLE_TO_DATASET_CODES = {
-    "feishu_tbl_xioafeizhe": ["consumer_business_standard_v1"],
-    "datapivot_core_data": ["datapivot_business_2026_phase1"],
-    "feishu_tbldianshang": ["feishu_tbldianshang"],
+    "feishu_tbl_alpha": ["yunshu_ops_overview_v1"],
+    "datapivot_core_data": ["panshi_deal_flow_2026_phase1"],
+    "feishu_tbl_beta": ["feishu_tbl_beta"],
     "feishu_tblyongfukaidan": ["feishu_tblyongfukaidan"],
 }
 
@@ -82,7 +82,7 @@ WITH base AS (
         {division_expr} AS 事业群,
         {branch_expr} AS 战区,
         {city_expr} AS 城市战区
-    FROM feishu_tbl_xioafeizhe
+    FROM feishu_tbl_alpha
     WHERE COALESCE(NULLIF({year_expr}, ''), '2026') = '2026'
 ),
 nodes AS (
@@ -127,7 +127,7 @@ ORDER BY
 """.strip()
 
 
-def _ecommerce_nodes_sql() -> str:
+def _online_nodes_sql() -> str:
     return """
 WITH nodes AS (
     SELECT DISTINCT
@@ -135,14 +135,14 @@ WITH nodes AS (
         COALESCE(NULLIF(TRIM(事业群), ''), '电商事业群') AS node_name,
         NULL::TEXT AS parent_name,
         '电商业务' AS track
-    FROM v_feishu_tbldianshang
+    FROM v_feishu_tbl_beta
     UNION ALL
     SELECT DISTINCT
         '行业部' AS node_level,
         TRIM(行业部) AS node_name,
         COALESCE(NULLIF(TRIM(事业群), ''), '电商事业群') AS parent_name,
         '电商业务' AS track
-    FROM v_feishu_tbldianshang
+    FROM v_feishu_tbl_beta
     WHERE COALESCE(TRIM(行业部), '') <> ''
     UNION ALL
     SELECT DISTINCT
@@ -150,7 +150,7 @@ WITH nodes AS (
         TRIM(细分业务) AS node_name,
         TRIM(行业部) AS parent_name,
         '电商业务' AS track
-    FROM v_feishu_tbldianshang
+    FROM v_feishu_tbl_beta
     WHERE COALESCE(TRIM(细分业务), '') <> ''
     UNION ALL
     SELECT DISTINCT
@@ -158,7 +158,7 @@ WITH nodes AS (
         TRIM(负责人) AS node_name,
         COALESCE(NULLIF(TRIM(细分业务), ''), NULLIF(TRIM(行业部), ''), COALESCE(NULLIF(TRIM(事业群), ''), '电商事业群')) AS parent_name,
         '电商业务' AS track
-    FROM v_feishu_tbldianshang
+    FROM v_feishu_tbl_beta
     WHERE COALESCE(TRIM(负责人), '') <> ''
 )
 SELECT node_level, node_name, parent_name, track
@@ -479,12 +479,12 @@ def _build_sql_for_dataset(
     dataset_code: str,
     context: Dict[str, Any],
 ) -> str:
-    if dataset_code == "consumer_business_standard_v1":
+    if dataset_code == "yunshu_ops_overview_v1":
         return _consumer_nodes_sql()
-    if dataset_code == "datapivot_business_2026_phase1":
+    if dataset_code == "panshi_deal_flow_2026_phase1":
         return _commercial_nodes_sql(context)
-    if dataset_code == "feishu_tbldianshang":
-        return _ecommerce_nodes_sql()
+    if dataset_code == "feishu_tbl_beta":
+        return _online_nodes_sql()
     if dataset_code == "feishu_tblyongfukaidan":
         return _yongfu_nodes_sql()
     raise ValueError(f"Unsupported dataset for node index build: {dataset_code}")

@@ -9,7 +9,7 @@ syncs on its own. ``main()`` simply hands off to ``app.py`` via
 The legacy helpers below (``_run_migration``, ``_import_runtime_config``,
 ``_import_bookshelf_bundle``, ``_import_datapivot_bundle``,
 ``_sync_builtin_datasets``, ``_sync_default_dataset_transforms``,
-``_sync_ecommerce_common_questions``, etc.) are preserved as **manual
+``_sync_online_common_questions``, etc.) are preserved as **manual
 tools** so operators can invoke them from ad-hoc scripts. They are
 **not** triggered automatically by ``main()`` — user-edited golden SQL /
 data dictionaries / agent prompts must not be silently overwritten on
@@ -54,7 +54,7 @@ MIGRATIONS = [
     "20260430_report_config.sql",
     "20260509_report_thresholds.sql",
     "20260512_system_event_logs.sql",
-    "20260627_ecommerce_standard_view.sql",
+    "20260627_online_standard_view.sql",
     "20260630_dataset_transforms.sql",
     "20260807_missing_tables.sql",
     "20260829_user_alias_feedback.sql",
@@ -215,7 +215,7 @@ def _import_datapivot_bundle() -> None:
         traceback.print_exc()
 
 
-ECOMMERCE_COMMON_QUESTIONS = [
+ONLINE_COMMON_QUESTIONS = [
     {"question_text": "电商事业群的业绩", "sort_order": 10},
     {"question_text": "电商事业群三大行业部年度目标营收对比", "sort_order": 20},
     {"question_text": "电商事业群行业部业绩排名", "sort_order": 30},
@@ -368,8 +368,8 @@ def _sync_default_dataset_transforms() -> None:
     log(f"默认转换任务同步完成: 新增 {inserted_count} 个, 立即执行 {executed_count} 个, 跳过 {skipped_count} 个")
 
 
-def _sync_ecommerce_common_questions() -> None:
-    """同步电商数据集常用问题（该数据集由标准视图迁移创建，无 payload 模板）。"""
+def _sync_online_common_questions() -> None:
+    """同步线上数据集常用问题（该数据集由标准视图迁移创建，无 payload 模板）。"""
     if os.getenv("DATAPULSE_BOOTSTRAP_SKIP_BUILTINS", "").lower() in {"1", "true", "yes"}:
         return
     try:
@@ -379,11 +379,11 @@ def _sync_ecommerce_common_questions() -> None:
             with conn.cursor() as cur:
                 cur.execute(
                     "SELECT id FROM bs_datasets WHERE dataset_code = %s LIMIT 1;",
-                    ("feishu_tbldianshang",),
+                    ("feishu_tbl_beta",),
                 )
                 row = cur.fetchone()
                 if not row:
-                    log("未找到电商数据集 feishu_tbldianshang，跳过常用问题同步")
+                    log("未找到线上数据集 feishu_tbl_beta，跳过常用问题同步")
                     return
                 dataset_id = row[0]
                 cur.execute(
@@ -391,9 +391,9 @@ def _sync_ecommerce_common_questions() -> None:
                     (dataset_id,),
                 )
                 if cur.fetchone()[0] > 0:
-                    log(f"电商数据集常用问题已存在，跳过内置同步: dataset_id={dataset_id}")
+                    log(f"线上数据集常用问题已存在，跳过内置同步: dataset_id={dataset_id}")
                     return
-                for item in ECOMMERCE_COMMON_QUESTIONS:
+                for item in ONLINE_COMMON_QUESTIONS:
                     cur.execute(
                         """
                         INSERT INTO bs_common_questions(dataset_id, question_text, sort_order, is_active)
@@ -401,9 +401,9 @@ def _sync_ecommerce_common_questions() -> None:
                         """,
                         (dataset_id, item["question_text"], item["sort_order"]),
                     )
-        log(f"已同步电商数据集常用问题: dataset_id={dataset_id} 共{len(ECOMMERCE_COMMON_QUESTIONS)}条")
+        log(f"已同步线上数据集常用问题: dataset_id={dataset_id} 共{len(ONLINE_COMMON_QUESTIONS)}条")
     except Exception as exc:
-        log(f"同步电商数据集常用问题失败（非致命）: {exc}")
+        log(f"同步线上数据集常用问题失败（非致命）: {exc}")
         traceback.print_exc()
 
 

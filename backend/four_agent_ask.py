@@ -1666,14 +1666,14 @@ class FourAgentAskService:
                 "sample_score": 0,
             }
 
-        # 电商数据集已有专门维护的规则 SQL，优先使用规则 SQL，避免旧 Golden SQL 样本列不标准导致图表异常。
+        # 线上数据集已有专门维护的规则 SQL，优先使用规则 SQL，避免旧 Golden SQL 样本列不标准导致图表异常。
         dataset = self._safe_dict(context.get("dataset"))
         dataset_code = str(dataset.get("dataset_code") or "")
         dataset_name = str(dataset.get("dataset_name") or "")
-        is_ecommerce_dataset = dataset_code == "feishu_tbldianshang" or "电商事业群" in dataset_name
-        is_syyb_dataset = dataset_code in {"datapivot_business_2026", "datapivot_business_2026_phase1"} or dataset_name in {
-            "商用事业群",
-            "商用事业群（阶段一升级版）",
+        is_online_dataset = dataset_code == "feishu_tbl_beta" or "云雀" in dataset_name
+        is_syyb_dataset = dataset_code in {"datapivot_business_2026", "panshi_deal_flow_2026_phase1"} or dataset_name in {
+            "磐石成交流水",
+            "磐石成交流水（阶段一升级版）",
         }
         compact_question = self._normalize_compact_text(question)
         syyb_root_question = (
@@ -1681,7 +1681,7 @@ class FourAgentAskService:
             and "商用事业群" in compact_question
             and not re.search(r"战区|片区|行业部|客户经理|业务员|线|排名|排行|最高|最低|前\d+|后\d+", compact_question)
         )
-        if is_ecommerce_dataset and rule_based_sql:
+        if is_online_dataset and rule_based_sql:
             return {
                 "mode": "rule_based",
                 "sql": rule_based_sql,
@@ -1780,8 +1780,8 @@ class FourAgentAskService:
         dataset_code = str(dataset.get("dataset_code") or dataset.get("code") or "")
         dataset_name = str(dataset.get("dataset_name") or dataset.get("name") or "")
         is_consumer_dataset = (
-            dataset_code in {"consumer_business_standard_v1", "public_feishu_tbl_xioafeizhe_609826", "public_feishu_tbl_xioafeizhe"}
-            or "消费者" in dataset_name
+            dataset_code in {"yunshu_ops_overview_v1", "public_feishu_tbl_alpha_609826", "public_feishu_tbl_alpha"}
+            or "云枢" in dataset_name
         )
         if not is_consumer_dataset:
             return sql
@@ -3976,11 +3976,11 @@ ranking_params 说明：
   "confirmation_role": "boss",
   "confirmation_question": "你是不是想问：",
   "confirmation_options": [
-    {{"id": "rec_1", "label": "系统推荐：电商事业群 - 客户经理排名", "dataset_ids": [62], "scope_filter": "客户经理层级", "score": 85, "reason": "客户经理是电商数据集明确支持的层级"}},
+    {{"id": "rec_1", "label": "系统推荐：电商事业群 - 客户经理排名", "dataset_ids": [62], "scope_filter": "客户经理层级", "score": 85, "reason": "客户经理是线上数据集明确支持的层级"}},
     {{"id": "opt_2", "label": "商用事业群 - 客户经理/业务员排名", "dataset_ids": [3], "scope_filter": "业务员层级", "score": 45, "reason": "商用数据集主要支持业务员层级"}}
   ],
   "candidate_scores": [
-    {{"dataset_id": 62, "dataset_name": "电商事业群", "score": 85, "reason": "客户经理是电商数据集明确支持的层级"}},
+    {{"dataset_id": 62, "dataset_name": "电商事业群", "score": 85, "reason": "客户经理是线上数据集明确支持的层级"}},
     {{"dataset_id": 3, "dataset_name": "商用事业群", "score": 45, "reason": "商用数据集主要支持业务员层级"}}
   ],
   "candidate_dataset_ids": []
@@ -5048,21 +5048,21 @@ ranking_params 说明：
         else:
             actual_sy_level_value = intent_target_level
         is_consumer_dataset = (
-            dataset_code in {"consumer_business_standard_v1", "public_feishu_tbl_xioafeizhe_609826"}
-            or "消费者" in dataset_name
+            dataset_code in {"yunshu_ops_overview_v1", "public_feishu_tbl_alpha_609826"}
+            or "云枢" in dataset_name
         )
-        is_syyb_dataset = dataset_code in {"datapivot_business_2026", "datapivot_business_2026_phase1"} or dataset_name in {
-            "商用事业群",
-            "商用事业群（阶段一升级版）",
+        is_syyb_dataset = dataset_code in {"datapivot_business_2026", "panshi_deal_flow_2026_phase1"} or dataset_name in {
+            "磐石成交流水",
+            "磐石成交流水（阶段一升级版）",
         }
-        is_phase1_dataset = dataset_code == "datapivot_business_2026_phase1" or dataset_name == "商用事业群（阶段一升级版）"
-        is_ecommerce_dataset = dataset_code == "feishu_tbldianshang" or "电商事业群" in dataset_name
+        is_phase1_dataset = dataset_code == "panshi_deal_flow_2026_phase1" or dataset_name == "磐石成交流水（阶段一升级版）"
+        is_online_dataset = dataset_code == "feishu_tbl_beta" or "云雀" in dataset_name
 
         if is_consumer_dataset:
             return self._build_consumer_business_sql(normalized_question, context)
 
-        if is_ecommerce_dataset:
-            return self._build_ecommerce_sql(normalized_question, context)
+        if is_online_dataset:
+            return self._build_online_sql(normalized_question, context)
 
         if not is_syyb_dataset:
             return ""
@@ -5085,7 +5085,7 @@ ranking_params 说明：
                 target_level_from_question = quantity_match_global.group(2)
                 
                 # 对消费者数据集，战区层级实际是"城市战区"
-                if target_level_from_question == "战区" and "消费者" in dataset_name:
+                if target_level_from_question == "战区" and "云枢" in dataset_name:
                     target_level_from_question = "城市战区"
                 
                 if user_quantity and user_quantity > 0 and target_level_from_question:
@@ -5115,7 +5115,7 @@ ranking_params 说明：
         allowed_filter_columns = {"总任务金额", "年度开单金额", "达成率", "剩余任务金额"}
 
         def normalize_syyb_threshold_value(raw: float, col: str) -> float:
-            # 与 _build_ecommerce_sql 保持一致：intent 层保留原始值，SQL 阶段根据问题中的单位换算
+            # 与 _build_online_sql 保持一致：intent 层保留原始值，SQL 阶段根据问题中的单位换算
             if col == "达成率":
                 return raw
             q = normalized_question
@@ -6369,7 +6369,7 @@ LIMIT 10000
 
         return ""
 
-    def _build_ecommerce_sql(self, normalized_question: str, context: Dict[str, Any]) -> str:
+    def _build_online_sql(self, normalized_question: str, context: Dict[str, Any]) -> str:
         q = str(normalized_question or "").strip()
         if not q:
             return ""
@@ -6559,7 +6559,7 @@ LIMIT 10000
 
         # 修复：电商侧处理“X和电商的对比”这类跨线对比时，query_intent 会把
         # comparison_left/right 带成“X/电商”。这两个词是当前 dataset 自己的线别名
-        # （含在 dataset_name 里，如“电商事业群开单金额”含“电商”），并不是承接人。
+        # （含在 dataset_name 里，如“云雀线上流水”含“线上”），并不是承接人。
         # 如果继续走 comparison 分支，会被 is_likely_person_name 兜底误认为“人名对比”
         # 而拼出 负责人 IN ('X','电商') 的 SQL，导致电商侧 row_count=0。
         # 正确做法：识别为“自己线的整体数据”场景，关闭 comparison 标记，让代码走
@@ -6684,7 +6684,7 @@ LIMIT 10000
                     where_parts.append(f"层级级别 = '行业部'")
                 elif compare_dimension in {"承接人", "任务承接人", "负责人", "客户经理"} or (not compare_dimension and projection_mode == "manager"):
                     where_parts.append(f"负责人 IN ({quoted_members})")
-                    # 修复：电商数据集"负责人"实为行业部/事业群级的负责人，不能硬编码'客户经理'层级
+                    # 修复：线上数据集"负责人"实为行业部/事业群级的负责人，不能硬编码'客户经理'层级
                     # 守卫 2026-08-26：projection_mode=="manager" 只在维度未识别时兜底；
                     # 节点索引已给出明确维度（如"业务承接角色"）时不许劫持（bug：京东直营和天猫直营对比 0 行）
                 elif compare_dimension in {"业务承接角色", "细分业务", "业务线"} or user_level in {"业务承接角色", "细分业务", "业务线"}:
@@ -6821,7 +6821,7 @@ LIMIT 10000
                 order_by = "年度开单金额 DESC"
 
         where_clause = " AND ".join(where_parts)
-        sql = f"SELECT {select_cols} FROM v_feishu_tbldianshang WHERE {where_clause} ORDER BY {order_by} {limit_clause};"
+        sql = f"SELECT {select_cols} FROM v_feishu_tbl_beta WHERE {where_clause} ORDER BY {order_by} {limit_clause};"
         return sql
 
 
@@ -6952,7 +6952,7 @@ LIMIT 10000
                         "0 AS 总任务金额, 0 AS 年度开单金额, 0 AS 达成率, 0 AS 剩余任务金额, "
                         "0 AS 线下任务_万元, 0 AS 新零售任务_万元, 0 AS 燃气定制任务_万元, 0 AS 地产任务_万元, "
                         "0 AS 线下实际_万元, 0 AS 新零售实际_万元, 0 AS 燃气定制实际_万元, 0 AS 地产实际_万元 "
-                        "FROM public.feishu_tbl_xioafeizhe WHERE 1=0 LIMIT 0")
+                        "FROM public.feishu_tbl_alpha WHERE 1=0 LIMIT 0")
 
         # 基线约定：根节点 level_overview 必须带一级下级（如「消费者事业群整体业绩」→1+13）
         LEVEL_OVERVIEW_WITH_CHILDREN = {
@@ -7044,7 +7044,7 @@ WITH 字段提取 AS (
         NULLIF(regexp_replace(COALESCE(fields->>'新零售-年度开单金额（万）', ''), '[^0-9.-]', '', 'g'), '')::NUMERIC AS 新零售实际万,
         NULLIF(regexp_replace(COALESCE(fields->>'燃气定制-年度开单金额（万）', ''), '[^0-9.-]', '', 'g'), '')::NUMERIC AS 燃气定制实际万,
         NULLIF(regexp_replace(COALESCE(fields->>'地产-年度开单金额（万）', ''), '[^0-9.-]', '', 'g'), '')::NUMERIC AS 地产实际万
-    FROM public.feishu_tbl_xioafeizhe
+    FROM public.feishu_tbl_alpha
     WHERE fields IS NOT NULL
 ),
 标准行 AS (
@@ -7150,7 +7150,7 @@ WITH 字段提取 AS (
         filter_level = filter_level_map.get(intent_target_level, "城市战区" if city_level_requested else "")
 
         def normalize_consumer_threshold_value(raw: float, col: str) -> float:
-            # 与 syyb/ecommerce 保持一致：intent 层保留原始值，SQL 阶段根据问题中的单位换算
+            # 与 syyb/online 保持一致：intent 层保留原始值，SQL 阶段根据问题中的单位换算
             if col == "达成率":
                 return raw
             q = normalized_question
@@ -7716,7 +7716,7 @@ LIMIT 10000
         dataset = self._safe_dict(context.get("dataset"))
         dataset_code = str(dataset.get("dataset_code") or "")
         dataset_name = str(dataset.get("dataset_name") or "")
-        defer_rule_fallback = dataset_code == "datapivot_business_2026_phase1" or dataset_name == "商用事业群（阶段一升级版）"
+        defer_rule_fallback = dataset_code == "panshi_deal_flow_2026_phase1" or dataset_name == "磐石成交流水（阶段一升级版）"
         rule_based_sql = self._build_rule_based_sql(question, route, context)
         normalized_question = str(question or "").replace("\n", " ").strip()
         force_grouped_ranking = (

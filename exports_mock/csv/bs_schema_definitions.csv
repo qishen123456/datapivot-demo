@@ -1,5 +1,5 @@
 ﻿id,dataset_id,table_name,ddl_sql,description,is_active,created_at,updated_at,source_id
-165,63,v_feishu_tblshangyongv2,"CREATE OR REPLACE VIEW public.v_feishu_tblshangyongv2 AS
+165,63,v_feishu_tbl_gamma_v2,"CREATE OR REPLACE VIEW public.v_feishu_tbl_gamma_v2 AS
 WITH parsed_base AS (
     SELECT 
       COALESCE(NULLIF(regexp_replace(fields->>'MYear', '[^0-9]', '', 'g'), ''), '0')::INTEGER AS current_year,
@@ -11,7 +11,7 @@ WITH parsed_base AS (
       COALESCE(NULLIF(regexp_replace(fields->>'TargetAmount', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS target_amount,
       COALESCE(NULLIF(regexp_replace(fields->>'SellInAmount', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS billing_amount,
       COALESCE(NULLIF(regexp_replace(fields->>'SellInAmount_LastYear', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS billing_last_year
-    FROM public.feishu_tblshangyongv2
+    FROM public.feishu_tbl_gamma_v2
 )
 SELECT 
   current_year AS 年份,
@@ -68,15 +68,15 @@ SELECT
   去年同期开单 AS billing_last_year,
   达成率 AS achievement_rate,
   剩余任务金额 AS remaining_target
-FROM public.v_feishu_tblshangyongv2;",给智能 Agent 与 NL2SQL 翻译器调用的标准英文语义视图（列名已完全转换为驼峰和下划线，结构与标准中文视图一比一镜像）,True,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00,1
-167,13,public.feishu_tbl_xioafeizhe,"CREATE TABLE public.feishu_tbl_xioafeizhe (
+FROM public.v_feishu_tbl_gamma_v2;",给智能 Agent 与 NL2SQL 翻译器调用的标准英文语义视图（列名已完全转换为驼峰和下划线，结构与标准中文视图一比一镜像）,True,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00,1
+167,13,public.feishu_tbl_alpha,"CREATE TABLE public.feishu_tbl_alpha (
     id BIGSERIAL PRIMARY KEY,
     fields JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );",飞书多维表格同步表，业务字段存储在fields JSONB中,True,2026-06-26 07:37:11.907836+00:00,2026-06-26 07:37:11.907836+00:00,1
 262,3,datapivot_core_data,"CREATE TABLE datapivot_core_data (id BIGSERIAL PRIMARY KEY, fields JSONB NOT NULL, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW());",飞书多维表格商用事业群 2026 销售业绩数据,True,2026-06-27 12:03:29.129775+00:00,2026-06-27 12:03:29.129775+00:00,5
-334,62,v_feishu_tbldianshang,"CREATE OR REPLACE VIEW v_feishu_tbldianshang AS
+334,62,v_feishu_tbl_beta,"CREATE OR REPLACE VIEW v_feishu_tbl_beta AS
 SELECT
   id,
   record_id,
@@ -107,11 +107,11 @@ SELECT
   NULLIF(trim(fields->>'2602'),'')::numeric AS q2目标,
   NULLIF(trim(fields->>'2603'),'')::numeric AS q3目标,
   NULLIF(trim(fields->>'2604'),'')::numeric AS q4目标
-FROM feishu_tbldianshang
+FROM feishu_tbl_beta
 WHERE fields IS NOT NULL AND fields <> '{}'::jsonb
   AND NULLIF(fields->>'编号','') IS NOT NULL;",飞书电商事业群经营预算展平视图,True,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00,1
-368,2,public.feishu_tbl_xioafeizhe,"-- 飞书多维表同步：消费者事业群任务数据表
-CREATE TABLE public.feishu_tbl_xioafeizhe
+368,2,public.feishu_tbl_alpha,"-- 飞书多维表同步：消费者事业群任务数据表
+CREATE TABLE public.feishu_tbl_alpha
 (
   id BIGINT PRIMARY KEY,
   record_id VARCHAR(64) NOT NULL,
@@ -120,10 +120,10 @@ CREATE TABLE public.feishu_tbl_xioafeizhe
   updated_time TIMESTAMP(3),
   sync_time TIMESTAMP(3)
 );
-COMMENT ON TABLE public.feishu_tbl_xioafeizhe IS '飞书多维表-消费者事业群任务数据（原始表）';
-COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.id IS '主键ID';
-COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.record_id IS '飞书记录ID';
-COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.fields IS '飞书业务JSON字段体';
-COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.created_time IS '创建时间';
-COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.updated_time IS '更新时间';
-COMMENT ON COLUMN public.feishu_tbl_xioafeizhe.sync_time IS '同步时间';",飞书多维表-消费者事业群任务数据（6列固定结构，业务字段在 fields JSONB）,True,2026-07-08 07:41:23.865975+00:00,2026-07-08 07:41:23.865975+00:00,1
+COMMENT ON TABLE public.feishu_tbl_alpha IS '飞书多维表-消费者事业群任务数据（原始表）';
+COMMENT ON COLUMN public.feishu_tbl_alpha.id IS '主键ID';
+COMMENT ON COLUMN public.feishu_tbl_alpha.record_id IS '飞书记录ID';
+COMMENT ON COLUMN public.feishu_tbl_alpha.fields IS '飞书业务JSON字段体';
+COMMENT ON COLUMN public.feishu_tbl_alpha.created_time IS '创建时间';
+COMMENT ON COLUMN public.feishu_tbl_alpha.updated_time IS '更新时间';
+COMMENT ON COLUMN public.feishu_tbl_alpha.sync_time IS '同步时间';",飞书多维表-消费者事业群任务数据（6列固定结构，业务字段在 fields JSONB）,True,2026-07-08 07:41:23.865975+00:00,2026-07-08 07:41:23.865975+00:00,1

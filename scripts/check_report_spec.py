@@ -26,7 +26,7 @@ def main() -> None:
     columns = list(rows[0].keys())
     spec = build_report_spec(
         question="沧澜战区业绩怎么样？",
-        dataset={"id": 1, "dataset_code": "datapivot_business_2026", "dataset_name": "商用事业群"},
+        dataset={"id": 1, "dataset_code": "panshi_deal_flow_2026", "dataset_name": "磐石成交流水"},
         rows=rows,
         columns=columns,
         report_config=config,
@@ -48,7 +48,7 @@ def main() -> None:
 
     compare_spec = build_report_spec(
         question="沧澜战区和淼澜战区哪个完成得更好？",
-        dataset={"id": 1, "dataset_code": "datapivot_business_2026", "dataset_name": "商用事业群"},
+        dataset={"id": 1, "dataset_code": "panshi_deal_flow_2026", "dataset_name": "磐石成交流水"},
         rows=rows,
         columns=columns,
         report_config=config,

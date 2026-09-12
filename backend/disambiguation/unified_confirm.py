@@ -74,7 +74,7 @@ def format_full_question(dataset_name: str, node_name: str, metric_hint: str = "
 # ---- 默认推荐（2026-08-31 用户确认交互定稿）----
 _SETTINGS_PATH = os.path.join(CONFIG_DIR, "unified_confirm_settings.json")
 _settings_cache: Dict[str, Any] = {"mtime": 0.0, "data": {}}
-_DEFAULT_DATASET_PRIORITY = [2, 3, 62]  # 消费者 > 商用 > 电商
+_DEFAULT_DATASET_PRIORITY = [2, 3, 62]  # 按数据集优先级排序（可配置）
 
 
 def _load_recommend_settings() -> Dict[str, Any]:
@@ -99,7 +99,7 @@ def apply_recommendation(options: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """候选按推荐规则排序，并在"有明确倾向"时给第 1 个标 recommended:true。
 
     规则：
-    - 排序：按 dataset_priority（可配置，默认 消费者>商用>电商），不在列表的排最后。
+    - 排序：按 dataset_priority（可配置，默认按内置优先级列表），不在列表的排最后。
     - recommended 角标：仅当第 1 个与第 2 个【数据集不同】（系统有明确倾向）时标；
       同数据集撞车（如 nb→淼澜/凛澜、sh→临洲城市/深圳城市同在消费者）不硬标——
       避免系统对真歧义"假装有倾向"。此时 recommend_on_tie=true 才强制标。

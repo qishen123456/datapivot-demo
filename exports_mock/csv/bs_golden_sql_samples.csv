@@ -1,30 +1,30 @@
 ﻿id,dataset_id,intent_type,question,sql_text,tags,quality_score,usage_count,last_used_at,is_active,created_by,created_at,updated_at
-986,63,mom,凉州片区今年前六个月大盘开单的环比增速轨迹,"SELECT 月份, SUM(年度开单金额) AS 当月销售, LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) AS 上月销售, CASE WHEN LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) > 0 THEN ROUND((SUM(年度开单金额) - LAG(SUM(年度开单金额)) OVER (ORDER BY 月份)) / LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) * 100, 2) ELSE 0 END AS 环比增长 FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '凉州片区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6 GROUP BY 月份 ORDER BY 月份;","['环比', '片区', '月度趋势']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-987,63,ratio,沧澜最厉害的那两个销售占了沧澜大半业绩吧，算下他们上半年占了多少比例,"WITH branch_total AS (SELECT SUM(年度开单金额) AS b_total FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '沧澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6), top_reps AS (SELECT 节点名称, SUM(年度开单金额) AS rep_billing FROM public.v_feishu_tblshangyongv2 WHERE 层级 = '客户经理' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6 AND 上级名称 IN (SELECT 节点名称 FROM public.v_feishu_tblshangyongv2 WHERE 上级名称 = '沧澜战区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') GROUP BY 节点名称 ORDER BY rep_billing DESC LIMIT 2), reps_sum AS (SELECT SUM(rep_billing) AS r_sum FROM top_reps) SELECT b.b_total AS 沧澜上半年销售额, r.r_sum AS 核心客户经理销售和, CASE WHEN b.b_total > 0 THEN ROUND(r.r_sum / b.b_total * 100, 2) ELSE 0 END AS 业绩占比 FROM branch_total b, reps_sum r;","['占比', '客户经理', '帕累托分析']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-988,63,yoy,对比今年上半年各区域战区的官方大盘总开单以及相比去年的同比增速,"SELECT 节点名称 AS 战区, SUM(年度开单金额) AS 今年上半年销售, SUM(去年同期开单) AS 去年上半年销售, CASE WHEN SUM(去年同期开单) > 0 THEN ROUND((SUM(年度开单金额) - SUM(去年同期开单)) / SUM(去年同期开单) * 100, 2) ELSE 0 END AS 同比增速 FROM public.v_feishu_tblshangyongv2 WHERE 层级 = '战区' AND 线 = '区域线' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6 GROUP BY 节点名称 ORDER BY 同比增速 DESC;","['同比', '战区', '上半年']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-989,63,mom,淼澜战区今年前6个月大盘开单的月度环比增速情况,"SELECT 月份, SUM(年度开单金额) AS 本月销售, LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) AS 上月销售, CASE WHEN LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) > 0 THEN ROUND((SUM(年度开单金额) - LAG(SUM(年度开单金额)) OVER (ORDER BY 月份)) / LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) * 100, 2) ELSE 0 END AS 环比增长 FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '淼澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6 GROUP BY 月份 ORDER BY 月份;","['环比', '战区', '趋势']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-990,63,ratio,淼澜战区旗下所有客户经理今年食饮板块销售占他们个人总开单的比例大PK,"WITH rep_segment_data AS (SELECT 节点名称 AS 客户经理, SUM(CASE WHEN 行业线 = '食饮部' THEN 年度开单金额 ELSE 0 END) AS 食饮销售, SUM(CASE WHEN 行业线 = '总额(未拆分)' THEN 年度开单金额 ELSE 0 END) AS 个人总销售 FROM public.v_feishu_tblshangyongv2 WHERE 层级 = '客户经理' AND 年份 = '2026' AND 上级名称 IN (SELECT 节点名称 FROM public.v_feishu_tblshangyongv2 WHERE 上级名称 = '淼澜战区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') GROUP BY 节点名称) SELECT 客户经理, 个人总销售 AS 年度累计开单, 食饮销售 AS 食饮开单, CASE WHEN 个人总销售 > 0 THEN ROUND(食饮销售 / 个人总销售 * 100, 2) ELSE 0 END AS 食饮开单占比 FROM rep_segment_data ORDER BY 食饮开单占比 DESC;","['占比', '客户经理', '贡献度对比']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-991,63,ratio,云梦和越溪一季度业绩占了整个沧澜的多少比例,"WITH branch_total AS (SELECT SUM(年度开单金额) AS b_billing FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '沧澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 3), office_totals AS (SELECT 节点名称 AS office_name, SUM(年度开单金额) AS o_billing FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 IN ('云梦片区', '越溪片区') AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 3 GROUP BY 节点名称) SELECT o.office_name, o.o_billing, b.b_billing, CASE WHEN b.b_billing > 0 THEN ROUND(o.o_billing / b.b_billing * 100, 2) ELSE 0 END AS 贡献占比 FROM office_totals o, branch_total b;","['占比', '片区', '业绩贡献']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-992,63,drilldown,南区食饮线谁卖得最好？排前三的客户经理拉出来,"SELECT 节点名称 AS 客户经理, 上级名称 AS 所属片区, SUM(年度开单金额) AS 食饮销售 FROM public.v_feishu_tblshangyongv2 WHERE 层级 = '客户经理' AND 行业线 = '食饮部' AND 年份 = '2026' AND 上级名称 IN (SELECT 节点名称 FROM public.v_feishu_tblshangyongv2 WHERE 上级名称 = '淼澜战区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') GROUP BY 节点名称, 上级名称 ORDER BY 食饮销售 DESC LIMIT 3;","['下钻', '客户经理', '食饮板块']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-993,63,mom,凛澜战区在今年第二季度相比于第一季度的季环比增长率是多少,"WITH quarterly_data AS (SELECT SUM(CASE WHEN 月份 IN (1, 2, 3) THEN 年度开单金额 ELSE 0 END) AS q1_billing, SUM(CASE WHEN 月份 IN (4, 5, 6) THEN 年度开单金额 ELSE 0 END) AS q2_billing FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '凛澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') SELECT q1_billing AS 一季度总开单, q2_billing AS 二季度总开单, CASE WHEN q1_billing > 0 THEN ROUND((q2_billing - q1_billing) / q1_billing * 100, 2) ELSE 0 END AS 季环比增速 FROM quarterly_data;","['环比', '战区', '季度对比']",98,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-994,63,audit,沧澜战区分下去的任务对得上片区指标总和吗,"WITH parent_target AS (SELECT SUM(总任务金额) AS p_target FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '沧澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026'), children_sum AS (SELECT SUM(总任务金额) AS c_target FROM public.v_feishu_tblshangyongv2 WHERE 上级名称 = '沧澜战区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') SELECT p_target AS 大区官方总指标, c_target AS 片区派发指标和, (p_target - c_target) AS 未分配额度 FROM parent_target, children_sum;","['对账', '战区', '审计']",98,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-995,63,audit,珩京片区的官方大盘指标和派下去的客户经理指标总和有没有未分派指标,"WITH office_budget AS (SELECT SUM(总任务金额) AS o_target FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '珩京片区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026'), reps_budget AS (SELECT SUM(总任务金额) AS r_target FROM public.v_feishu_tblshangyongv2 WHERE 上级名称 = '珩京片区' AND 层级 = '客户经理' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') SELECT o_target AS 片区总预算, r_target AS 下属分发总预算, (o_target - r_target) AS 未分配预留额度 FROM office_budget, reps_budget;","['对账', '片区', '合规分析']",98,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-996,63,filter,达成率低于30%的片区有哪些,"SELECT 节点名称 AS 片区, SUM(总任务金额) AS 任务额, SUM(年度开单金额) AS 开单额, CASE WHEN SUM(总任务金额) > 0 THEN ROUND(SUM(年度开单金额) / SUM(总任务金额) * 100, 2) ELSE 0 END AS 累计达成率 FROM public.v_feishu_tblshangyongv2 WHERE 年份 = '2026' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' GROUP BY 节点名称 HAVING CASE WHEN SUM(总任务金额) > 0 THEN SUM(年度开单金额) / SUM(总任务金额) ELSE 0 END < 0.30 ORDER BY 累计达成率 ASC;","['筛选', '片区']",98,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-997,63,ratio,云梦片区一季度办公板块开单占云梦整体开单的比例是多少,"SELECT SUM(CASE WHEN 行业线 = '楼宇办公' THEN 年度开单金额 ELSE 0 END) AS 办公板块开单, SUM(CASE WHEN 行业线 = '总额(未拆分)' THEN 年度开单金额 ELSE 0 END) AS 大盘总开单, CASE WHEN SUM(CASE WHEN 行业线 = '总额(未拆分)' THEN 年度开单金额 ELSE 0 END) > 0 THEN ROUND(SUM(CASE WHEN 行业线 = '楼宇办公' THEN 年度开单金额 ELSE 0 END) / SUM(CASE WHEN 行业线 = '总额(未拆分)' THEN 年度开单金额 ELSE 0 END) * 100, 2) ELSE 0 END AS 办公占比 FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '云梦片区' AND 层级 = '片区' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 3;","['占比', '行业线', '一季度']",98,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-998,63,yoy,5月医疗板块和去年同期比增幅怎么样,"SELECT SUM(年度开单金额) AS 今年五月医疗开单, SUM(去年同期开单) AS 去年五月医疗开单, CASE WHEN SUM(去年同期开单) > 0 THEN ROUND((SUM(年度开单金额) - SUM(去年同期开单)) / SUM(去年同期开单) * 100, 2) ELSE 0 END AS 同比增速 FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '商用事业群' AND 层级 = '事业群' AND 行业线 = '工业健康' AND 年份 = '2026' AND 月份 = 5;","['同比', '行业线', '五月']",97,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-999,63,yoy,漠澜战区今年上半年的官方总开单和去年同期比增幅是多少,"SELECT SUM(年度开单金额) AS 今年上半年销售, SUM(去年同期开单) AS 去年同期销售, CASE WHEN SUM(去年同期开单) > 0 THEN ROUND((SUM(年度开单金额) - SUM(去年同期开单)) / SUM(去年同期开单) * 100, 2) ELSE 0 END AS 同比增速 FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '漠澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6;","['同比', '战区', '上半年']",97,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-1000,63,filter,食饮行业部今年有哪些活跃业务员（开过单的）,"SELECT 节点名称 AS 客户经理, SUM(年度开单金额) AS 累计开单 FROM public.v_feishu_tblshangyongv2 WHERE 上级名称 = '食饮行业部' AND 层级 = '客户经理' AND 行业线 = '食饮部' AND 年份 = '2026' GROUP BY 节点名称 HAVING SUM(年度开单金额) > 0 ORDER BY 累计开单 DESC;","['筛选', '客户经理', '活跃度']",97,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-1001,63,segment,5月份整个事业群办公板块开了多少,SELECT SUM(年度开单金额) AS 五月办公板块开单金额 FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '商用事业群' AND 层级 = '事业群' AND 行业线 = '楼宇办公' AND 年份 = '2026' AND 月份 = 5;,"['行业线', '事业群', '五月']",97,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-1002,63,segment,食饮行业部今年食饮板块的指标和实际达成怎样,"SELECT SUM(总任务金额) AS 食饮线任务, SUM(年度开单金额) AS 食饮线销售, CASE WHEN SUM(总任务金额) > 0 THEN ROUND(SUM(年度开单金额) / SUM(总任务金额) * 100, 2) ELSE 0 END AS 达成率 FROM public.v_feishu_tblshangyongv2 WHERE 节点名称 = '食饮行业部' AND 层级 = '战区' AND 行业线 = '食饮部' AND 年份 = '2026';","['行业线', '战区', '业绩分析']",96,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-1003,63,ranking,2026年各区域战区大盘年度开单金额排名,"SELECT 节点名称 AS 战区, SUM(年度开单金额) AS 累计开单 FROM public.v_feishu_tblshangyongv2 WHERE 年份 = '2026' AND 层级 = '战区' AND 线 = '区域线' AND 行业线 = '总额(未拆分)' GROUP BY 节点名称 ORDER BY 累计开单 DESC;","['排名', '战区', '官方值']",96,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-1004,63,drilldown,沧澜战区下属片区一季度的完成情况,"SELECT 节点名称 AS 片区, SUM(总任务金额) AS 一季度任务, SUM(年度开单金额) AS 一季度开单 FROM public.v_feishu_tblshangyongv2 WHERE 上级名称 = '沧澜战区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 IN (1, 2, 3) GROUP BY 节点名称;","['下钻', '片区', '一季度']",96,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
-1005,63,detail,商用事业群2026年整体完成情况,"SELECT SUM(总任务金额) AS 全年总指标, SUM(年度开单金额) AS 全年总开单, CASE WHEN SUM(总任务金额) > 0 THEN ROUND(SUM(年度开单金额) / SUM(总任务金额) * 100, 2) ELSE 0 END AS 整体达成率 FROM public.v_feishu_tblshangyongv2 WHERE 年份 = '2026' AND 行业线 = '总额(未拆分)' AND 层级 = '事业群';","['总览', '事业群']",95,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+986,63,mom,凉州片区今年前六个月大盘开单的环比增速轨迹,"SELECT 月份, SUM(年度开单金额) AS 当月销售, LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) AS 上月销售, CASE WHEN LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) > 0 THEN ROUND((SUM(年度开单金额) - LAG(SUM(年度开单金额)) OVER (ORDER BY 月份)) / LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) * 100, 2) ELSE 0 END AS 环比增长 FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '凉州片区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6 GROUP BY 月份 ORDER BY 月份;","['环比', '片区', '月度趋势']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+987,63,ratio,沧澜最厉害的那两个销售占了沧澜大半业绩吧，算下他们上半年占了多少比例,"WITH branch_total AS (SELECT SUM(年度开单金额) AS b_total FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '沧澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6), top_reps AS (SELECT 节点名称, SUM(年度开单金额) AS rep_billing FROM public.v_feishu_tbl_gamma_v2 WHERE 层级 = '客户经理' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6 AND 上级名称 IN (SELECT 节点名称 FROM public.v_feishu_tbl_gamma_v2 WHERE 上级名称 = '沧澜战区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') GROUP BY 节点名称 ORDER BY rep_billing DESC LIMIT 2), reps_sum AS (SELECT SUM(rep_billing) AS r_sum FROM top_reps) SELECT b.b_total AS 沧澜上半年销售额, r.r_sum AS 核心客户经理销售和, CASE WHEN b.b_total > 0 THEN ROUND(r.r_sum / b.b_total * 100, 2) ELSE 0 END AS 业绩占比 FROM branch_total b, reps_sum r;","['占比', '客户经理', '帕累托分析']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+988,63,yoy,对比今年上半年各区域战区的官方大盘总开单以及相比去年的同比增速,"SELECT 节点名称 AS 战区, SUM(年度开单金额) AS 今年上半年销售, SUM(去年同期开单) AS 去年上半年销售, CASE WHEN SUM(去年同期开单) > 0 THEN ROUND((SUM(年度开单金额) - SUM(去年同期开单)) / SUM(去年同期开单) * 100, 2) ELSE 0 END AS 同比增速 FROM public.v_feishu_tbl_gamma_v2 WHERE 层级 = '战区' AND 线 = '区域线' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6 GROUP BY 节点名称 ORDER BY 同比增速 DESC;","['同比', '战区', '上半年']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+989,63,mom,淼澜战区今年前6个月大盘开单的月度环比增速情况,"SELECT 月份, SUM(年度开单金额) AS 本月销售, LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) AS 上月销售, CASE WHEN LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) > 0 THEN ROUND((SUM(年度开单金额) - LAG(SUM(年度开单金额)) OVER (ORDER BY 月份)) / LAG(SUM(年度开单金额)) OVER (ORDER BY 月份) * 100, 2) ELSE 0 END AS 环比增长 FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '淼澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6 GROUP BY 月份 ORDER BY 月份;","['环比', '战区', '趋势']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+990,63,ratio,淼澜战区旗下所有客户经理今年食饮板块销售占他们个人总开单的比例大PK,"WITH rep_segment_data AS (SELECT 节点名称 AS 客户经理, SUM(CASE WHEN 行业线 = '食饮部' THEN 年度开单金额 ELSE 0 END) AS 食饮销售, SUM(CASE WHEN 行业线 = '总额(未拆分)' THEN 年度开单金额 ELSE 0 END) AS 个人总销售 FROM public.v_feishu_tbl_gamma_v2 WHERE 层级 = '客户经理' AND 年份 = '2026' AND 上级名称 IN (SELECT 节点名称 FROM public.v_feishu_tbl_gamma_v2 WHERE 上级名称 = '淼澜战区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') GROUP BY 节点名称) SELECT 客户经理, 个人总销售 AS 年度累计开单, 食饮销售 AS 食饮开单, CASE WHEN 个人总销售 > 0 THEN ROUND(食饮销售 / 个人总销售 * 100, 2) ELSE 0 END AS 食饮开单占比 FROM rep_segment_data ORDER BY 食饮开单占比 DESC;","['占比', '客户经理', '贡献度对比']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+991,63,ratio,云梦和越溪一季度业绩占了整个沧澜的多少比例,"WITH branch_total AS (SELECT SUM(年度开单金额) AS b_billing FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '沧澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 3), office_totals AS (SELECT 节点名称 AS office_name, SUM(年度开单金额) AS o_billing FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 IN ('云梦片区', '越溪片区') AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 3 GROUP BY 节点名称) SELECT o.office_name, o.o_billing, b.b_billing, CASE WHEN b.b_billing > 0 THEN ROUND(o.o_billing / b.b_billing * 100, 2) ELSE 0 END AS 贡献占比 FROM office_totals o, branch_total b;","['占比', '片区', '业绩贡献']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+992,63,drilldown,南区食饮线谁卖得最好？排前三的客户经理拉出来,"SELECT 节点名称 AS 客户经理, 上级名称 AS 所属片区, SUM(年度开单金额) AS 食饮销售 FROM public.v_feishu_tbl_gamma_v2 WHERE 层级 = '客户经理' AND 行业线 = '食饮部' AND 年份 = '2026' AND 上级名称 IN (SELECT 节点名称 FROM public.v_feishu_tbl_gamma_v2 WHERE 上级名称 = '淼澜战区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') GROUP BY 节点名称, 上级名称 ORDER BY 食饮销售 DESC LIMIT 3;","['下钻', '客户经理', '食饮板块']",99,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+993,63,mom,凛澜战区在今年第二季度相比于第一季度的季环比增长率是多少,"WITH quarterly_data AS (SELECT SUM(CASE WHEN 月份 IN (1, 2, 3) THEN 年度开单金额 ELSE 0 END) AS q1_billing, SUM(CASE WHEN 月份 IN (4, 5, 6) THEN 年度开单金额 ELSE 0 END) AS q2_billing FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '凛澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') SELECT q1_billing AS 一季度总开单, q2_billing AS 二季度总开单, CASE WHEN q1_billing > 0 THEN ROUND((q2_billing - q1_billing) / q1_billing * 100, 2) ELSE 0 END AS 季环比增速 FROM quarterly_data;","['环比', '战区', '季度对比']",98,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+994,63,audit,沧澜战区分下去的任务对得上片区指标总和吗,"WITH parent_target AS (SELECT SUM(总任务金额) AS p_target FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '沧澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026'), children_sum AS (SELECT SUM(总任务金额) AS c_target FROM public.v_feishu_tbl_gamma_v2 WHERE 上级名称 = '沧澜战区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') SELECT p_target AS 大区官方总指标, c_target AS 片区派发指标和, (p_target - c_target) AS 未分配额度 FROM parent_target, children_sum;","['对账', '战区', '审计']",98,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+995,63,audit,珩京片区的官方大盘指标和派下去的客户经理指标总和有没有未分派指标,"WITH office_budget AS (SELECT SUM(总任务金额) AS o_target FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '珩京片区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026'), reps_budget AS (SELECT SUM(总任务金额) AS r_target FROM public.v_feishu_tbl_gamma_v2 WHERE 上级名称 = '珩京片区' AND 层级 = '客户经理' AND 行业线 = '总额(未拆分)' AND 年份 = '2026') SELECT o_target AS 片区总预算, r_target AS 下属分发总预算, (o_target - r_target) AS 未分配预留额度 FROM office_budget, reps_budget;","['对账', '片区', '合规分析']",98,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+996,63,filter,达成率低于30%的片区有哪些,"SELECT 节点名称 AS 片区, SUM(总任务金额) AS 任务额, SUM(年度开单金额) AS 开单额, CASE WHEN SUM(总任务金额) > 0 THEN ROUND(SUM(年度开单金额) / SUM(总任务金额) * 100, 2) ELSE 0 END AS 累计达成率 FROM public.v_feishu_tbl_gamma_v2 WHERE 年份 = '2026' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' GROUP BY 节点名称 HAVING CASE WHEN SUM(总任务金额) > 0 THEN SUM(年度开单金额) / SUM(总任务金额) ELSE 0 END < 0.30 ORDER BY 累计达成率 ASC;","['筛选', '片区']",98,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+997,63,ratio,云梦片区一季度办公板块开单占云梦整体开单的比例是多少,"SELECT SUM(CASE WHEN 行业线 = '楼宇办公' THEN 年度开单金额 ELSE 0 END) AS 办公板块开单, SUM(CASE WHEN 行业线 = '总额(未拆分)' THEN 年度开单金额 ELSE 0 END) AS 大盘总开单, CASE WHEN SUM(CASE WHEN 行业线 = '总额(未拆分)' THEN 年度开单金额 ELSE 0 END) > 0 THEN ROUND(SUM(CASE WHEN 行业线 = '楼宇办公' THEN 年度开单金额 ELSE 0 END) / SUM(CASE WHEN 行业线 = '总额(未拆分)' THEN 年度开单金额 ELSE 0 END) * 100, 2) ELSE 0 END AS 办公占比 FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '云梦片区' AND 层级 = '片区' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 3;","['占比', '行业线', '一季度']",98,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+998,63,yoy,5月医疗板块和去年同期比增幅怎么样,"SELECT SUM(年度开单金额) AS 今年五月医疗开单, SUM(去年同期开单) AS 去年五月医疗开单, CASE WHEN SUM(去年同期开单) > 0 THEN ROUND((SUM(年度开单金额) - SUM(去年同期开单)) / SUM(去年同期开单) * 100, 2) ELSE 0 END AS 同比增速 FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '商用事业群' AND 层级 = '事业群' AND 行业线 = '工业健康' AND 年份 = '2026' AND 月份 = 5;","['同比', '行业线', '五月']",97,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+999,63,yoy,漠澜战区今年上半年的官方总开单和去年同期比增幅是多少,"SELECT SUM(年度开单金额) AS 今年上半年销售, SUM(去年同期开单) AS 去年同期销售, CASE WHEN SUM(去年同期开单) > 0 THEN ROUND((SUM(年度开单金额) - SUM(去年同期开单)) / SUM(去年同期开单) * 100, 2) ELSE 0 END AS 同比增速 FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '漠澜战区' AND 层级 = '战区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 BETWEEN 1 AND 6;","['同比', '战区', '上半年']",97,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+1000,63,filter,食饮行业部今年有哪些活跃业务员（开过单的）,"SELECT 节点名称 AS 客户经理, SUM(年度开单金额) AS 累计开单 FROM public.v_feishu_tbl_gamma_v2 WHERE 上级名称 = '食饮行业部' AND 层级 = '客户经理' AND 行业线 = '食饮部' AND 年份 = '2026' GROUP BY 节点名称 HAVING SUM(年度开单金额) > 0 ORDER BY 累计开单 DESC;","['筛选', '客户经理', '活跃度']",97,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+1001,63,segment,5月份整个事业群办公板块开了多少,SELECT SUM(年度开单金额) AS 五月办公板块开单金额 FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '商用事业群' AND 层级 = '事业群' AND 行业线 = '楼宇办公' AND 年份 = '2026' AND 月份 = 5;,"['行业线', '事业群', '五月']",97,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+1002,63,segment,食饮行业部今年食饮板块的指标和实际达成怎样,"SELECT SUM(总任务金额) AS 食饮线任务, SUM(年度开单金额) AS 食饮线销售, CASE WHEN SUM(总任务金额) > 0 THEN ROUND(SUM(年度开单金额) / SUM(总任务金额) * 100, 2) ELSE 0 END AS 达成率 FROM public.v_feishu_tbl_gamma_v2 WHERE 节点名称 = '食饮行业部' AND 层级 = '战区' AND 行业线 = '食饮部' AND 年份 = '2026';","['行业线', '战区', '业绩分析']",96,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+1003,63,ranking,2026年各区域战区大盘年度开单金额排名,"SELECT 节点名称 AS 战区, SUM(年度开单金额) AS 累计开单 FROM public.v_feishu_tbl_gamma_v2 WHERE 年份 = '2026' AND 层级 = '战区' AND 线 = '区域线' AND 行业线 = '总额(未拆分)' GROUP BY 节点名称 ORDER BY 累计开单 DESC;","['排名', '战区', '官方值']",96,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+1004,63,drilldown,沧澜战区下属片区一季度的完成情况,"SELECT 节点名称 AS 片区, SUM(总任务金额) AS 一季度任务, SUM(年度开单金额) AS 一季度开单 FROM public.v_feishu_tbl_gamma_v2 WHERE 上级名称 = '沧澜战区' AND 层级 = '片区' AND 行业线 = '总额(未拆分)' AND 年份 = '2026' AND 月份 IN (1, 2, 3) GROUP BY 节点名称;","['下钻', '片区', '一季度']",96,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+1005,63,detail,商用事业群2026年整体完成情况,"SELECT SUM(总任务金额) AS 全年总指标, SUM(年度开单金额) AS 全年总开单, CASE WHEN SUM(总任务金额) > 0 THEN ROUND(SUM(年度开单金额) / SUM(总任务金额) * 100, 2) ELSE 0 END AS 整体达成率 FROM public.v_feishu_tbl_gamma_v2 WHERE 年份 = '2026' AND 行业线 = '总额(未拆分)' AND 层级 = '事业群';","['总览', '事业群']",95,0,,True,ui,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
 1006,13,detail,线下业务完成最好的战区是哪个？,"WITH
 -- 1. 精准找出：线下业务达成率最高的【战区】
 find_best_branch AS (
     SELECT 
         fields ->> '战区' AS best_branch_name
-    FROM public.feishu_tbl_xioafeizhe
+    FROM public.feishu_tbl_alpha
     -- 只计算【战区】本身的业绩（排除下级干扰）
     WHERE COALESCE(fields ->> '城市战区', '') = ''
       AND COALESCE(fields ->> '战区', '') <> ''
@@ -48,7 +48,7 @@ SELECT
     -- 线下达成率
     ROUND(CASE WHEN COALESCE((fields->>'线下')::NUMERIC,0)=0 THEN 0 
          ELSE (fields->>'线下-年度开单金额')::NUMERIC/(fields->>'线下')::NUMERIC*100 END,2) || '%' AS 线下达成率
-FROM public.feishu_tbl_xioafeizhe
+FROM public.feishu_tbl_alpha
 -- 关键：匹配最优战区的【自身+全部下级】
 WHERE fields->>'战区' = (SELECT best_branch_name FROM find_best_branch)
 -- 排序：战区在上，下级城市战区在下
@@ -80,7 +80,7 @@ WITH valid_branch AS (
             ROUND(COALESCE((fields ->> '总任务（金额）')::NUMERIC, 0) / 10000, 2) AS 总任务_万元,
             ROUND(COALESCE((fields ->> '年度开单金额')::NUMERIC, 0) / 10000, 2) AS 总实际_万元,
             fields ->> '总任务达成率' AS 总达成率
-        FROM public.feishu_tbl_xioafeizhe
+        FROM public.feishu_tbl_alpha
     ) t
     WHERE 层级 = '战区' 
       AND 总达成率 IS NOT NULL -- 只统计有任务、有达成率的有效战区
@@ -131,7 +131,7 @@ SELECT '达成率最低' AS 排名类型, * FROM bottom_1;","['单体分析', '�
  ROUND(COALESCE((fields ->> '燃气定制-年度开单金额')::NUMERIC, 0) / 10000, 2) AS 燃气定制实际_万元,
  ROUND(COALESCE((fields ->> '地产-年度开单金额')::NUMERIC, 0) / 10000, 2) AS 地产实际_万元
 
-FROM public.feishu_tbl_xioafeizhe
+FROM public.feishu_tbl_alpha
 
 ORDER BY
  CASE
@@ -524,7 +524,7 @@ LIMIT 10000",[],89,0,,True,ui,2026-06-27 12:03:29.129775+00:00,2026-06-27 12:03:
     COALESCE(NULLIF(regexp_replace(fields ->> '地产', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产任务原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '地产-年度开单金额', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产实际原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '总任务达成率', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 达成率原值
-  FROM public.feishu_tbl_xioafeizhe
+  FROM public.feishu_tbl_alpha
 ),
 标准结果 AS (
   SELECT
@@ -751,11 +751,11 @@ FROM 汇总结果
 WHERE 层级 = '客户经理' 
   AND 节点名称 = '钟自蹊'  -- 把张三改成你要查的业务员名字
 ORDER BY 节点名称",[],80,0,,True,ui,2026-06-27 12:03:29.129775+00:00,2026-06-27 12:03:29.129775+00:00
-2389,62,summary,电商事业群年度目标营收和年度开单金额分别是多少,"SELECT 事业群, 年度目标营收, 年度开单金额, ROUND(总任务达成率 * 100, 2) AS 达成率百分比 FROM v_feishu_tbldianshang WHERE 层级级别 = '事业群';",[],95,0,,True,ui,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00
-2390,62,filter,国内行业部下有哪些细分业务,"SELECT 行业部, 细分业务, 年度目标营收, 年度开单金额 FROM v_feishu_tbldianshang WHERE 行业部 = '国内行业部' AND 细分业务 IS NOT NULL ORDER BY 年度目标营收 DESC;",[],95,0,,True,ui,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00
-2391,62,ranking,所有细分业务按年度开单金额排名,"SELECT 行业部, 细分业务, 年度开单金额, ROUND(总任务达成率 * 100, 2) AS 达成率百分比 FROM v_feishu_tbldianshang WHERE 层级级别 = '客户经理' ORDER BY 年度开单金额 DESC;",[],95,0,,True,ui,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00
-2392,62,comparison,国内行业部和直营零售部的年度目标营收和毛利率对比,"SELECT 行业部, 年度目标营收, 年度开单金额, ROUND(总任务达成率 * 100, 2) AS 毛利率百分比 FROM v_feishu_tbldianshang WHERE 层级级别 = '行业部' AND 行业部 IN ('国内行业部', '直营零售部') ORDER BY 年度目标营收 DESC;",[],95,0,,True,ui,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00
-2393,62,filter,月度利润为正的业务有哪些,"SELECT 行业部, 细分业务, 月度阈值开单差额万 FROM v_feishu_tbldianshang WHERE 层级级别 = '客户经理' AND 月度阈值开单差额万 > 0 ORDER BY 月度阈值开单差额万 DESC;",[],90,0,,True,ui,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00
+2389,62,summary,电商事业群年度目标营收和年度开单金额分别是多少,"SELECT 事业群, 年度目标营收, 年度开单金额, ROUND(总任务达成率 * 100, 2) AS 达成率百分比 FROM v_feishu_tbl_beta WHERE 层级级别 = '事业群';",[],95,0,,True,ui,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00
+2390,62,filter,国内行业部下有哪些细分业务,"SELECT 行业部, 细分业务, 年度目标营收, 年度开单金额 FROM v_feishu_tbl_beta WHERE 行业部 = '国内行业部' AND 细分业务 IS NOT NULL ORDER BY 年度目标营收 DESC;",[],95,0,,True,ui,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00
+2391,62,ranking,所有细分业务按年度开单金额排名,"SELECT 行业部, 细分业务, 年度开单金额, ROUND(总任务达成率 * 100, 2) AS 达成率百分比 FROM v_feishu_tbl_beta WHERE 层级级别 = '客户经理' ORDER BY 年度开单金额 DESC;",[],95,0,,True,ui,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00
+2392,62,comparison,国内行业部和直营零售部的年度目标营收和毛利率对比,"SELECT 行业部, 年度目标营收, 年度开单金额, ROUND(总任务达成率 * 100, 2) AS 毛利率百分比 FROM v_feishu_tbl_beta WHERE 层级级别 = '行业部' AND 行业部 IN ('国内行业部', '直营零售部') ORDER BY 年度目标营收 DESC;",[],95,0,,True,ui,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00
+2393,62,filter,月度利润为正的业务有哪些,"SELECT 行业部, 细分业务, 月度阈值开单差额万 FROM v_feishu_tbl_beta WHERE 层级级别 = '客户经理' AND 月度阈值开单差额万 > 0 ORDER BY 月度阈值开单差额万 DESC;",[],90,0,,True,ui,2026-07-02 02:54:33.797427+00:00,2026-07-02 02:54:33.797427+00:00
 2625,2,summary,消费者事业群业绩怎么样？,"WITH 源数据 AS (
   SELECT
     fields,
@@ -770,7 +770,7 @@ ORDER BY 节点名称",[],80,0,,True,ui,2026-06-27 12:03:29.129775+00:00,2026-06
     COALESCE(NULLIF(regexp_replace(fields ->> '地产', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产任务原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '地产-年度开单金额', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产实际原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '总任务达成率', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 达成率原值
-  FROM public.feishu_tbl_xioafeizhe
+  FROM public.feishu_tbl_alpha
 ),
 标准结果 AS (
   SELECT
@@ -827,7 +827,7 @@ LIMIT 10000;","['整体业绩', '三级层级', '标准输出']",100,0,,True,ui,
     COALESCE(NULLIF(regexp_replace(fields ->> '地产', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产任务原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '地产-年度开单金额', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产实际原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '总任务达成率', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 达成率原值
-  FROM public.feishu_tbl_xioafeizhe
+  FROM public.feishu_tbl_alpha
 ),
 标准结果 AS (
   SELECT
@@ -881,7 +881,7 @@ LIMIT 100;","['战区', '排名']",96,0,,True,ui,2026-07-08 07:41:23.865975+00:0
     COALESCE(NULLIF(regexp_replace(fields ->> '地产', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产任务原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '地产-年度开单金额', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产实际原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '总任务达成率', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 达成率原值
-  FROM public.feishu_tbl_xioafeizhe
+  FROM public.feishu_tbl_alpha
 ),
 标准结果 AS (
   SELECT
@@ -936,7 +936,7 @@ LIMIT 200;","['风险节点', '城市战区']",95,0,,True,ui,2026-07-08 07:41:23
     COALESCE(NULLIF(regexp_replace(fields ->> '地产', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产任务原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '地产-年度开单金额', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产实际原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '总任务达成率', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 达成率原值
-  FROM public.feishu_tbl_xioafeizhe
+  FROM public.feishu_tbl_alpha
 ),
 标准结果 AS (
   SELECT
@@ -1001,7 +1001,7 @@ ORDER BY 开单金额 DESC;","['业务线', '贡献度']",95,0,,True,ui,2026-07-
     COALESCE(NULLIF(regexp_replace(fields ->> '地产', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产任务原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '地产-年度开单金额', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产实际原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '总任务达成率', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 达成率原值
-  FROM public.feishu_tbl_xioafeizhe
+  FROM public.feishu_tbl_alpha
 ),
 标准结果 AS (
   SELECT
@@ -1059,7 +1059,7 @@ LIMIT 1000;","['单体分析', '战区下钻']",94,0,,True,ui,2026-07-08 07:41:2
     COALESCE(NULLIF(regexp_replace(fields ->> '地产', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产任务原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '地产-年度开单金额', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 地产实际原值,
     COALESCE(NULLIF(regexp_replace(fields ->> '总任务达成率', '[^0-9.-]', '', 'g'), ''), '0')::NUMERIC AS 达成率原值
-  FROM public.feishu_tbl_xioafeizhe
+  FROM public.feishu_tbl_alpha
 ),
 标准结果 AS (
   SELECT

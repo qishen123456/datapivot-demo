@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW public.v_feishu_tbldianshang AS
+CREATE OR REPLACE VIEW public.v_feishu_tbl_beta AS
 WITH extracted AS (
   SELECT
     id,
@@ -16,7 +16,7 @@ WITH extracted AS (
     fields->>'链接字段(勿删)' AS 组织路径,
     fields->>'当前年' AS 当前年,
     fields->>'当前月' AS 当前月
-  FROM public.feishu_tbldianshang
+  FROM public.feishu_tbl_beta
   WHERE fields IS NOT NULL
     AND fields <> '{}'::jsonb
     AND NULLIF(fields->>'编号', '') IS NOT NULL

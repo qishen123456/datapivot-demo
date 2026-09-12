@@ -19,7 +19,7 @@ class IntentResolver:
         dataset = self.ports.safe_dict(context.get("dataset"))
         dataset_code = str(dataset.get("dataset_code") or "")
         dataset_name = str(dataset.get("dataset_name") or "")
-        is_ecommerce_dataset = dataset_code == "feishu_tbldianshang" or "电商事业群" in dataset_name
+        is_online_dataset = dataset_code == "feishu_tbl_beta" or "云雀" in dataset_name
         intent = {
             "intent": "unknown",
             "source": "report_config.intentPolicies",
@@ -178,10 +178,10 @@ class IntentResolver:
             or any(token in text for token in ["没有业绩", "没有开单", "没业绩", "无业绩", "零业绩", "没开单", "无开单", "零开单"])
         )
         target_level = resolve_target_level_from_text()
-        # 电商数据集中，口语“业务承接人/负责人”统一收敛到标准层级“承接人”。
+        # 线上数据集中，口语“业务承接人/负责人”统一收敛到标准层级“承接人”。
         # 优先级高于 resolve_target_level_from_text 对中间层级（如行业部）的命中，
         # 避免 confirm_by_boss 重写 refined_query 后引入“行业部”把承接人层级覆盖掉。
-        if is_ecommerce_dataset and any(t in text for t in ["业务承接人", "承接人", "负责人", "任务承接人"]):
+        if is_online_dataset and any(t in text for t in ["业务承接人", "承接人", "负责人", "任务承接人"]):
             target_level = "承接人"
         elif not target_level and "人" in text and not any(token in text for token in ["城市战区", "城市站", "战区", "片区", "行业部"]):
             target_level = "客户经理"

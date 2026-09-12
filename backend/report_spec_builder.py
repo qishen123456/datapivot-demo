@@ -68,8 +68,26 @@ def _resolved_member_names(resolved_entities: Optional[Dict[str, Any]]) -> List[
                 names.append(value)
     return names
 
+# 数据集编码 → 组织根节点名。数据集名称已脱敏为业务域代号，根节点名改由编码映射，
+# 与旧版“从名称里找 XX事业群”的推导结果等价，避免因改名导致根节点别名过滤失效。
+_DATASET_ROOT_BY_CODE = {
+    "yunshu_ops_overview_v1": "消费者事业群",
+    "public_feishu_tbl_alpha": "消费者事业群",
+    "public_feishu_tbl_alpha_609826": "消费者事业群",
+    "panshi_deal_flow_2026_phase1": "商用事业群",
+    "datapivot_business_2026": "商用事业群",
+    "feishu_tbl_gamma_v2": "商用事业群",
+    "feishu_tbl_gamma_month": "商用事业群",
+    "feishu_tbl_gamma_monthly_v2": "商用事业群",
+    "feishu_tbl_beta": "电商事业群",
+}
+
+
 def _dataset_root_name(dataset: Dict[str, Any]) -> str:
-    """从数据集名称中提取可能的根节点名，用于过滤默认带入的根节点别名。"""
+    """从数据集编码/名称推导可能的根节点名，用于过滤默认带入的根节点别名。"""
+    code = str(dataset.get("dataset_code") or "").strip()
+    if code in _DATASET_ROOT_BY_CODE:
+        return _DATASET_ROOT_BY_CODE[code]
     name = str(dataset.get("dataset_name") or "").strip()
     if not name:
         return ""

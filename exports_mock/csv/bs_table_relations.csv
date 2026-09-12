@@ -1,2 +1,2 @@
 ﻿id,dataset_id,left_table,left_key,right_table,right_key,relation_type,description,is_active,created_at,updated_at
-3,63,v_feishu_tblshangyongv2,节点名称,v_feishu_tblshangyongv2,上级名称,self,自关联层级递归穿透关系（上级名称指向其父级节点名称，以便进行多层自上而下的树级下钻）,True,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00
+3,63,v_feishu_tbl_gamma_v2,节点名称,v_feishu_tbl_gamma_v2,上级名称,self,自关联层级递归穿透关系（上级名称指向其父级节点名称，以便进行多层自上而下的树级下钻）,True,2026-06-26 07:37:03.976592+00:00,2026-06-26 07:37:03.976592+00:00

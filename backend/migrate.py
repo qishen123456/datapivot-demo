@@ -21,7 +21,7 @@ service_completed_successfully`` wiring from the backend service.
 
 This script deliberately does **not** touch user data:
 - It never DELETEs from ``bs_datasets`` / ``bs_golden_sql_samples`` etc.
-- It never auto-imports bundle fixtures (bookshelf / datapivot / ecommerce).
+- It never auto-imports bundle fixtures (bookshelf / datapivot / online).
 - It never re-runs ``_sync_builtin_datasets`` which would clobber
   golden sql / data dictionary / agent prompt / LLD edits.
 

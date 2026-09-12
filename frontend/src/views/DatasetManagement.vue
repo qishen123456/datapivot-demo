@@ -643,12 +643,12 @@
         <el-row :gutter="14">
           <el-col :span="12">
             <el-form-item label="任务名称" required>
-              <el-input v-model="transformForm.name" placeholder="例如：电商事业群视图" />
+              <el-input v-model="transformForm.name" placeholder="例如：线上业务视图" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="源表" required>
-              <el-input v-model="transformForm.source_table" placeholder="例如：feishu_tbldianshang" />
+              <el-input v-model="transformForm.source_table" placeholder="例如：feishu_tbl_beta" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -664,13 +664,13 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="目标名称" required>
-              <el-input v-model="transformForm.target_name" placeholder="例如：v_feishu_tbldianshang" />
+              <el-input v-model="transformForm.target_name" placeholder="例如：v_feishu_tbl_beta" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-form-item label="转换 SQL" required>
           <div style="margin-bottom: 6px;">
-            <el-button size="small" @click="applyEcommerceTemplate">套用电商事业群模板</el-button>
+            <el-button size="small" @click="applyOnlineTemplate">套用线上业务模板</el-button>
             <el-button size="small" :loading="transformTestLoading" @click="handleTestTransformSql">测试 SQL</el-button>
             <span class="muted-text" style="margin-left: 8px;">只允许单条 SELECT 或 WITH 语句，可用 <code v-pre>{{source_table}}</code> 占位符</span>
           </div>
@@ -882,7 +882,7 @@ const qualityAlertType = computed(() => {
 const qualityCheckTagType = (status) => (status === 'healthy' ? 'success' : status === 'warning' ? 'warning' : 'danger')
 const isSyybDataset = computed(() => {
   const text = [datasetForm.dataset_name, datasetForm.dataset_code, datasetForm.business_domain].filter(Boolean).join(' ')
-  return /商用事业群|星澜商用|datapivot_business/i.test(text)
+  return /商用事业群|磐石|panshi_deal_flow/i.test(text)
 })
 const selectedDatasetName = computed(() => datasetForm.dataset_name || selectedDataset.value?.dataset_name || '当前数据集')
 
@@ -1464,10 +1464,10 @@ const autofillSelectedDataset = async () => {
     return
   }
   if (isSyybDataset.value) {
-    if (!datasetForm.dataset_name) datasetForm.dataset_name = '商用事业群'
-    if (!datasetForm.dataset_code) datasetForm.dataset_code = 'datapivot_business_2026'
-    if (!datasetForm.business_domain) datasetForm.business_domain = '星澜商用事业群销售业绩分析'
-    if (!datasetForm.description) datasetForm.description = '商用事业群（飞书多维表格）四 Agent 模板'
+    if (!datasetForm.dataset_name) datasetForm.dataset_name = '磐石成交流水'
+    if (!datasetForm.dataset_code) datasetForm.dataset_code = 'panshi_deal_flow_2026'
+    if (!datasetForm.business_domain) datasetForm.business_domain = '磐石业务域销售业绩分析'
+    if (!datasetForm.description) datasetForm.description = '磐石业务域（在线表格）四 Agent 模板'
     if (!datasetForm.source_id) datasetForm.source_id = sourceId
   } else if (!datasetForm.description) {
     datasetForm.description = `${selectedDatasetName.value}智能问数数据集`
@@ -2172,9 +2172,9 @@ const handleTestTransformSql = async () => {
     transformTestLoading.value = false
   }
 }
-const applyEcommerceTemplate = () => {
-  transformForm.source_table = 'feishu_tbldianshang'
-  transformForm.target_name = 'v_feishu_tbldianshang'
+const applyOnlineTemplate = () => {
+  transformForm.source_table = 'feishu_tbl_beta'
+  transformForm.target_name = 'v_feishu_tbl_beta'
   transformForm.target_type = 'view'
   transformForm.transform_sql = `SELECT
   id,

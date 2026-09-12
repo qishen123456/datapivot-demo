@@ -30,7 +30,7 @@ SELECT dataset.id, '{
   "reportTitle": "经营分析报告"
 }'::jsonb
 FROM bs_datasets AS dataset
-WHERE dataset.dataset_code IN ('datapivot_business_2026', 'datapivot_business_2026_phase1')
+WHERE dataset.dataset_code IN ('datapivot_business_2026', 'panshi_deal_flow_2026_phase1')
    OR dataset.dataset_name LIKE '%商用事业群%'
 ON CONFLICT (dataset_id) DO NOTHING;
 
@@ -52,6 +52,6 @@ SET
 FROM bs_datasets AS dataset
 WHERE config.dataset_id = dataset.id
   AND (
-    dataset.dataset_code IN ('datapivot_business_2026', 'datapivot_business_2026_phase1')
+    dataset.dataset_code IN ('datapivot_business_2026', 'panshi_deal_flow_2026_phase1')
     OR dataset.dataset_name LIKE '%商用事业群%'
   );

@@ -111,19 +111,24 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 新版首屏：居中 Hero + 单列推荐问题（替代原「左对齐 + 两列卡片」） */
 .sa-welcome {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px 0 4px;
-  max-width: 960px;
+  align-items: center;
+  text-align: center;
+  gap: 22px;
+  padding: 42px 0 10px;
+  max-width: 720px;
+  margin: 0 auto;
   width: 100%;
 }
 
 .sa-welcome-head {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -179,13 +184,14 @@ onMounted(() => {
 .sa-welcome-copy {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 7px;
   min-width: 0;
 }
 
 .sa-welcome-label {
   display: inline-flex;
-  align-self: flex-start;
+  align-self: center;
   padding: 0;
   border-radius: 0;
   background: transparent;
@@ -197,12 +203,12 @@ onMounted(() => {
 
 .sa-welcome-text {
   max-width: 100%;
-  font-size: 18px;
-  font-weight: 720;
+  font-size: 22px;
+  font-weight: 760;
   color: #1F2937;
-  line-height: 1.28;
-  white-space: nowrap;
-  text-wrap: nowrap;
+  line-height: 1.32;
+  white-space: normal;
+  text-wrap: balance;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -217,14 +223,16 @@ onMounted(() => {
 .sa-quick-questions {
   margin-left: 0;
   padding-top: 0;
+  width: 100%;
 }
 
 .sa-quick-head {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .sa-quick-title {
@@ -290,18 +298,20 @@ onMounted(() => {
   animation: sa-quick-spin 0.8s linear infinite;
 }
 
+/* 单列推荐行：替代原来的两列卡片网格 */
 .sa-quick-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
 }
 
 .sa-quick-btn {
   position: relative;
   text-align: left;
-  min-height: 74px;
-  padding: 14px 42px 14px 18px;
+  min-height: 0;
+  width: 100%;
+  padding: 13px 44px 13px 16px;
   background: #FFFFFF;
   border: 1px solid rgba(17, 24, 39, 0.07);
   border-radius: 14px;
@@ -314,8 +324,9 @@ onMounted(() => {
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
   line-height: 1.35;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
 }
 
 .sa-quick-btn::after {
@@ -348,8 +359,9 @@ onMounted(() => {
 
 .sa-quick-dataset {
   display: inline-flex;
-  align-self: flex-start;
-  max-width: 100%;
+  flex: 0 0 auto;
+  align-self: center;
+  max-width: 200px;
   padding: 3px 8px;
   border-radius: 999px;
   background: #E0E7FF;
@@ -364,6 +376,8 @@ onMounted(() => {
 
 .sa-quick-question {
   display: block;
+  flex: 1 1 auto;
+  min-width: 0;
   color: #111827;
   font-size: 14px;
   font-weight: 760;
@@ -378,6 +392,7 @@ onMounted(() => {
   color: #6B7280;
   font-size: 11px;
   line-height: 1.5;
+  text-align: center;
 }
 
 @keyframes sa-quick-spin {
@@ -396,21 +411,26 @@ onMounted(() => {
 
 @media (max-width: 900px) {
   .sa-welcome {
-    padding: 20px 16px 6px;
+    padding: 28px 16px 8px;
+    max-width: 100%;
   }
 
   .sa-quick-questions {
     margin-left: 0;
   }
 
-  .sa-quick-list {
-    grid-template-columns: 1fr;
+  .sa-welcome-text {
+    font-size: 18px;
   }
 
-  .sa-welcome-text {
-    font-size: 17px;
-    white-space: normal;
-    text-wrap: balance;
+  .sa-quick-btn {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .sa-quick-dataset {
+    align-self: flex-start;
   }
 }
 </style>

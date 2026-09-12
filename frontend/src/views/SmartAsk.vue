@@ -5980,14 +5980,15 @@ onUnmounted(() => {
 
 <style scoped>
 /* ===== 页面布局 ===== */
+/* 新版外壳：工作台改为全宽画布（去掉悬浮卡片外壳），内容仍在居中轨道内 */
 .sa-page {
   height: 100%;
-  background: #F4F5F7;
+  background: var(--bg-page, #F5F7FB);
   overflow: hidden;
   font-family: var(--font-sans, 'Microsoft YaHei UI', 'Microsoft YaHei', 'PingFang SC', sans-serif);
   font-size: 14px;
   color: var(--text-title);
-  padding: 14px;
+  padding: 0;
   box-sizing: border-box;
   --sa-content-width: 960px;
   --sa-content-gutter: 24px;
@@ -6016,15 +6017,15 @@ onUnmounted(() => {
   display: flex;
   overflow: hidden;
   gap: 0;
-  border: 1px solid rgba(17, 24, 39, 0.06);
-  border-radius: 24px;
+  border: 0;
+  border-radius: 0;
   background: #FFFFFF;
-  box-shadow: 0 18px 46px rgba(15, 23, 42, 0.055);
+  box-shadow: none;
   backdrop-filter: none;
 }
 
 .sa-workspace.is-detail-hidden {
-  max-width: min(1560px, 100%);
+  max-width: none;
   width: 100%;
   margin: 0 auto;
 }
@@ -6036,14 +6037,14 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
-  border-radius: 24px 0 0 24px;
+  border-radius: 0;
 }
 
 .sa-chat-panel.is-detail-hidden {
   max-width: none;
   width: 100%;
   margin: 0 auto;
-  border-radius: 24px;
+  border-radius: 0;
 }
 
 .sa-content-track {
@@ -9384,7 +9385,7 @@ button.sa-compare-row:hover {
 
 @media (max-width: 1280px) {
   .sa-page {
-    padding: 10px;
+    padding: 0;
   }
 
   .sa-detail-panel {

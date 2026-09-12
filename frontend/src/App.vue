@@ -9,261 +9,77 @@
   </div>
   <AuthLogin v-else-if="!authUser" @authenticated="handleAuthenticated" />
   <el-container v-else class="app-shell">
-    <el-aside class="sidebar sa-dark-panel" :class="{ 'sidebar-collapsed': collapsed }" :width="collapsed ? '72px' : '248px'">
-      <div class="brand">
-        <div class="brand-pill" :class="{ 'is-collapsed': collapsed }">
-          <img src="/datapivot-logo.svg" alt="DataPulse" class="brand-logo" />
-          <div v-if="!collapsed" class="brand-text">
-            <div class="brand-title">DataPulse</div>
-            <div class="brand-subtitle">DataPulse 脉策智能 / 脉策问数</div>
-          </div>
-          <span v-if="!collapsed" class="brand-caret" aria-hidden="true"></span>
-        </div>
-      </div>
+    <el-header class="app-topnav">
+      <button class="topnav-brand" type="button" @click="router.push('/smart-ask')">
+        <img src="/datapivot-logo.svg" alt="DataPulse" class="topnav-logo" />
+        <span class="topnav-brand-name">DataPulse</span>
+        <span class="topnav-brand-env">脉策智能</span>
+      </button>
 
-      <div class="sidebar-body">
-        <el-menu
-          :default-active="activeMenu"
-          class="nav-menu"
-          :collapse="collapsed"
-          background-color="transparent"
-          text-color="#8c919b"
-          active-text-color="#22252b"
-          :default-openeds="managementDefaultOpeneds"
-          @select="handleMenuSelect"
+      <el-menu
+        :default-active="activeMenu"
+        class="topnav-menu"
+        mode="horizontal"
+        :ellipsis="true"
+        @select="handleMenuSelect"
+      >
+        <el-menu-item
+          v-for="item in primaryMenuItems"
+          :key="item.path"
+          :index="item.path"
         >
+          <el-icon><component :is="item.icon" /></el-icon>
+          <span>{{ item.label }}</span>
+        </el-menu-item>
+        <el-sub-menu
+          v-if="managementMenuItems.length"
+          index="management"
+        >
+          <template #title>
+            <el-icon><Setting /></el-icon>
+            <span>管理配置</span>
+          </template>
           <el-menu-item
-            v-for="item in primaryMenuItems"
+            v-for="item in managementMenuItems"
             :key="item.path"
             :index="item.path"
-            :data-tooltip="item.label"
           >
             <el-icon><component :is="item.icon" /></el-icon>
             <template #title>{{ item.label }}</template>
           </el-menu-item>
-          <el-sub-menu
-            v-if="managementMenuItems.length"
-            index="management"
-            class="nav-group"
-            data-tooltip="管理配置"
-          >
-            <template #title>
-              <el-icon><Setting /></el-icon>
-              <span>管理配置</span>
-            </template>
-            <el-menu-item
-              v-for="item in managementMenuItems"
-              :key="item.path"
-              :index="item.path"
-              :data-tooltip="item.label"
-            >
-              <el-icon><component :is="item.icon" /></el-icon>
-              <template #title>{{ item.label }}</template>
-            </el-menu-item>
-          </el-sub-menu>
-        </el-menu>
+        </el-sub-menu>
+      </el-menu>
 
-        <transition name="history-panel">
-          <section
-            v-if="showHistorySidebar"
-            ref="historyPanelRef"
-            class="sidebar-history"
-            :class="{ 'sidebar-history-highlight': historyPanelHighlighted }"
-          >
-            <!-- PM 2026-08-26 自适应方案（用户拍板）：菜单展开多少历史就让多少，
-                 按面板实际高度显示 1-4 张整卡，永不收起 -->
-            <div class="sidebar-history-head">
-              <div>
-                <div class="sidebar-history-title">任务 ({{ visibleHistoryList.length + (currentRunningTask ? 1 : 0) }})</div>
-              </div>
-              <div class="sidebar-history-actions">
-                <button
-                  v-if="historySessions.length"
-                  class="sidebar-history-more"
-                  type="button"
-                  @click="historyDrawerVisible = true"
-                >
-                  全部 {{ historySessions.length }}
-                </button>
-                <button
-                  v-if="historyPreviewList.length && appFeatureAccess.app_history_clear"
-                  class="sidebar-history-clear"
-                  type="button"
-                  :disabled="isClearingHistory"
-                  @click="clearHistoryList"
-                >
-                  {{ isClearingHistory ? '清空中...' : '清空' }}
-                </button>
-              </div>
-            </div>
+      <div class="topnav-actions">
+        <button
+          class="topnav-history"
+          type="button"
+          title="任务记录"
+          @click="historyDrawerVisible = true"
+        >
+          <span class="topnav-history-icon" aria-hidden="true"></span>
+          <span class="topnav-history-label">任务</span>
+          <span v-if="historySessions.length" class="topnav-history-count">{{ historySessions.length }}</span>
+        </button>
 
-            <div v-if="visibleHistoryList.length || currentRunningTask" class="sidebar-history-list">
-              <!-- 虚拟"当前执行任务"行：不持久化，仅 session.status === 'running' 时显示 -->
-              <article
-                v-if="currentRunningTask"
-                class="history-item history-item-running"
-                :key="currentRunningTask.id"
-                :aria-label="'当前任务：' + currentRunningTask.title"
-                @click="handleRunningTaskClick"
-              >
-                <div class="history-item-main">
-                  <div class="history-item-title">{{ currentRunningTask.title }}</div>
-                  <div class="history-item-bottom">
-                    <div class="history-item-time">刚刚发起</div>
-                    <div class="history-item-status">
-                      <TaskStatusIndicator
-                        :variant="currentRunningTask.status"
-                        :show-text-label="true"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </article>
+        <button class="topnav-command" type="button" @click="openCommandPalette">
+          <span class="topnav-command-icon" aria-hidden="true"></span>
+          <span class="topnav-command-text">搜索模块、跳转功能</span>
+          <span class="topnav-command-kbd">⌘K</span>
+        </button>
 
-              <article
-                v-for="item in visibleHistoryList"
-                :key="item.id"
-                class="history-item"
-                :class="{ 'history-item-active': item.id === activeHistoryId }"
-                @click="openHistorySession(item)"
-              >
-                <div class="history-item-main">
-                  <div class="history-item-title">{{ item.title }}</div>
-                  <div class="history-item-bottom">
-                    <div class="history-item-time">{{ item.updatedAt }}</div>
-                    <div class="history-item-status">
-                      <TaskStatusIndicator
-                        :variant="inferTaskVariant(item)"
-                        :show-text-label="true"
-                      />
-                      <span v-if="item.id === activeHistoryId" class="history-item-badge">当前</span>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  v-if="appFeatureAccess.app_history_delete"
-                  class="history-item-delete"
-                  type="button"
-                  aria-label="删除任务"
-                  @click.stop="removeHistoryItem(item.id)"
-                >
-                  <span class="history-item-delete-icon" aria-hidden="true"></span>
-                </button>
-              </article>
-            </div>
-
-            <div v-else class="sidebar-history-empty">
-              <div class="sidebar-history-empty-title">暂无任务</div>
-              <div class="sidebar-history-empty-desc">发起分析后，这里会显示你的任务记录。</div>
-            </div>
-          </section>
-        </transition>
-      </div>
-
-      <el-drawer
-        v-model="historyDrawerVisible"
-        title="全部任务"
-        size="420px"
-        custom-class="history-drawer"
-      >
-        <div class="history-drawer-head">
-          <div>
-            <div class="history-drawer-title">{{ historySessions.length }} 个任务</div>
-            <div class="history-drawer-desc">选择任意任务可恢复到分析工作台。</div>
-          </div>
-          <button
-            v-if="historySessions.length && appFeatureAccess.app_history_clear"
-            class="history-drawer-clear"
-            type="button"
-            :disabled="isClearingHistory"
-            @click="clearHistoryList"
-          >
-            {{ isClearingHistory ? '清空中...' : '清空全部' }}
-          </button>
-        </div>
-        <div v-if="historySessions.length || currentRunningTask" class="history-drawer-list">
-          <!-- 抽屉里的虚拟"当前执行任务"行 -->
-          <article
-            v-if="currentRunningTask"
-            class="history-item history-drawer-item history-item-running"
-            :key="currentRunningTask.id"
-            :aria-label="'当前任务：' + currentRunningTask.title"
-            @click="handleRunningTaskClick; historyDrawerVisible = false"
-          >
-            <div class="history-drawer-index">{{ currentRunningTask.status === 'pending_confirmation' ? '待确认' : '执行' }}</div>
-            <div class="history-item-main">
-              <div class="history-item-top">
-                <div class="history-item-title">{{ currentRunningTask.title }}</div>
-                <div class="history-item-status">
-                  <TaskStatusIndicator
-                    :variant="currentRunningTask.status"
-                    :show-text-label="true"
-                  />
-                </div>
-              </div>
-              <div class="history-drawer-meta-row">
-                <span class="history-drawer-dataset">{{ currentRunningTask.datasetName }}</span>
-                <span class="history-drawer-time">刚刚发起</span>
-              </div>
-            </div>
-          </article>
-
-          <article
-            v-for="(item, index) in historySessions"
-            :key="item.id"
-            class="history-item history-drawer-item"
-            :class="{ 'history-item-active': item.id === activeHistoryId }"
-            @click="openHistorySession(item); historyDrawerVisible = false"
-          >
-            <div class="history-drawer-index">{{ String(index + 1).padStart(2, '0') }}</div>
-            <div class="history-item-main">
-              <div class="history-item-top">
-                <div class="history-item-title">{{ item.title }}</div>
-                <div class="history-item-status">
-                  <TaskStatusIndicator
-                    :variant="inferTaskVariant(item)"
-                    :show-text-label="true"
-                  />
-                  <span v-if="item.id === activeHistoryId" class="history-item-badge">当前</span>
-                </div>
-              </div>
-              <div class="history-drawer-meta-row">
-                <span class="history-drawer-dataset">{{ item.datasetName || '自动路由数据集' }}</span>
-                <span class="history-drawer-time">{{ item.updatedAt }}</span>
-              </div>
-            </div>
-            <button
-              v-if="appFeatureAccess.app_history_delete"
-              class="history-item-delete"
-              type="button"
-              aria-label="删除任务"
-              @click.stop="removeHistoryItem(item.id)"
-            >
-              <span class="history-item-delete-icon" aria-hidden="true"></span>
-            </button>
-          </article>
-        </div>
-        <div v-else class="sidebar-history-empty history-drawer-empty">
-          <div class="sidebar-history-empty-title">暂无任务</div>
-          <div class="sidebar-history-empty-desc">发起分析后，这里会显示你的任务记录。</div>
-        </div>
-      </el-drawer>
-
-      <div class="sidebar-footer">
-        <div class="sidebar-user" :class="{ 'is-collapsed': collapsed }">
-          <button class="sidebar-user-chip" type="button" @click.stop="toggleUserMenu">
-            <span class="sidebar-user-avatar">{{ authUserInitial }}</span>
-            <span class="sidebar-user-status" :class="{ 'is-online': backendOk }" aria-hidden="true"></span>
-            <template v-if="!collapsed">
-              <span class="sidebar-user-meta">
-                <span class="sidebar-user-name">{{ authUserName }}</span>
-                <span class="sidebar-user-role">{{ authRoleLabel }}</span>
-              </span>
-              <span class="sidebar-user-arrow" aria-hidden="true"></span>
-            </template>
+        <div class="topnav-user">
+          <button class="topnav-user-chip" type="button" @click.stop="toggleUserMenu">
+            <span class="topnav-user-avatar">{{ authUserInitial }}</span>
+            <span class="topnav-user-status" :class="{ 'is-online': backendOk }" aria-hidden="true"></span>
+            <span class="topnav-user-meta">
+              <span class="topnav-user-name">{{ authUserName }}</span>
+              <span class="topnav-user-role">{{ authRoleLabel }}</span>
+            </span>
+            <span class="topnav-user-arrow" aria-hidden="true"></span>
           </button>
           <transition name="user-menu-rise">
-            <div v-if="userMenuVisible" class="sidebar-user-dropdown" @click.stop>
+            <div v-if="userMenuVisible" class="topnav-user-dropdown" @click.stop>
               <button
                 v-if="authRole === 'super_admin' && appFeatureAccess.admin_console"
                 type="button"
@@ -283,31 +99,19 @@
             </div>
           </transition>
         </div>
-        <button class="sidebar-collapse" type="button" @click="collapsed = !collapsed">
-          <el-icon><component :is="collapsed ? 'Expand' : 'Fold'" /></el-icon>
-          <span v-if="!collapsed">收起导航</span>
-        </button>
       </div>
-    </el-aside>
+    </el-header>
 
-    <el-container class="main-shell">
-      <el-header class="topbar sa-dark-panel" :class="{ 'topbar-smart': isDataPulseRoute }">
-        <div class="topbar-heading">
-          <div class="topbar-title-row">
-            <div class="topbar-workspace">{{ currentTitle }}</div>
-            <button v-if="showBackToConsole" class="topbar-back-console" type="button" @click="backToConsole">
-              返回控制台
-            </button>
-          </div>
-        </div>
-        <div class="topbar-command">
-          <button class="command-trigger" type="button" @click="openCommandPalette">
-            <span class="command-trigger-icon" aria-hidden="true"></span>
-            <span class="command-trigger-text">搜索模块、跳转功能…</span>
-            <span class="command-trigger-kbd">⌘K</span>
+    <el-container class="app-body">
+      <el-header v-if="!isDataPulseRoute" class="context-bar">
+        <div class="context-left">
+          <span class="context-title">{{ currentTitle }}</span>
+          <span v-if="currentSubtitle" class="context-subtitle">{{ currentSubtitle }}</span>
+          <button v-if="showBackToConsole" class="context-back" type="button" @click="backToConsole">
+            返回控制台
           </button>
         </div>
-        <div class="topbar-right">
+        <div class="context-right">
           <span class="backend-status-chip" :class="{ 'is-online': backendOk, 'is-offline': !backendOk }">
             <span class="backend-status-dot"></span>
             {{ backendOk ? '后端在线' : '后端异常' }}
@@ -324,6 +128,95 @@
         </router-view>
       </el-main>
     </el-container>
+
+    <el-drawer
+      v-model="historyDrawerVisible"
+      title="全部任务"
+      size="420px"
+      custom-class="history-drawer"
+    >
+      <div class="history-drawer-head">
+        <div>
+          <div class="history-drawer-title">{{ historySessions.length }} 个任务</div>
+          <div class="history-drawer-desc">选择任意任务可恢复到分析工作台。</div>
+        </div>
+        <button
+          v-if="historySessions.length && appFeatureAccess.app_history_clear"
+          class="history-drawer-clear"
+          type="button"
+          :disabled="isClearingHistory"
+          @click="clearHistoryList"
+        >
+          {{ isClearingHistory ? '清空中...' : '清空全部' }}
+        </button>
+      </div>
+      <div v-if="historySessions.length || currentRunningTask" class="history-drawer-list">
+        <!-- 抽屉里的虚拟"当前执行任务"行 -->
+        <article
+          v-if="currentRunningTask"
+          class="history-item history-drawer-item history-item-running"
+          :key="currentRunningTask.id"
+          :aria-label="'当前任务：' + currentRunningTask.title"
+          @click="handleRunningTaskClick; historyDrawerVisible = false"
+        >
+          <div class="history-drawer-index">{{ currentRunningTask.status === 'pending_confirmation' ? '待确认' : '执行' }}</div>
+          <div class="history-item-main">
+            <div class="history-item-top">
+              <div class="history-item-title">{{ currentRunningTask.title }}</div>
+              <div class="history-item-status">
+                <TaskStatusIndicator
+                  :variant="currentRunningTask.status"
+                  :show-text-label="true"
+                />
+              </div>
+            </div>
+            <div class="history-drawer-meta-row">
+              <span class="history-drawer-dataset">{{ currentRunningTask.datasetName }}</span>
+              <span class="history-drawer-time">刚刚发起</span>
+            </div>
+          </div>
+        </article>
+
+        <article
+          v-for="(item, index) in historySessions"
+          :key="item.id"
+          class="history-item history-drawer-item"
+          :class="{ 'history-item-active': item.id === activeHistoryId }"
+          @click="openHistorySession(item); historyDrawerVisible = false"
+        >
+          <div class="history-drawer-index">{{ String(index + 1).padStart(2, '0') }}</div>
+          <div class="history-item-main">
+            <div class="history-item-top">
+              <div class="history-item-title">{{ item.title }}</div>
+              <div class="history-item-status">
+                <TaskStatusIndicator
+                  :variant="inferTaskVariant(item)"
+                  :show-text-label="true"
+                />
+                <span v-if="item.id === activeHistoryId" class="history-item-badge">当前</span>
+              </div>
+            </div>
+            <div class="history-drawer-meta-row">
+              <span class="history-drawer-dataset">{{ item.datasetName || '自动路由数据集' }}</span>
+              <span class="history-drawer-time">{{ item.updatedAt }}</span>
+            </div>
+          </div>
+          <button
+            v-if="appFeatureAccess.app_history_delete"
+            class="history-item-delete"
+            type="button"
+            aria-label="删除任务"
+            @click.stop="removeHistoryItem(item.id)"
+          >
+            <span class="history-item-delete-icon" aria-hidden="true"></span>
+          </button>
+        </article>
+      </div>
+      <div v-else class="history-empty history-drawer-empty">
+        <div class="history-empty-title">暂无任务</div>
+        <div class="history-empty-desc">发起分析后，这里会显示你的任务记录。</div>
+      </div>
+    </el-drawer>
 
     <el-dialog
       v-model="passwordDialogVisible"
@@ -537,15 +430,6 @@ const appFeatureAccess = computed(() => appFeatureKeys.reduce((map, key) => {
   map[key] = isFeatureEnabled(key)
   return map
 }, {}))
-const collapsed = ref(false)
-/* ── 窄屏自动收起导航：侧栏 248px 在手机/小平板上会挤得内容不可读 ── */
-const NARROW_NAV_QUERY = '(max-width: 900px)'
-let narrowNavMedia = null
-const handleNarrowNavChange = (event) => {
-  if (event.matches) {
-    collapsed.value = true
-  }
-}
 const backendOk = ref(false)
 const authUser = ref(null)
 const authReady = ref(false)
@@ -562,8 +446,6 @@ const passwordVisible = ref({
   confirm: false,
 })
 const currentTime = ref('')
-const historyPanelRef = ref(null)
-const historyPanelHighlighted = ref(false)
 const historyDrawerVisible = ref(false)
 const isClearingHistory = ref(false)
 const userMenuVisible = ref(false)
@@ -666,51 +548,12 @@ const filteredCommands = computed(() => {
   ))
 })
 
-// bug 2026-08-25：菜单展开时历史区自动折叠让位（动态让位交互）
-// 注意：open/close 事件由 el-menu 发出（el-sub-menu 不发这两个事件）；
-// default-openeds 默认展开不触发 @open，故初始值按当前路由是否在管理页判定
-const managementDefaultOpeneds = computed(() => (
-  managementMenuItems.value.some((item) => item.path === route.path) ? ['management'] : []
-))
-// PM 2026-08-26 自适应方案（用户拍板）：菜单展开多少历史就让多少——
-// ResizeObserver 监听历史面板实际高度，算出能放下几张卡（1-8），不收起来
-// 源数据也取 8 兜底（空间决定显示，但数据先备够）
-const historyPreviewList = computed(() => historySessions.value.slice(0, 8))
-const visibleHistoryCount = ref(8)
-const visibleHistoryList = computed(() => historyPreviewList.value.slice(0, visibleHistoryCount.value))
-let historyPanelObserver = null
-const updateVisibleHistoryCount = () => {
-  const panel = historyPanelRef.value
-  if (!panel) return
-  const head = panel.querySelector('.sidebar-history-head')
-  const firstCard = panel.querySelector('.history-item')
-  // card 高度 + 列表 gap；head 用实测高度；面板 padding 用 getComputedStyle 取真实值
-  const cardH = (firstCard ? firstCard.offsetHeight : 100) + 8
-  const headH = head ? head.offsetHeight : 0
-  const cs = window.getComputedStyle(panel)
-  const padTop = parseFloat(cs.paddingTop) || 0
-  const padBottom = parseFloat(cs.paddingBottom) || 0
-  const avail = panel.clientHeight - headH - padTop - padBottom
-  // 用 floor：只显示完整卡（半张隐藏不友好），但用 getComputedStyle 取精确 padding 避免保守 buffer
-  // 宁可下方多 0-30px 缝隙，也不要显示半张误导用户
-  const n = Math.floor(avail / cardH)
-  visibleHistoryCount.value = Math.min(8, Math.max(1, n))
-}
-watch(historyPanelRef, (el) => {
-  if (historyPanelObserver) { historyPanelObserver.disconnect(); historyPanelObserver = null }
-  if (el && typeof ResizeObserver !== 'undefined') {
-    historyPanelObserver = new ResizeObserver(updateVisibleHistoryCount)
-    historyPanelObserver.observe(el)
-    nextTick(updateVisibleHistoryCount)
-  }
-})
 const cachedPageNames = computed(() => (
   Array.from(new Set(availableMenuItems.value.map((item) => routeComponentNamesByPath[item.path]).filter(Boolean)))
 ))
 const currentTitle = computed(() => menuItems.find((item) => item.path === route.path)?.label || '智能分析工作台')
 const currentSubtitle = computed(() => subtitleMap[route.path] || '经营分析工作台')
 const activeDatasetIds = computed(() => session.activeDatasetIds.value || [])
-const showHistorySidebar = computed(() => route.path === '/smart-ask' && !collapsed.value)
 // 虚拟"当前执行/待确认任务"：session 在跑或待确认时显示在历史列表顶部，不持久化
 const currentRunningTask = computed(() => {
   const status = session.state?.status
@@ -1064,15 +907,9 @@ const enforceRouteAccess = () => {
   }
 }
 
+// 新版外壳：任务历史以右侧抽屉呈现。切换/新建任务后自动收起抽屉。
 const pulseHistoryPanel = () => {
-  if (!showHistorySidebar.value) return
-  historyPanelHighlighted.value = true
-  nextTick(() => {
-    historyPanelRef.value?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' })
-  })
-  window.setTimeout(() => {
-    historyPanelHighlighted.value = false
-  }, 1600)
+  historyDrawerVisible.value = false
 }
 
 const openHistorySession = async (item) => {
@@ -1174,10 +1011,8 @@ const scheduleRoutePreload = () => {
   }
 }
 
+// 工作台头部「任务」入口 → 打开右侧任务抽屉
 const handleHistoryFocus = () => {
-  if (collapsed.value) {
-    collapsed.value = false
-  }
   if (route.path !== '/smart-ask') {
     router.push('/smart-ask')
   }
@@ -1185,7 +1020,7 @@ const handleHistoryFocus = () => {
     clearTimeout(historyFocusTimer)
   }
   historyFocusTimer = window.setTimeout(() => {
-    pulseHistoryPanel()
+    historyDrawerVisible.value = true
   }, 60)
 }
 
@@ -1222,17 +1057,6 @@ onMounted(() => {
   window.addEventListener('datapulse-feature-flags-updated', handleFeatureFlagsUpdated)
   window.addEventListener('datapulse:unauthorized', handleUnauthorized)
   window.addEventListener('keydown', handleCommandHotkey)
-  if (typeof window.matchMedia === 'function') {
-    narrowNavMedia = window.matchMedia(NARROW_NAV_QUERY)
-    if (narrowNavMedia.matches) {
-      collapsed.value = true
-    }
-    if (typeof narrowNavMedia.addEventListener === 'function') {
-      narrowNavMedia.addEventListener('change', handleNarrowNavChange)
-    } else if (typeof narrowNavMedia.addListener === 'function') {
-      narrowNavMedia.addListener(handleNarrowNavChange)
-    }
-  }
 })
 
 onUnmounted(() => {
@@ -1246,14 +1070,6 @@ onUnmounted(() => {
   window.removeEventListener('datapulse-feature-flags-updated', handleFeatureFlagsUpdated)
   window.removeEventListener('datapulse:unauthorized', handleUnauthorized)
   window.removeEventListener('keydown', handleCommandHotkey)
-  if (narrowNavMedia) {
-    if (typeof narrowNavMedia.removeEventListener === 'function') {
-      narrowNavMedia.removeEventListener('change', handleNarrowNavChange)
-    } else if (typeof narrowNavMedia.removeListener === 'function') {
-      narrowNavMedia.removeListener(handleNarrowNavChange)
-    }
-    narrowNavMedia = null
-  }
 })
 
 watch(() => route.path, (path) => {
@@ -1279,7 +1095,6 @@ onUnmounted(() => {
   stopAdminConsoleFloatDrag()
   window.removeEventListener('resize', handleAdminConsoleFloatResize)
   window.removeEventListener(ADMIN_CONSOLE_FLOAT_TOGGLE_EVENT, handleAdminConsoleFloatToggle)
-  if (historyPanelObserver) { historyPanelObserver.disconnect(); historyPanelObserver = null }
 })
 </script>
 
@@ -1350,648 +1165,293 @@ body,
   to { transform: scale(1); opacity: 1; }
 }
 
-.sidebar {
-  position: relative;
+/* ==========================================================================
+   外壳：顶部横向导航（新版布局 · 无左侧栏）
+   ========================================================================== */
+
+.app-shell {
   display: flex;
   flex-direction: column;
-  padding: 14px 12px;
-  transition: width var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16,1,0.3,1));
-  /* bug 2026-08-25：sidebar 整体可滚（菜单全展开超 100vh 时兜底），
-     但滚动条视觉隐藏——用户用滚轮仍可滚动看全部，看不到滚动条框 */
-  overflow: hidden auto;
-  height: 100vh;
-  box-sizing: border-box;
-  border-right: none !important;
-  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.08) !important;
-  /* bug 2026-08-25：sidebar 加深色背景让整列视觉饱满（之前透明背景看起来"飘"） */
-  background: linear-gradient(180deg, #1A1D24 0%, #14171C 100%);
-  scrollbar-width: none;
-}
-.sidebar::-webkit-scrollbar {
-  width: 0;
-  display: none;
+  height: 100%;
 }
 
-.sidebar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: none;
-}
-
-.sidebar.sidebar-collapsed {
-  padding: 14px 8px 12px;
-  align-items: center;
-  overflow-x: hidden;
-  scrollbar-width: none;
-}
-
-.sidebar.sidebar-collapsed::-webkit-scrollbar,
-.sidebar.sidebar-collapsed *::-webkit-scrollbar {
-  width: 0 !important;
-  height: 0 !important;
-  display: none;
-}
-
-.sidebar.sidebar-collapsed * {
-  scrollbar-width: none;
-}
-
-.brand {
-  position: relative;
-  z-index: 1;
-  height: 56px;
+/* ── 顶栏容器 ── */
+.app-topnav {
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  gap: 16px;
+  flex: 0 0 auto;
+  height: 60px !important;
+  padding: 0 20px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border, #E6EAF2) !important;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  z-index: 40;
 }
 
-.sidebar.sidebar-collapsed .brand {
-  width: 100%;
-  padding: 0;
-  justify-content: center;
-}
-
-.brand-pill {
-  display: flex;
+/* ── 品牌区 ── */
+.topnav-brand {
+  display: inline-flex;
   align-items: center;
+  gap: 9px;
+  flex: 0 0 auto;
+  padding: 5px 10px 5px 6px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--duration-fast, 150ms) var(--ease-out, ease);
 }
 
-.brand-pill.is-collapsed {
-  justify-content: center;
+.topnav-brand:hover {
+  background: var(--brand-primary-soft, #EEF2FF);
 }
 
-.brand-logo {
-  height: 28px;
+.topnav-logo {
+  height: 26px;
   width: auto;
   object-fit: contain;
   flex-shrink: 0;
-  opacity: 0.92;
 }
 
-.sidebar.sidebar-collapsed .brand-logo {
-  height: 28px;
-}
-
-.brand-text,
-.brand-caret {
-  display: none !important;
-}
-
-.sidebar-body {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
-  scrollbar-width: none;
-}
-
-.sidebar-body::-webkit-scrollbar {
-  display: none;
-}
-
-.sidebar.sidebar-collapsed .sidebar-body {
-  width: 100%;
-  align-items: center;
-}
-
-.nav-menu {
-  flex: none;
-  border-right: none !important;
-  padding-top: 4px;
-  overflow-x: hidden;
-  /* bug 2026-08-25：菜单完全放开，不设 max-height（用户反馈"不要滚动条框"）
-     超管 10 子项展开时 sidebar 整体超出 100vh → sidebar 级 overflow 滚动兜底 */
-  overflow-y: visible;
-  scrollbar-width: none;
-}
-.sidebar.sidebar-collapsed .nav-menu {
-  width: 100% !important;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow-x: hidden;
-  scrollbar-width: none;
-}
-
-.sidebar.sidebar-collapsed .nav-menu::-webkit-scrollbar {
-  display: none;
-}
-
-.nav-menu.el-menu {
-  border-right: none;
-}
-
-.nav-menu .el-menu-item {
-  position: relative;
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px;
-  margin: 4px 0;
-  padding: 0 14px !important;
-  border-radius: var(--radius-sm, 8px);
-  height: 42px;
-  color: rgba(255, 255, 255, 0.65) !important;
-  border: 1px solid transparent;
-  font-weight: 650;
-  transition: all var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16,1,0.3,1));
-}
-
-.nav-menu .el-sub-menu__title {
-  position: relative;
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px;
-  height: 42px;
-  margin: 8px 0 4px;
-  padding: 0 14px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-sm, 8px);
-  color: rgba(255, 255, 255, 0.65) !important;
-  background: rgba(255, 255, 255, 0.04);
+.topnav-brand-name {
+  font-size: 17px;
   font-weight: 800;
-  transition: all var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16,1,0.3,1));
+  letter-spacing: -0.02em;
+  color: var(--text-title, #111827);
+  white-space: nowrap;
 }
 
-.nav-menu .el-menu-item .el-icon,
-.nav-menu .el-sub-menu__title .el-icon:first-child {
-  width: 20px;
-  height: 20px;
-  margin: 0 !important;
-  flex: 0 0 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  font-size: 18px;
+.topnav-brand-env {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--brand-gradient, linear-gradient(135deg, #6366F1 0%, #3B82F6 100%));
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
-.nav-menu .el-menu-item span,
-.nav-menu .el-sub-menu__title span {
-  flex: 1;
+/* ── 横向主导航 ── */
+.topnav-menu.el-menu {
+  flex: 1 1 auto;
   min-width: 0;
-  line-height: 42px;
+  height: 60px;
+  border-bottom: 0 !important;
+  background: transparent;
 }
 
-.nav-menu .el-sub-menu__title .el-sub-menu__icon-arrow {
-  position: static;
-  width: 16px;
-  height: 16px;
-  margin: 0 0 0 auto;
-  transform: none;
-  flex: 0 0 16px;
+.topnav-menu.el-menu--horizontal > .el-menu-item,
+.topnav-menu.el-menu--horizontal > .el-sub-menu > .el-sub-menu__title {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  line-height: 1;
+  height: 60px !important;
+  line-height: 60px !important;
+  padding: 0 13px !important;
+  margin: 0 1px;
+  border-bottom: 0 !important;
+  background: transparent !important;
+  color: var(--text-secondary, #475569) !important;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.nav-menu .el-sub-menu.is-opened > .el-sub-menu__title .el-sub-menu__icon-arrow {
-  transform: rotate(180deg);
+.topnav-menu .el-menu-item .el-icon,
+.topnav-menu .el-sub-menu__title .el-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  font-size: 17px;
 }
 
-.nav-menu .el-sub-menu__title:hover {
-  color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.14);
+.topnav-menu.el-menu--horizontal > .el-menu-item:hover,
+.topnav-menu.el-menu--horizontal > .el-sub-menu > .el-sub-menu__title:hover {
+  color: var(--brand-primary, #6366F1) !important;
+  background: var(--brand-primary-soft, #EEF2FF) !important;
 }
 
-.nav-menu .el-menu-item:hover {
-  color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: transparent;
+.topnav-menu.el-menu--horizontal > .el-menu-item.is-active,
+.topnav-menu.el-menu--horizontal > .el-sub-menu.is-active > .el-sub-menu__title {
+  color: var(--brand-primary, #6366F1) !important;
+  background: var(--brand-primary-soft, #EEF2FF) !important;
+  border-bottom: 0 !important;
 }
 
-.nav-menu .el-sub-menu .el-menu {
-  padding: 2px 0 4px 12px;
+.topnav-menu.el-menu--horizontal > .el-menu-item.is-active::after,
+.topnav-menu.el-menu--horizontal > .el-sub-menu.is-active > .el-sub-menu__title::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--brand-primary, #6366F1);
+}
+
+/* 管理配置下拉（弹层渲染到 body，需全局选择器） */
+.el-menu--popup {
+  min-width: 190px;
+  padding: 6px !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border, #E5E7EB);
+  box-shadow: 0 16px 40px rgba(30, 27, 75, 0.16) !important;
+}
+
+.el-menu--popup .el-menu-item {
+  height: 36px;
+  line-height: 36px;
+  margin: 2px 0;
+  padding: 0 12px !important;
+  border-radius: 9px;
+  font-size: 13px;
+  color: var(--text-secondary, #475569) !important;
   background: transparent !important;
 }
 
-.nav-menu .el-sub-menu .el-menu-item {
-  height: 36px;
-  margin: 3px 0;
-  border-radius: 11px;
-  font-size: 13px;
+.el-menu--popup .el-menu-item:hover,
+.el-menu--popup .el-menu-item.is-active {
+  background: var(--brand-primary-soft, #EEF2FF) !important;
+  color: var(--brand-primary, #6366F1) !important;
 }
 
-.nav-menu .el-sub-menu .el-menu-item .el-icon {
-  font-size: 16px;
+.el-menu--popup .el-menu-item.is-active {
+  font-weight: 700;
 }
 
-.nav-menu .el-menu-item::before {
-  content: '';
-  position: absolute;
-  left: 8px;
-  top: 11px;
-  bottom: 11px;
-  width: 3px;
-  border-radius: 999px;
-  background: transparent;
-  transition: all var(--duration-normal, 220ms) var(--ease-out);
-}
-
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item {
-  position: relative;
-  width: 44px !important;
-  min-width: 44px !important;
-  max-width: 44px !important;
-  height: 44px !important;
-  margin: 4px auto !important;
-  padding: 0 !important;
-  border-radius: 12px;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  overflow: visible !important;
-  line-height: 44px !important;
-  transition: all var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16,1,0.3,1));
-  color: rgba(255, 255, 255, 0.65) !important;
-}
-
-.sidebar.sidebar-collapsed .nav-menu .el-sub-menu__title {
-  width: 44px !important;
-  min-width: 44px !important;
-  max-width: 44px !important;
-  height: 44px !important;
-  margin: 4px auto !important;
-  padding: 0 !important;
-  border-radius: 12px;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.65) !important;
-}
-
-.sidebar.sidebar-collapsed .nav-menu .el-sub-menu__title .el-sub-menu__icon-arrow,
-.sidebar.sidebar-collapsed .nav-menu .el-sub-menu__title span {
-  display: none;
-}
-
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item:hover {
-  border-color: rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item.is-active {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.10) !important;
-  color: #ffffff !important;
-  box-shadow: inset 3px 0 0 #6366F1 !important;
-}
-
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item.is-active .el-icon {
-  color: #ffffff !important;
-}
-
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item.is-active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  bottom: auto;
-  width: 3px;
-  height: 60%;
-  border-radius: 0 999px 999px 0;
-  background: #6366F1;
-  clip-path: none;
-  opacity: 1;
-  transform: translateY(-50%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item .el-icon {
-  width: 20px;
-  height: 20px;
-  margin: 0 !important;
-  padding: 0 !important;
+/* ── 顶栏右侧动作区 ── */
+.topnav-actions {
   display: flex;
   align-items: center;
-  justify-content: center;
-  line-height: 1;
-  font-size: 18px;
-}
-
-/* ===== Collapsed Tooltip — 升级版 ===== */
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  left: calc(100% + 10px);
-  top: 50%;
-  transform: translateY(-50%) translateX(4px);
-  padding: 6px 12px;
-  border-radius: 6px;
-  background: rgba(29, 33, 41, 0.88);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  transition: opacity var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16,1,0.3,1)),
-              transform var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16,1,0.3,1));
-  z-index: 2000;
-}
-
-/* Tooltip 小三角 */
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item::before {
-  content: '';
-  position: absolute;
-  left: calc(100% + 4px);
-  top: 50%;
-  transform: translateY(-50%) translateX(4px);
-  width: 6px;
-  height: 6px;
-  background: rgba(29, 33, 41, 0.88);
-  clip-path: polygon(0 50%, 100% 0, 100% 100%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16,1,0.3,1)),
-              transform var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16,1,0.3,1));
-  z-index: 2000;
-}
-
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item:hover::after,
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item:hover::before {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
-
-/* Override Element Plus el-menu--collapse internal structure */
-/* 注意：<style> 非 scoped，:deep() 无效，必须用普通选择器 */
-.sidebar.sidebar-collapsed .el-menu--collapse {
-  width: 100% !important;
-  overflow-x: hidden !important;
-  scrollbar-width: none;
-}
-
-.sidebar.sidebar-collapsed .el-menu--collapse::-webkit-scrollbar {
-  display: none;
-}
-
-.sidebar.sidebar-collapsed .el-menu,
-.sidebar.sidebar-collapsed .el-menu--collapse,
-.sidebar.sidebar-collapsed .el-menu--collapse > * {
-  max-width: 100% !important;
-}
-
-/* 菜单项外壳 */
-.sidebar.sidebar-collapsed .el-menu--collapse .el-menu-item {
-  position: relative;
-  width: 44px !important;
-  min-width: 44px !important;
-  max-width: 44px !important;
-  height: 44px !important;
-  margin: 4px auto !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  line-height: 44px !important;
-  box-sizing: border-box !important;
-  overflow: visible !important;
-  color: rgba(255, 255, 255, 0.65) !important;
-}
-
-/* ★ 关键：el-tooltip__trigger 是导致偏移的元凶 —— 强制它也 flex 居中且无 padding */
-.sidebar.sidebar-collapsed .el-menu--collapse .el-menu-item .el-tooltip__trigger {
-  width: 100% !important;
-  height: 100% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
-  box-sizing: border-box !important;
-}
-
-/* ★ 图标层：确保无任何干扰 */
-.sidebar.sidebar-collapsed .el-menu--collapse .el-menu-item .el-icon {
-  width: 20px !important;
-  height: 20px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  font-size: 18px !important;
-  line-height: 1 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;
-}
-
-/* ★ 图标内的 SVG 确保不溢出 */
-.sidebar.sidebar-collapsed .el-menu--collapse .el-menu-item .el-icon svg {
-  width: 18px !important;
-  height: 18px !important;
-}
-
-/* 隐藏折叠态的文字 span（Element Plus 内部会生成一个 span 放 title） */
-.sidebar.sidebar-collapsed .el-menu--collapse .el-menu-item span:not(.el-icon) {
-  display: none !important;
-}
-
-.sidebar.sidebar-collapsed .nav-menu .el-menu-item > * {
-  flex-shrink: 0;
-}
-
-.nav-menu .el-menu-item.is-active {
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: none;
-  font-weight: 800;
-}
-
-.nav-menu .el-menu-item.is-active::before {
-  left: 0;
-  top: 50%;
-  bottom: auto;
-  width: 3px;
-  height: 60%;
-  border-radius: 0 999px 999px 0;
-  background: #6366F1;
-  transform: translateY(-50%);
-}
-
-.nav-menu .el-menu-item.is-active .el-icon,
-.nav-menu .el-menu-item.is-active span {
-  color: #ffffff !important;
-}
-
-.sidebar-history {
-  position: relative;
-  margin: 12px 0 12px;
-  padding: 14px 12px 12px;
-  /* PM 2026-08-26 自适应方案（用户拍板）：菜单展开多少历史就让多少——
-     面板 flex:1 吃剩余空间，显示卡数由 ResizeObserver 按实际高度算（1-4 张）；
-     min-height 120px 保底 1 张卡（超管 10 子项也不至于归零，超出走 sidebar 整体滚动） */
-  flex: 1 1 auto;
-  min-height: 120px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: var(--radius-card, 12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(10px);
-  transition: flex 0.2s ease, min-height 0.2s ease, padding 0.2s ease;
-}
-
-.sidebar-history-highlight {
-  border-color: var(--brand-primary, #6366F1);
-  box-shadow:
-    0 0 0 3px var(--brand-primary-focus, rgba(99, 102, 241, 0.16)),
-    var(--shadow-md, 0 2px 4px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.05));
-}
-
-.sidebar-history-head {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
   gap: 10px;
-  margin-bottom: 12px;
+  flex: 0 0 auto;
 }
 
-.sidebar-history-head > div:first-child {
-  min-width: 0;
-  flex: none;
-}
-
-.sidebar-history-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.sidebar-history-subtitle {
-  margin-top: 3px;
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.sidebar-history-clear {
-  height: 28px;
-  padding: 0 9px;
-  border: 1px solid var(--error-soft, #EEF2FF);
-  border-radius: 999px;
-  background: var(--error-soft, #EEF2FF);
-  color: var(--error, #6366F1);
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: none;
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sidebar-history-more {
-  height: 28px;
-  padding: 0 9px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: none;
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sidebar-history-more:hover {
-  transform: translateY(-1px);
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.sidebar-history-clear:hover {
-  transform: translateY(-1px);
-  border-color: rgba(99, 102, 241, 0.24);
-  background: #E0E7FF;
-  color: var(--brand-primary-hover, #4F46E5);
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
-}
-
-.sidebar-history-actions {
-  display: flex;
+.topnav-history {
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  white-space: nowrap;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-}
-
-.sidebar-history-new {
-  height: 28px;
-  padding: 0 10px;
-  min-width: 54px;
+  gap: 7px;
+  height: 34px;
+  padding: 0 12px;
   border: 1px solid var(--border, #E5E7EB);
   border-radius: 999px;
-  background: var(--bg-card, #FFFFFF);
-  color: var(--text-body, #374151);
-  font-size: 11px;
-  font-weight: 700;
+  background: #ffffff;
+  color: var(--text-secondary, #475569);
+  font-size: 13px;
+  font-weight: 650;
   cursor: pointer;
-  white-space: nowrap;
-  box-shadow: var(--shadow-xs, 0 1px 2px rgba(0,0,0,0.04));
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--duration-fast, 150ms) var(--ease-out, ease);
 }
 
-.sidebar-history-new:hover {
-  transform: translateY(-1px);
-  border-color: var(--border-hover, #D1D5DB);
-  background: var(--bg-soft, #F3F4F6);
-  color: var(--text-title, #111827);
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
+.topnav-history:hover {
+  border-color: var(--brand-primary, #6366F1);
+  background: var(--brand-primary-soft, #EEF2FF);
+  color: var(--brand-primary, #6366F1);
 }
 
-.sidebar-history-list {
-  display: flex;
-  flex-direction: column;
+.topnav-history-icon {
+  flex: 0 0 auto;
+  position: relative;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1.7px solid currentColor;
+}
+
+.topnav-history-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.7px;
+  height: 4px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: translate(-50%, -100%);
+  transform-origin: bottom center;
+}
+
+.topnav-history-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--brand-primary, #6366F1);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.topnav-command {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  height: 34px;
+  width: 236px;
+  padding: 0 10px 0 12px;
+  border: 1px solid var(--border, #E5E7EB);
+  border-radius: 999px;
+  background: var(--bg-soft, #F6F8FC);
+  color: var(--text-muted, #94A3B8);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--duration-fast, 150ms) var(--ease-out, ease);
+}
+
+.topnav-command:hover {
+  border-color: var(--brand-primary, #6366F1);
+  background: #ffffff;
+  color: var(--text-secondary, #475569);
+}
+
+.topnav-command-icon {
+  flex: 0 0 auto;
+  position: relative;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1.7px solid currentColor;
+}
+
+.topnav-command-icon::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 6px;
+  height: 1.7px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.topnav-command-text {
   flex: 1 1 auto;
-  min-height: 0;
-  /* PM 2026-08-26 自适应：显示卡数由 JS 按面板高度算（visibleHistoryCount），
-     不再需要固定 440px max-height 内部滚动 */
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 2px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
 }
 
-/* 滚动条：深色面板配浅灰半透明（bug 2026-08-25 反馈"太白"） */
-.sidebar-history-list::-webkit-scrollbar {
-  width: 5px;
+.topnav-command-kbd {
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border: 1px solid var(--border, #E5E7EB);
+  border-radius: 6px;
+  background: #ffffff;
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #94A3B8);
 }
-.sidebar-history-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
-  border-radius: 3px;
-}
-.sidebar-history-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
-}
-.sidebar-history-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
 .history-item {
   position: relative;
   display: flex;
@@ -2210,7 +1670,7 @@ body,
   }
 }
 
-.sidebar-history-empty {
+.history-empty {
   min-height: 176px;
   border: 1px dashed var(--border-hover, #D1D5DB);
   border-radius: var(--radius-md, 12px);
@@ -2223,13 +1683,13 @@ body,
   padding: 18px;
 }
 
-.sidebar-history-empty-title {
+.history-empty-title {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-title, #111827);
 }
 
-.sidebar-history-empty-desc {
+.history-empty-desc {
   margin-top: 6px;
   font-size: 10px;
   line-height: 1.6;
@@ -2481,124 +1941,104 @@ body,
   border-radius: 999px;
 }
 
-/* ===== 侧栏底部：用户条（原顶栏右上角已迁移至此）+ 折叠按钮 ===== */
-.sidebar-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 10px 8px;
-  /* bug 2026-08-25：自动贴底，让 sidebar 整体在视觉上填满 100vh */
-  margin-top: auto;
-}
-
-.sidebar-user {
+/* ===== 顶栏右上：用户菜单 ===== */
+.topnav-user {
   position: relative;
 }
 
-.sidebar-user-chip {
-  display: flex;
+.topnav-user-chip {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 9px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-md, 14px);
-  background: rgba(255, 255, 255, 0.06);
-  color: #ffffff;
+  gap: 8px;
+  height: 38px;
+  padding: 0 10px 0 5px;
+  border: 1px solid var(--border, #E5E7EB);
+  border-radius: 999px;
+  background: #ffffff;
   cursor: pointer;
   text-align: left;
-  transition: background var(--duration-fast, 150ms) var(--ease-out, ease),
-              border-color var(--duration-fast, 150ms) var(--ease-out, ease);
+  transition: all var(--duration-fast, 150ms) var(--ease-out, ease);
 }
 
-.sidebar-user-chip:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+.topnav-user-chip:hover {
+  border-color: var(--brand-primary, #6366F1);
+  background: var(--brand-primary-soft, #EEF2FF);
 }
 
-/* 渐变头像 */
-.sidebar-user-avatar {
+.topnav-user-avatar {
   flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 12.5px;
   font-weight: 700;
   color: #ffffff;
   background: var(--brand-gradient, linear-gradient(135deg, #6366F1 0%, #3B82F6 100%));
-  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.45);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
 }
 
-/* 在线状态点（贴头像右下） */
-.sidebar-user-status {
-  position: absolute;
-  left: 33px;
-  bottom: 9px;
-  width: 9px;
-  height: 9px;
+.topnav-user-status {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #94A3B8;
-  border: 2px solid rgba(30, 27, 75, 0.95);
-  box-sizing: content-box;
+  background: #CBD5E1;
 }
 
-.sidebar-user-status.is-online {
+.topnav-user-status.is-online {
   background: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.16);
 }
 
-.sidebar-user-meta {
+.topnav-user-meta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  flex: 1 1 auto;
+  align-items: flex-start;
+  gap: 1px;
   min-width: 0;
 }
 
-.sidebar-user-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #ffffff;
-  white-space: nowrap;
+.topnav-user-name {
+  max-width: 108px;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.sidebar-user-role {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.55);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-title, #111827);
 }
 
-.sidebar-user-arrow {
+.topnav-user-role {
+  font-size: 10.5px;
+  color: var(--text-muted, #94A3B8);
+}
+
+.topnav-user-arrow {
   flex: 0 0 auto;
   width: 0;
   height: 0;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
-  border-bottom: 5px solid rgba(255, 255, 255, 0.55);
+  border-top: 5px solid var(--text-muted, #94A3B8);
 }
 
-/* 向上弹出的用户菜单 */
-.sidebar-user-dropdown {
+.topnav-user-dropdown {
   position: absolute;
-  left: 0;
   right: 0;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   z-index: 60;
+  width: 224px;
   padding: 6px;
   border-radius: var(--radius-md, 14px);
-  background: rgba(255, 255, 255, 0.98);
+  background: #ffffff;
   border: 1px solid var(--border, #DFE3F0);
-  box-shadow: 0 16px 40px rgba(30, 27, 75, 0.3);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 16px 40px rgba(30, 27, 75, 0.22);
 }
 
-.sidebar-user-dropdown button {
+.topnav-user-dropdown button {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -2612,253 +2052,94 @@ body,
   transition: background var(--duration-fast, 150ms) var(--ease-out, ease);
 }
 
-.sidebar-user-dropdown button:hover {
+.topnav-user-dropdown button:hover {
   background: var(--brand-primary-soft, #EEF2FF);
 }
 
-.sidebar-user-dropdown button strong {
+.topnav-user-dropdown button strong {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-title, #0F172A);
 }
 
-.sidebar-user-dropdown button span {
+.topnav-user-dropdown button span {
   font-size: 11px;
   color: var(--text-secondary, #64748B);
 }
 
-.sidebar-user-dropdown button.danger strong {
+.topnav-user-dropdown button.danger strong {
   color: var(--error, #DC2626);
 }
 
-/* 折叠按钮 */
-.sidebar-collapse {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 9px 10px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md, 14px);
-  background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
-}
-
-.sidebar-collapse:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.14);
-  color: #ffffff;
-}
-
-/* 折叠态：两个入口都收成方形图标块 */
-.sidebar.sidebar-collapsed .sidebar-footer {
-  padding: 10px 0;
-  align-items: center;
-}
-
-.sidebar.sidebar-collapsed .sidebar-user-chip,
-.sidebar.sidebar-collapsed .sidebar-collapse {
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
-  padding: 0;
-  justify-content: center;
-  gap: 0;
-}
-
-.sidebar.sidebar-collapsed .sidebar-user-avatar {
-  width: 30px;
-  height: 30px;
-  font-size: 13px;
-}
-
-.sidebar.sidebar-collapsed .sidebar-user-status {
-  left: 27px;
-  bottom: 7px;
-}
-
-/* 折叠态的菜单向左展开，避免被裁切 */
-.sidebar.sidebar-collapsed .sidebar-user-dropdown {
-  left: calc(100% + 10px);
-  right: auto;
-  width: 220px;
-  bottom: 0;
-}
-
-.main-shell {
+/* 主体容器：顶栏之下的全宽区域 */
+.app-body {
+  flex: 1 1 auto;
   min-width: 0;
+  min-height: 0;
 }
 
-.topbar {
+/* ===== 二级上下文条（非工作台页面显示） ===== */
+.context-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
-  height: 56px !important;
-  border-bottom: none !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
-}
-
-.topbar-smart {
+  gap: 16px;
+  flex: 0 0 auto;
+  height: 46px !important;
   padding: 0 24px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-light, #EEF2FF) !important;
 }
 
-.topbar-heading {
+.context-left {
   display: flex;
   align-items: center;
+  gap: 10px;
   min-width: 0;
 }
 
-.topbar-title-row {
-  display: flex;
-  align-items: center;
-  gap: 0;
+.context-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-title, #111827);
+  white-space: nowrap;
+}
+
+.context-subtitle {
   min-width: 0;
-}
-
-.topbar-logo {
-  height: 28px;
-  width: auto;
-  object-fit: contain;
-  /* logo 是黑色+白底，在深色topbar上需要做白色反转处理 */
-  opacity: 0.92;
-  flex-shrink: 0;
-}
-
-.topbar-brand {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.topbar-divider {
-  display: inline-block;
-  width: 1px;
-  height: 18px;
-  margin: 0 14px;
-  background: rgba(255, 255, 255, 0.18);
-  align-self: center;
-  flex-shrink: 0;
-}
-
-.topbar-workspace {
-  font-size: 14px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.72);
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-}
-
-.topbar-back-console {
-  height: 28px;
-  margin-left: 12px;
-  padding: 0 11px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.86);
   font-size: 12px;
-  font-weight: 800;
+  color: var(--text-muted, #94A3B8);
+}
+
+.context-back {
+  flex: 0 0 auto;
+  height: 26px;
+  padding: 0 11px;
+  border: 1px solid var(--border, #E5E7EB);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--text-secondary, #475569);
+  font-size: 12px;
+  font-weight: 650;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
 }
 
-.topbar-back-console:hover {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.22);
-  color: #ffffff;
+.context-back:hover {
+  border-color: var(--brand-primary, #6366F1);
+  background: var(--brand-primary-soft, #EEF2FF);
+  color: var(--brand-primary, #6366F1);
 }
 
-.topbar-right {
+.context-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
-}
-
-/* ===== 顶栏中央：命令栏（⌘K 全局命令面板入口） ===== */
-.topbar-command {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  padding: 0 20px;
-}
-
-.command-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  max-width: 420px;
-  height: 34px;
-  padding: 0 10px 0 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 13px;
-  cursor: pointer;
-  transition: background var(--duration-fast, 150ms) var(--ease-out, ease),
-              border-color var(--duration-fast, 150ms) var(--ease-out, ease),
-              color var(--duration-fast, 150ms) var(--ease-out, ease);
-}
-
-.command-trigger:hover {
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.24);
-  color: #ffffff;
-}
-
-.command-trigger-icon {
-  flex: 0 0 auto;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 1.5px solid currentColor;
-  position: relative;
-  opacity: 0.85;
-}
-
-.command-trigger-icon::after {
-  content: '';
-  position: absolute;
-  left: 11px;
-  top: 11px;
-  width: 6px;
-  height: 2px;
-  border-radius: 2px;
-  background: currentColor;
-  transform: rotate(45deg);
-  transform-origin: left center;
-}
-
-.command-trigger-text {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: left;
-}
-
-.command-trigger-kbd {
-  flex: 0 0 auto;
-  padding: 1px 7px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  font-family: var(--font-mono, monospace);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.78);
 }
 
 .admin-login-button,
@@ -3279,6 +2560,8 @@ body,
 }
 
 .page-wrap-smart {
+  /* 工作台全出血：内容区自行管padding，外壳不再留边 */
+  padding: 0;
   overflow: hidden;
   display: flex;
   min-height: 0;
@@ -3499,29 +2782,63 @@ body,
   transform: translateY(8px);
 }
 
-@media (max-width: 1080px) {
-  .topbar {
-    align-items: flex-start;
-    flex-direction: column;
+@media (max-width: 1180px) {
+  .topnav-brand-env {
+    display: none;
   }
 
-  .topbar-title-row {
+  .topnav-command {
+    width: 150px;
+  }
+
+  .topnav-user-meta {
+    display: none;
+  }
+
+  .topnav-user-chip {
+    padding: 0 10px 0 4px;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-topnav {
     gap: 10px;
+    padding: 0 12px;
   }
 
-  .topbar-command {
-    width: 100%;
-    padding: 0;
+  .topnav-brand-name {
+    display: none;
   }
 
-  .command-trigger {
-    max-width: none;
+  .topnav-command {
+    width: auto;
   }
 
-  .topbar-right {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+  .topnav-command-text {
+    display: none;
+  }
+
+  .topnav-history-label {
+    display: none;
+  }
+
+  .topnav-history {
+    padding: 0 10px;
+  }
+
+  .topnav-menu .el-menu-item span,
+  .topnav-menu .el-sub-menu__title span {
+    display: none;
+  }
+
+  .topnav-menu.el-menu--horizontal > .el-menu-item,
+  .topnav-menu.el-menu--horizontal > .el-sub-menu > .el-sub-menu__title {
+    padding: 0 10px !important;
+  }
+
+  .topnav-menu .el-menu-item .el-icon,
+  .topnav-menu .el-sub-menu__title .el-icon {
+    margin-right: 0;
   }
 }
 </style>

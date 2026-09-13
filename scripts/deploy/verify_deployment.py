@@ -137,7 +137,7 @@ def _check_report_contract() -> List[Tuple[str, bool, str]]:
         return [("report_contract", False, f"无法 import 报告契约模块: {exc}")]
 
     try:
-        scene = detect_report_scene("沧澜和漠澜业绩对比", None, 2)
+        scene = detect_report_scene("澔原和朔岑业绩对比", None, 2)
         ok = scene.get("key") == "comparative" and scene.get("layout") == "comparison"
         out.append(("report_scene", ok, f"scene={scene.get('key')}, layout={scene.get('layout')}"))
     except Exception as exc:

@@ -43,21 +43,21 @@ LEVEL_SUFFIXES = [
 # key: (dataset_code, node_name) → 额外别名
 EXTRA_NODE_ALIASES = {
     ("feishu_tblyongfukaidan", "用户服务与运营事业群"): ["用服事业群", "用服"],
-    # 用服视图战区列已去除"用户服务与运营"后缀（如"浔澜战区"），与其他数据集同名，
+    # 用服视图战区列已去除"用户服务与运营"后缀（如"沧岩战区"），与其他数据集同名，
     # 同名时进入多数据集消歧确认；补"X用服"别名供口语指向用服
-    ("feishu_tblyongfukaidan", "浔澜战区"): ["浔澜用服"],
-    ("feishu_tblyongfukaidan", "衡澜战区"): ["衡澜用服"],
-    ("feishu_tblyongfukaidan", "沄澜战区"): ["沄澜用服"],
-    ("feishu_tblyongfukaidan", "潇澜战区"): ["潇澜用服"],
-    ("feishu_tblyongfukaidan", "漳澜战区"): ["漳澜用服"],
-    ("feishu_tblyongfukaidan", "瓯澜战区"): ["瓯澜用服"],
-    ("feishu_tblyongfukaidan", "苍澜战区"): ["苍澜用服"],
-    ("feishu_tblyongfukaidan", "凉澜战区"): ["凉澜用服"],
-    ("feishu_tblyongfukaidan", "浦澜战区"): ["浦澜用服"],
-    ("feishu_tblyongfukaidan", "朔澜战区"): ["朔澜用服"],
-    ("feishu_tblyongfukaidan", "碣澜战区"): ["碣澜用服"],
-    ("feishu_tblyongfukaidan", "岷澜战区"): ["岷澜用服"],
-    ("feishu_tblyongfukaidan", "岱澜战区"): ["岱澜用服"],
+    ("feishu_tblyongfukaidan", "沧岩战区"): ["沧岩用服"],
+    ("feishu_tblyongfukaidan", "澄海战区"): ["澄海用服"],
+    ("feishu_tblyongfukaidan", "星浦战区"): ["星浦用服"],
+    ("feishu_tblyongfukaidan", "朔原战区"): ["朔原用服"],
+    ("feishu_tblyongfukaidan", "沐栖战区"): ["沐栖用服"],
+    ("feishu_tblyongfukaidan", "衡麓战区"): ["衡麓用服"],
+    ("feishu_tblyongfukaidan", "榕岭战区"): ["榕岭用服"],
+    ("feishu_tblyongfukaidan", "曜川战区"): ["曜川用服"],
+    ("feishu_tblyongfukaidan", "云溟战区"): ["云溟用服"],
+    ("feishu_tblyongfukaidan", "霁野战区"): ["霁野用服"],
+    ("feishu_tblyongfukaidan", "沐阳战区"): ["沐阳用服"],
+    ("feishu_tblyongfukaidan", "岚洲战区"): ["岚洲用服"],
+    ("feishu_tblyongfukaidan", "澔岳战区"): ["澔岳用服"],
 }
 
 

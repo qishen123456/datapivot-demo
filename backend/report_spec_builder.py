@@ -962,7 +962,7 @@ def build_report_spec(
         focus_node = None
 
     # 末端判定改为按层级；并为管理类聚焦节点从组织树回填真实子节点，
-    # 消除“随本次 SQL 是否返回下级行而变”的非确定性（如衡澜战区被误判为末端个人节点）
+    # 消除“随本次 SQL 是否返回下级行而变”的非确定性（如澄海战区被误判为末端个人节点）
     if focus_node and not _is_person_level(focus_node):
         _enrich_focus_with_children(
             focus_node, {n.get("name"): n for n in nodes if n.get("name")}, nodes

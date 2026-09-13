@@ -29,7 +29,7 @@ def _clean_org_subject_candidate(value: str) -> str:
         "",
         text,
     ).strip()
-    # 去掉口语方位/指代词，避免 "临洲那边"、"沧澜那个" 这类干扰
+    # 去掉口语方位/指代词，避免 "临洲那边"、"澔原那个" 这类干扰
     text = re.sub(r"那边|那个|这块|那块|这边|这个|这位|那位", "", text).strip()
     # 去掉前缀数量词，避免 "三个行业部"、"前3战区" 被当成主体名称。
     # 计数词必须跟量词（个/位/名...）才剥，避免吃掉 "三明"、"锦川" 这种首字是数字的人名/地名。
@@ -119,7 +119,7 @@ def _looks_like_org_subject_question(question: str) -> bool:
     has_overview = bool(any(token in text for token in overview_tokens))
     if has_overview:
         return False
-    # 具体节点 + 目标子层级（如"浦澜战区的城市战区"）应直接走 drilldown 规则，
+    # 具体节点 + 目标子层级（如"云溟战区的城市战区"）应直接走 drilldown 规则，
     # 不要经过 Agent1 改写，避免子层级信息被丢失。
     level_like_values = {"事业群", "战区", "行业部", "片区", "客户经理", "城市战区", "城市站", "区域线", "行业线"}
     level_pattern = "|".join(re.escape(level) for level in sorted(level_like_values, key=len, reverse=True))

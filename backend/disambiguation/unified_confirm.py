@@ -101,7 +101,7 @@ def apply_recommendation(options: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     规则：
     - 排序：按 dataset_priority（可配置，默认按内置优先级列表），不在列表的排最后。
     - recommended 角标：仅当第 1 个与第 2 个【数据集不同】（系统有明确倾向）时标；
-      同数据集撞车（如 nb→淼澜/凛澜、sh→临洲城市/深圳城市同在消费者）不硬标——
+      同数据集撞车（如 nb→岚屿/瀚川、sh→临洲城市/深圳城市同在消费者）不硬标——
       避免系统对真歧义"假装有倾向"。此时 recommend_on_tie=true 才强制标。
     - 无论是否 recommended，排序后第 1 个都是"默认选中"项（解析条默认显示它）。
     fail-open：任何异常按原顺序返回。
@@ -157,7 +157,7 @@ def build_unified_candidates(
 ) -> List[Dict[str, Any]]:
     """对象别名列表 → 各数据集精确节点 → 节点级完整问句候选。
 
-    obj_aliases: 对象别名列表（如 ["临洲"]，或拼音首字母展开后的 ["淼澜", "凛澜"]）。
+    obj_aliases: 对象别名列表（如 ["临洲"]，或拼音首字母展开后的 ["岚屿", "瀚川"]）。
     返回候选：{dataset_id, dataset_name, business_name, node_name, node_level,
               track, parent_name, full_question, option_label}。
     权限红线：按 allowed_dataset_ids 过滤。fail-open：异常返回 []。

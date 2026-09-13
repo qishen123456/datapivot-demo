@@ -3,7 +3,7 @@
 
 只观察记录，**绝不改活体行为**：检测问题中的拉丁字母缩写（2~10 个连续字母，
 如 NB/XB/DJ/JD/tmall/dongbu/shangyong，大小写不限），用拼音索引把它映射到书架
-实体候选（≤4 字母按首字母：NB→淼澜/宁波；≥5 字母按无调全拼：dongbu→沧澜），
+实体候选（≤4 字母按首字母：NB→岚屿/宁波；≥5 字母按无调全拼：dongbu→澔原），
 写入影子日志字段 initials_guardrail，攒数据供 P1-b 决策。
 
 重点标记危险场景：pipeline_verdict=pass（直接答了）且缩写映射到多个/零个实体
@@ -23,7 +23,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 _TOKEN_RE = re.compile(r"[A-Za-z]{2,10}")
-# ≤4 字母按首字母映射（NB→淼澜），≥5 字母按无调全拼映射（dongbu→沧澜）
+# ≤4 字母按首字母映射（NB→岚屿），≥5 字母按无调全拼映射（dongbu→澔原）
 _INITIALS_MAX_LEN = 4
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -35,8 +35,8 @@ _aliases_cache: Dict[str, Any] = {"mtime": 0.0, "data": {}}
 def _load_aliases() -> Dict[str, List[str]]:
     """读人工精排映射表（abbreviation_aliases.json），mtime 缓存。任何失败返回 {}。
 
-    值支持两种形态：单节点字符串（jd→京东直营）或撞车组列表
-    （nb→[淼澜战区, 凛澜战区]，拼音推不出的口语撞车组人工收录，
+    值支持两种形态：单节点字符串（jd→云集直营）或撞车组列表
+    （nb→[岚屿战区, 瀚川战区]，拼音推不出的口语撞车组人工收录，
     列表原样返回多候选，由路由层出节点确认卡）。
     """
     try:
@@ -95,7 +95,7 @@ def map_token(
 ) -> List[str]:
     """把拉丁 token 映射到书架实体候选（别名原文，按 node 去重）。任何失败返回 []。
 
-    优先级：人工精排表（abbreviation_aliases.json，如 jd→京东直营、nb→淼澜/凛澜撞车组）
+    优先级：人工精排表（abbreviation_aliases.json，如 jd→云集直营、nb→岚屿/瀚川撞车组）
     > 拼音首字母/全拼索引。索引撞车时返回多个候选（双候选来自索引节点，不硬猜）。
     """
     try:
@@ -206,7 +206,7 @@ def build_initials_preview(
         mapping = list(dict.fromkeys(mapping))  # 同别名撞多节点（临洲→城市站/片区）展示去重
         candidates = []
         for entity in mapping[:4]:
-            # 实体后缀与 token 后原文重叠时去重（TM直营→天猫直营直营 ✗ → 天猫直营 ✓）
+            # 实体后缀与 token 后原文重叠时去重（TM直营→澜庭直营直营 ✗ → 澜庭直营 ✓）
             pos = question.find(token)
             following = question[pos + len(token):]
             overlap = 0

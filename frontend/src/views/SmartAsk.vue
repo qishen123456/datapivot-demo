@@ -5323,7 +5323,7 @@ const datasetAliasScore = (text, dataset) => {
     })
   })
   if (isConsumerDatasetMeta(dataset)) {
-    const consumerBranchAliases = ['浔澜战区', '浔澜', '岱澜战区']
+    const consumerBranchAliases = ['沧岩战区', '沧岩', '澔岳战区']
     if (consumerBranchAliases.some(alias => question.includes(compactQuestionText(alias)))) {
       score = Math.max(score, 94)
     }

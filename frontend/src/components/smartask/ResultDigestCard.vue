@@ -713,7 +713,7 @@ const amountUnitConfig = computed(() => {
 })
 
 // 额外拆解列：report_config.metrics 里显式标记 show_in_drill 的指标，
-// 在「四、二级拆解」追加为数据列（如用服数据集的滤芯/增值开单）。
+// 在「四、二级拆解」追加为数据列（如用服数据集的云芯部件/增值开单）。
 // 未标记的数据集不产出额外列，卡片渲染保持原样。
 const STANDARD_DRILL_METRIC_KEYS = new Set(['task', 'actual', 'rate', 'remain'])
 const extraDrillMetrics = computed(() => {
@@ -3204,7 +3204,7 @@ const actionItems = computed(() => {
   border-bottom: 1px solid rgba(15, 23, 42, 0.1);
 }
 
-/* 表头文字不折行（避免「滤芯开单金额」断成两行），分隔线内边距收窄防溢出 */
+/* 表头文字不折行（避免「云芯部件开单金额」断成两行），分隔线内边距收窄防溢出 */
 .sa-drill-row.is-head > * {
   white-space: nowrap;
 }

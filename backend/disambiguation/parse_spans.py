@@ -64,7 +64,7 @@ def _load_alias_by_node() -> Dict[str, List[str]]:
                         if alias not in by_node[node]:
                             by_node[node].append(alias)
             for node in by_node:
-                by_node[node].sort(key=len, reverse=True)  # 长别名优先（先框"淼澜战区"再框"淼澜"）
+                by_node[node].sort(key=len, reverse=True)  # 长别名优先（先框"岚屿战区"再框"岚屿"）
             _alias_cache["by_node"] = by_node
             _alias_cache["mtime"] = mtime
         return _alias_cache["by_node"]
@@ -125,7 +125,7 @@ def _extract_node_slots(question: str, dsr0: Dict[str, Any]) -> List[Dict[str, A
             # 来源 3：matched_phrase 优先（消解器实际命中的片段，可能等于节点全名）
             if matched_phrase:
                 span = _find_unoccupied(question, matched_phrase, occupied)
-            # 来源 2：书架别名反查（matched_phrase 是解析后全名，原句里可能是别名"淼澜"）
+            # 来源 2：书架别名反查（matched_phrase 是解析后全名，原句里可能是别名"岚屿"）
             if span is None:
                 for alias in by_node.get(member) or []:
                     span = _find_unoccupied(question, alias, occupied)
@@ -143,10 +143,10 @@ def _extract_node_slots(question: str, dsr0: Dict[str, Any]) -> List[Dict[str, A
 
 
 def _extract_metric_slots(question: str, occupied: List[tuple]) -> List[Dict[str, Any]]:
-    """指标槽：保守词表 find（长词优先），支持多指标（如"滤芯和增值开单分别是多少"→ 两个指标槽）。
+    """指标槽：保守词表 find（长词优先），支持多指标（如"云芯部件和增值开单分别是多少"→ 两个指标槽）。
 
-    明细优先（2026-09-06）：命中明细词（滤芯/增值，metric_detail_words 配置）时，
-    泛词槽（开单/金额/业绩等）让位——"滤芯类开单"里"开单"的泛匹配不再混入。
+    明细优先（2026-09-06）：命中明细词（云芯部件/增值，metric_detail_words 配置）时，
+    泛词槽（开单/金额/业绩等）让位——"云芯部件类开单"里"开单"的泛匹配不再混入。
     匹配区间互不重叠（occupied 去重），resolved 去重，最多 3 个防爆炸。
     """
     aliases = _load_settings().get("metric_aliases") or {}
@@ -171,7 +171,7 @@ def _extract_metric_slots(question: str, occupied: List[tuple]) -> List[Dict[str
     has_detail = any(s.get("_is_detail") for s in collected)
     if has_detail:
         collected = [s for s in collected if s.get("_is_detail")]
-    # resolved 去重（同义词只留首个）+ 按出现位置排序（滤芯在前增值在后）
+    # resolved 去重（同义词只留首个）+ 按出现位置排序（云芯部件在前增值在后）
     seen: set = set()
     slots: List[Dict[str, Any]] = []
     for s in sorted(collected, key=lambda x: x.get("start", 0)):
@@ -186,8 +186,8 @@ def _extract_metric_slots(question: str, occupied: List[tuple]) -> List[Dict[str
 def _build_text(dataset_names: List[str], node_values: List[str], metric_value, inherited_nodes: List[str]) -> str:
     """转述条文案（Power BI Q&A 式自然语言，非工程师语言）。
 
-    metric_value 支持单值（str）或多指标（list，如"滤芯和增值开单"→ ['滤芯开单金额','增值开单金额']，
-    展示为"的[滤芯开单金额]和[增值开单金额]"）。
+    metric_value 支持单值（str）或多指标（list，如"云芯部件和增值开单"→ ['云芯部件开单金额','增值开单金额']，
+    展示为"的[云芯部件开单金额]和[增值开单金额]"）。
     """
     if isinstance(metric_value, (list, tuple)):
         metric_parts = [str(v) for v in metric_value if v]
@@ -224,7 +224,7 @@ def build_parse_bar(
             return None
         # 出条铁律：纠正卡/early_clarify/错误消息不出解析条（阻断型候选 UI 不同屏）
         # 注：clarify_suggestion（守门员/首字母软建议条）不再互斥——它与解析条同为非阻断提示，
-        # 且解析条槽位可编辑已承载同等纠偏能力；曾因互斥导致 LLM 抖动时解析条被吞（淼澜案例）。
+        # 且解析条槽位可编辑已承载同等纠偏能力；曾因互斥导致 LLM 抖动时解析条被吞（岚屿案例）。
         # 确认卡场景出"理解条"：用户确认前需要先看到系统理解了什么（2026-08-30 用户要求）。
         route = result.get("route") or {}
         if result.get("error"):
@@ -276,7 +276,7 @@ def build_parse_bar(
             "spans": [s for s in slots if s.get("start") is not None],
             "source": "parse_bar",
         }
-        # 缩写映射场景（nb→淼澜→淼澜战区）：节点在原句无字面，避免误标"继承自上文"
+        # 缩写映射场景（nb→岚屿→岚屿战区）：节点在原句无字面，避免误标"继承自上文"
         initials_hint = str((route or {}).get("initials_hint") or "").strip()
         if initials_hint:
             abbrev_nodes = []
@@ -297,7 +297,7 @@ def build_parse_bar(
 def _build_confirmation_parse_bar(question: str, result: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """确认卡场景的"理解条"：此时流水线未执行、没有 dataset_results，
     从 route/confirmation_options 聚合——数据集取 route 候选，节点取确认选项的
-    resolved_subject_name 并列展示（淼澜战区 / 凛澜战区），指标走保守词表。
+    resolved_subject_name 并列展示（岚屿战区 / 瀚川战区），指标走保守词表。
     让用户在确认前先看到系统理解了什么。任何异常 → None（fail-open）。
     """
     try:

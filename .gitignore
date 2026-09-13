@@ -146,6 +146,12 @@ test.db
 迭代文档/
 
 # ---------------------------
+# 脱敏 / 数据重建工具（内含原始业务词 -> 虚构词的映射表，切勿提交）
+# ---------------------------
+scripts/simulate_demo_data.py
+scripts/export_demo_assets.py
+
+# ---------------------------
 # Root-level legacy scripts (one-time dev utilities, not part of app)
 # ---------------------------
 add_pause_button_guide.py

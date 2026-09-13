@@ -165,7 +165,7 @@
     <el-dialog v-model="nodeDialog.visible" :title="nodeDialog.mode === 'create' ? '新增组织节点' : '编辑组织节点'" width="560px">
       <el-form label-position="top">
         <el-form-item label="节点名称">
-          <el-input v-model="nodeForm.name" placeholder="例如：沧澜战区" />
+          <el-input v-model="nodeForm.name" placeholder="例如：澔原战区" />
         </el-form-item>
         <el-form-item label="节点编码">
           <el-input v-model="nodeForm.code" placeholder="同一组织树下唯一，例如：east_branch" />

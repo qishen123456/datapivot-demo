@@ -530,19 +530,19 @@ class FourAgentAskService:
         if not node_col:
             return ""
         skip = {"线", "层级", "上级名称", "上级", "_depth", "lvl_ord"}
-        # 明细指标列：含"滤芯/增值/开单/任务/达成"等关键词的金额/比率列
+        # 明细指标列：含"云芯部件/增值/开单/任务/达成"等关键词的金额/比率列
         metric_cols: List[str] = []
         for k in sample.keys():
             if k in skip or k == node_col:
                 continue
-            if any(kw in k for kw in ("开单", "任务", "达成", "滤芯", "增值", "剩余")):
+            if any(kw in k for kw in ("开单", "任务", "达成", "云芯部件", "增值", "剩余")):
                 metric_cols.append(k)
         if not metric_cols:
             return ""
         # 排序：按合计类（开单/总开单）降序，否则按首个指标降序
         sort_col = None
         for c in metric_cols:
-            if "合计" in c or ("开单" in c and "滤芯" not in c and "增值" not in c and "配件" not in c):
+            if "合计" in c or ("开单" in c and "云芯部件" not in c and "增值" not in c and "配件" not in c):
                 sort_col = c
                 break
         if not sort_col:
@@ -675,7 +675,7 @@ class FourAgentAskService:
                     "",
                     "### 改进建议",
                     "• 数据集与业务场景可能不匹配，建议先在“自动路由数据集”中切换正确数据源再执行。",
-                    "• 先核对组织名称是否与数据集字段完全一致，例如“沧澜战区”是否存在别名或上级层级差异。",
+                    "• 先核对组织名称是否与数据集字段完全一致，例如“澔原战区”是否存在别名或上级层级差异。",
                     "• 再检查时间范围和过滤条件，必要时放宽条件后重新查询。",
                 ]
             )
@@ -1582,8 +1582,8 @@ class FourAgentAskService:
             re.IGNORECASE,
         )
         # 只有 LIKE 内容是"层级词"时才可能构成层级劫持；内容是节点名片段
-        # （如 '%浔澜%'）时是精确节点模糊匹配，不属于劫持
-        # （bug 2026-09-03：用服 golden 2695 "战区 LIKE '%浔澜%'" 被误拒，
+        # （如 '%沧岩%'）时是精确节点模糊匹配，不属于劫持
+        # （bug 2026-09-03：用服 golden 2695 "战区 LIKE '%沧岩%'" 被误拒，
         # 退回 LLM 生成，行数随 Agent3 复核波动）。
         _LEVEL_LIKE_WORDS = ("城市战区", "城市站", "战区", "行业部", "事业群", "片区", "业务员", "客户经理", "线")
 
@@ -2080,10 +2080,10 @@ class FourAgentAskService:
         }
         expanded_text = text
         compound_aliases = {
-            "东漠澜": "沧澜 漠澜",
-            "沧澜漠澜": "沧澜 漠澜",
-            "南凛澜": "淼澜 凛澜",
-            "淼澜凛澜": "淼澜 凛澜",
+            "东朔岑": "澔原 朔岑",
+            "澔原朔岑": "澔原 朔岑",
+            "南瀚川": "岚屿 瀚川",
+            "岚屿瀚川": "岚屿 瀚川",
         }
         for raw, expanded in compound_aliases.items():
             expanded_text = expanded_text.replace(raw, expanded)
@@ -2251,7 +2251,7 @@ class FourAgentAskService:
         for raw in names or []:
             cleaned = self._clean_org_subject_candidate(raw)
             if unique_candidates and cleaned not in unique_candidates:
-                # 具体节点名（已带层级后缀）不做模糊匹配，避免"西藏战区"被误配成"凉澜战区"，
+                # 具体节点名（已带层级后缀）不做模糊匹配，避免"西藏战区"被误配成"曜川战区"，
                 # 导致查无此节点时静默返回其它节点的数据（N5：不存在节点不得静默返回总览）。
                 if not self._infer_subject_level_from_name(cleaned):
                     matches = get_close_matches(cleaned, unique_candidates, n=1, cutoff=0.72)
@@ -2351,7 +2351,7 @@ class FourAgentAskService:
         if not normalized_candidate:
             return []
         allowed_ids = {int(item) for item in (dataset_ids or []) if item is not None}
-        # 优先精确匹配；无精确命中时，取最长前缀匹配的别名，避免 "临洲片区" 被 "临洲" 覆盖。
+        # 优先精确匹配；无精确命中时，取最长前缀匹配的别名，避免 "临汀片区" 被 "临洲" 覆盖。
         matched_aliases: List[Tuple[str, int, List[Dict[str, Any]]]] = []
         for alias_item in self._dataset_node_index.get("flat_alias_index") or []:
             alias = str(alias_item.get("alias") or "").strip()
@@ -2904,7 +2904,7 @@ class FourAgentAskService:
 2. top_n 只填写用户明确要求的数量；未明确数量填 null。
 3. rank_sides 只能是 top、bottom、both；direction 只能是 desc 或 asc。
 4. 只提到层级或集合口径（如“战区”“城市战区”“垫底的5个城市战区”）时，has_specific_node=false，entities 留空。
-5. 点名真实节点（如“临洲城市站”“沧澜战区”“苏观澜”）时，才从候选 members 中选择 entities。
+5. 点名真实节点（如“临洲城市站”“澔原战区”“苏观澜”）时，才从候选 members 中选择 entities。
 """
         raw = self._chat_json(
             system_prompt,
@@ -2970,7 +2970,7 @@ class FourAgentAskService:
 6. 不确定时 entities 留空，不要硬猜。
 7. 判断用户是否明确指定了具体的组织节点：
    - 如果只提到层级或集合口径（如“战区”“城市战区”“大于一个亿的战区”），没有点名具体战区/片区/行业部/城市战区，has_specific_node=false。
-   - 如果提到了“沧澜战区”“临洲城市战区”“苏观澜”等具体节点名，has_specific_node=true。
+   - 如果提到了“澔原战区”“临洲城市战区”“苏观澜”等具体节点名，has_specific_node=true。
 
 请输出 JSON：
 {{
@@ -3516,8 +3516,8 @@ ranking_params 说明：
                 for suffix in subject_suffixes
             ):
                 return True
-            # 2026-09-03 用服实测：节点裸名（不带层级后缀，如"浔澜"）混进 synonym 时
-            # 也要识别为组织成员别名——否则"浔澜呢"会被当成"点名消费者数据集"，
+            # 2026-09-03 用服实测：节点裸名（不带层级后缀，如"沧岩"）混进 synonym 时
+            # 也要识别为组织成员别名——否则"沧岩呢"会被当成"点名消费者数据集"，
             # 追问上下文继承（hint=[64]）在 _should_keep_followup_dataset_hint 被误释放。
             try:
                 node_index = getattr(self, "_dataset_node_index", None)
@@ -4410,7 +4410,7 @@ ranking_params 说明：
                 max_alias_len = max(int(h.get("_alias_len") or 0) for h in raw_hits)
                 raw_hits = [h for h in raw_hits if int(h.get("_alias_len") or 0) == max_alias_len]
 
-            # 按 (数据集, 节点) 去重，同节点的别名包含关系（淼澜/淼澜战区）自然收敛
+            # 按 (数据集, 节点) 去重，同节点的别名包含关系（岚屿/岚屿战区）自然收敛
             distinct_node_hits: List[Dict[str, Any]] = []
             seen_node_keys = set()
             for match in raw_hits:
@@ -4421,7 +4421,7 @@ ranking_params 说明：
                 distinct_node_hits.append(match)
 
             node_hit_dataset_ids = {int(m.get("dataset_id") or 0) for m in distinct_node_hits}
-            # 唯一节点才直锁；同数据集多节点（nb→淼澜/凛澜、临洲→城市站/片区）
+            # 唯一节点才直锁；同数据集多节点（nb→岚屿/瀚川、临洲→城市站/片区）
             # 属于主体本身歧义，落下方节点确认卡让用户选，不再静默二选一
             if len(node_hit_dataset_ids) == 1 and len(distinct_node_hits) <= 1:
                 locked_id = next(iter(node_hit_dataset_ids))
@@ -4444,7 +4444,7 @@ ranking_params 说明：
                     "split_queries": [{"dataset_id": locked_id, "sub_query": question}],
                     "initials_hint": initials_hint,
                 }
-                # 唯一节点必须随路由下传：缩写场景（nb→淼澜）题干里没有可消解字面，
+                # 唯一节点必须随路由下传：缩写场景（nb→岚屿）题干里没有可消解字面，
                 # 丢了节点下游只能按字面执行出垃圾结果（2026-08-30 "nb的业绩"实测）。
                 # 同数据集多节点不携带，留给下游按题干消解。
                 if len(distinct_node_hits) == 1:
@@ -5024,7 +5024,7 @@ ranking_params 说明：
         dataset_name = str(dataset.get("dataset_name") or dataset.get("name") or "")
         normalized_question = str(question or "").replace("\n", " ").strip()
         # bug 2026-09-03：系统确认注记（"补充确认：确认组织节点：…；输出方式：先汇总后分析"）
-        # 含"后"等排名关键词，会误导消费/商用规则引擎的关键词扫描（"浔澜战区业绩"确认后
+        # 含"后"等排名关键词，会误导消费/商用规则引擎的关键词扫描（"沧岩战区业绩"确认后
         # 被判成"倒数 Top3"：达成率 ASC LIMIT 3）。只剥系统注记（带固定标记），
         # 保留用户自由补充文本（确认卡草稿框输入的口径可能含有效维度词）。
         normalized_question = re.sub(
@@ -6263,7 +6263,7 @@ ORDER BY 线 DESC,
 LIMIT 10000
 """.strip()
 
-        if not block_single_entity_shortcuts and all(token in normalized_question for token in ["沧澜战区", "淼澜战区"]):
+        if not block_single_entity_shortcuts and all(token in normalized_question for token in ["澔原战区", "岚屿战区"]):
             # 修复断裂拼接（bug 2026-08-25）：同 is_terminal_node 分支，WITH 包裹 + WHERE 过滤
             return f"""
 WITH 汇总结果 AS (
@@ -6271,12 +6271,12 @@ WITH 汇总结果 AS (
 )
 SELECT *
 FROM 汇总结果
-WHERE (节点名称 IN ('沧澜战区','淼澜战区') OR 上级名称 IN ('沧澜战区','淼澜战区'))
+WHERE (节点名称 IN ('澔原战区','岚屿战区') OR 上级名称 IN ('澔原战区','岚屿战区'))
 ORDER BY 线 DESC, 层级 DESC, 上级名称, 节点名称
 LIMIT 10000
 """.strip()
 
-        if not block_single_entity_shortcuts and all(token in normalized_question for token in ["沧澜战区", "达成率", "剩余任务"]):
+        if not block_single_entity_shortcuts and all(token in normalized_question for token in ["澔原战区", "达成率", "剩余任务"]):
             return """
 WITH 字段提取 AS (
   SELECT
@@ -6304,7 +6304,7 @@ WITH 字段提取 AS (
     SUM(任务金额) AS 总任务金额,
     SUM(开单金额) AS 年度开单金额
   FROM 基础数据
-  WHERE 战区='沧澜战区'
+  WHERE 战区='澔原战区'
     AND (片区 IS NULL OR 片区='')
     AND (客户经理 IS NULL OR 客户经理='')
   GROUP BY 战区
@@ -6511,9 +6511,9 @@ LIMIT 10000
             # 兼容：intent 已收敛到客户经理/业务承接人时仍映射到承接人
             if intent_target_level in {"客户经理", "业务承接人"} and any(t in q for t in ["业务承接人", "承接人", "负责人", "任务承接人"]):
                 return "承接人"
-            # 下钻时如果 target_level 和聚焦维度相同（如“国内行业部下属明细”里的“行业部”），应下钻到子层级
+            # 下钻时如果 target_level 和聚焦维度相同（如“内贸行业部下属明细”里的“行业部”），应下钻到子层级
             # 筛选/对比问题里如果已聚焦到具体节点且 target_level 就是该节点所在维度，也默认下钻到子层级，
-            # 避免“国内行业部完成超过500万的”被理解为对所有行业部做过滤。
+            # 避免“内贸行业部完成超过500万的”被理解为对所有行业部做过滤。
             if focus_dimension and intent_target_level == focus_dimension and intent in {"drilldown", "filter", "comparison"}:
                 return {
                     "事业群": "行业部",
@@ -6686,7 +6686,7 @@ LIMIT 10000
                     where_parts.append(f"负责人 IN ({quoted_members})")
                     # 修复：线上数据集"负责人"实为行业部/事业群级的负责人，不能硬编码'客户经理'层级
                     # 守卫 2026-08-26：projection_mode=="manager" 只在维度未识别时兜底；
-                    # 节点索引已给出明确维度（如"业务承接角色"）时不许劫持（bug：京东直营和天猫直营对比 0 行）
+                    # 节点索引已给出明确维度（如"业务承接角色"）时不许劫持（bug：云集直营和澜庭直营对比 0 行）
                 elif compare_dimension in {"业务承接角色", "细分业务", "业务线"} or user_level in {"业务承接角色", "细分业务", "业务线"}:
                     where_parts.append(f"细分业务 IN ({quoted_members})")
                     # 修复：去掉硬编码"层级级别='客户经理'"，避免与实际层级不一致
@@ -6940,7 +6940,7 @@ LIMIT 10000
         if generic_level_only:
             entity_names = []
 
-        # 防御：所有实体都不属于当前数据集时返回0行，防止跨数据集误匹配（如"沧澜战区"在消费数据集被误转"岱澜战区"）
+        # 防御：所有实体都不属于当前数据集时返回0行，防止跨数据集误匹配（如"澔原战区"在消费数据集被误转"澔岳战区"）
         if entity_names and not generic_level_only:
             try:
                 current_ds_id = int(self._safe_dict(context.get("dataset")).get("id") or 0)
@@ -7990,8 +7990,8 @@ Agent1 路由结果：
         target_name = self._extract_followup_org_target(question)
         if target_name:
             # 修复：实体不属于 hint 数据集时释放 hint，让系统重新路由
-            # 例如 Q1=消费者, Q2=沧澜战区 → "沧澜战区"只属于商用 → 返回[]释放hint
-            # 2026-09-03 用服实测：裸节点追问（"浔澜呢"，无层级词）也要继承上下文——
+            # 例如 Q1=消费者, Q2=澔原战区 → "澔原战区"只属于商用 → 返回[]释放hint
+            # 2026-09-03 用服实测：裸节点追问（"沧岩呢"，无层级词）也要继承上下文——
             # 目标在上一轮数据集里就直接锁定，不能被层级词门槛挡掉后重新裸路由。
             if self._is_entity_in_dataset(target_name, latest_dataset_id):
                 return [latest_dataset_id]
@@ -8046,7 +8046,7 @@ Agent1 路由结果：
             return False
 
         # 修复：实体不属于 hint 数据集时释放 hint，让系统重新路由
-        # 例如 Q1=消费者, Q2=沧澜战区 → "沧澜战区"只属于商用 → 释放hint
+        # 例如 Q1=消费者, Q2=澔原战区 → "澔原战区"只属于商用 → 释放hint
         if not self._is_entity_in_dataset(target_name, selected_ids[0]):
             return False
 
@@ -8111,7 +8111,7 @@ Agent1 路由结果：
     def _extract_bare_org_subject_by_node_index(self, question: str) -> str:
         """
         去掉口语前后缀后，用节点索引匹配剩余候选主体。
-        用于兜底 LLM 未识别出的地名/组织简称（如"临洲"、"沧澜"）。
+        用于兜底 LLM 未识别出的地名/组织简称（如"临洲"、"澔原"）。
         """
         text = str(question or "").strip()
         if not text:
@@ -8813,7 +8813,7 @@ LLD：
             else:
                 # fail-open（2026-09-06）：Agent3 两次复核均不可用时【放行】SQL（宁可漏不可错拦）。
                 # 旧的 fail-closed（approved=False）导致 LLM 抖动时 SQL 明明正确也被拒 → 0 行
-                # （用户实测"滤芯/增值查询 0 行"根因：Agent3 超时 62s 两次失败，SQL 全字段正确仍被拒）。
+                # （用户实测"云芯部件/增值查询 0 行"根因：Agent3 超时 62s 两次失败，SQL 全字段正确仍被拒）。
                 # Agent3 是复核保险层，它挂了不应阻断主流程；放行并打风险标记。
                 result = {
                     "approved": True,
@@ -8944,13 +8944,13 @@ LLD：
 8. 分析文本：严禁重复主语和长篇段落。单体分析采用"核心结论 -> 亮点分析 -> 问题诊断 -> 改进建议"的结构；多组织对比必须明确"谁领先、差多少、谁向谁学、改什么"。
 9. 文案：报告标题统一为"业绩分析报告"，不得出现"极简报告""极简总结"等冗余字样。
 10. 强制表格（2026-09-06 用户反馈：报告必须按战区分列展示明细，不能只给总数）：
-   a) **触发条件**：当问题涉及"多个明细指标对比"（如"滤芯和增值分别是多少""开单和达成率分别多少"）或"多对象对比/明细"（如"各战区业绩如何"），且数据行≥2 行时——必须输出 markdown 表格。
+   a) **触发条件**：当问题涉及"多个明细指标对比"（如"云芯部件和增值分别是多少""开单和达成率分别多少"）或"多对象对比/明细"（如"各战区业绩如何"），且数据行≥2 行时——必须输出 markdown 表格。
    b) **表格位置**：在"核心结论"之后、"层级差异核心看点"之前。
    c) **表格列**（按可用性动态调整，**指标列每明细指标一列，单独合计列，目标列可选**）：
       | 节点 | [指标A] | [指标B] | 合计 | 目标 | 达成率 |
-      示例（滤芯/增值/合计/目标/达成率 5 列）：
-      | 节点 | 滤芯开单金额 | 增值开单金额 | 合计开单 | 总任务金额 | 达成率 |
-      | 浔澜战区 | 2687.8万 | 107.2万 | 2795.0万 | 5425.0万 | 51.5% |
+      示例（云芯部件/增值/合计/目标/达成率 5 列）：
+      | 节点 | 云芯部件开单金额 | 增值开单金额 | 合计开单 | 总任务金额 | 达成率 |
+      | 沧岩战区 | 2687.8万 | 107.2万 | 2795.0万 | 5425.0万 | 51.5% |
       | ...（按合计开单降序） |
       | **合计** | **2.24亿** | **1716.4万** | **2.41亿** | **4.33亿** | **55.7%** |
    d) **合计行必出**（最后一行加粗）：对所有数据行的各列求和，便于用户一眼看总数对比目标。
@@ -9814,7 +9814,7 @@ Agent3 复核结果：
             )
             rewritten_question = str((org_subject_resolution or {}).get("rewritten_question") or "").strip()
             if rewritten_question:
-                # 域前缀保护（2026-09-03 用服接入实测）：主体纠正会把"用服浔澜"的
+                # 域前缀保护（2026-09-03 用服接入实测）：主体纠正会把"用服沧岩"的
                 # 域前缀"用服"当口语剥掉，改写后路由只剩跨数据集同名节点，在
                 # 消费者/用服之间误弹确认卡。命中唯一域前缀且保留主体仍是真实节点时，
                 # 放弃改写，用原始问题进入路由（组织树解析器的域前缀收窄会直锁数据集）。
@@ -9927,7 +9927,7 @@ Agent3 复核结果：
             allowed_set = {int(item) for item in allowed_dataset_ids} if allowed_dataset_ids is not None else None
             # 修复：preferred_dataset_ids（如前端沿用的"上次数据集"）如果题干的 target_name 不在该数据集，
             # 立即释放 hint，让 ask 重新路由到正确的节点所属数据集。
-            # 场景：消费者业绩 → 追问"沧澜战区业绩"（沧澜战区只在商用 ds=3），前端沿用 ds=2 会得到错结果。
+            # 场景：消费者业绩 → 追问"澔原战区业绩"（澔原战区只在商用 ds=3），前端沿用 ds=2 会得到错结果。
             if preferred_dataset_ids:
                 _target_name = self._extract_followup_org_target(question)
                 _selected_ids_set = {int(item) for item in preferred_dataset_ids}
@@ -9970,7 +9970,7 @@ Agent3 复核结果：
                     preferred_dataset_ids = []
                 else:
                     # 用户/前端明确指定（非沿用 hint，followup_hint_locked=False 且 preferred 非空必然是显式选择）：
-                    # 尊重锁定不释放（2026-09-06 浔澜实测：传 selected_dataset_ids=[64] 仍被误释放弹卡）。
+                    # 尊重锁定不释放（2026-09-06 沧岩实测：传 selected_dataset_ids=[64] 仍被误释放弹卡）。
                     # 沿用 hint 的释放走上面 followup_hint_locked 分支；explicit_dataset_ids（问题明确指向别的数据集）由后续逻辑优先处理。
                     self._append_trace(
                         trace,
@@ -10000,7 +10000,7 @@ Agent3 复核结果：
                         ):
                             supported_preferred_level_ids.add(int(dataset.get("id") or 0))
                     if len(supported_preferred_level_ids) >= 2 and followup_hint_locked:
-                        # 仅沿用 hint 时释放；用户明确指定（hint_locked=False）尊重锁定不释放（2026-09-06 浔澜实测）
+                        # 仅沿用 hint 时释放；用户明确指定（hint_locked=False）尊重锁定不释放（2026-09-06 沧岩实测）
                         self._append_trace(
                             trace,
                             "agent1.preferred_dataset_released",
@@ -10020,8 +10020,8 @@ Agent3 复核结果：
                     distinct_matches = self._dedupe_node_index_matches(index_matches)
                     candidate_dataset_ids = sorted({int(item.get("dataset_id") or 0) for item in distinct_matches if int(item.get("dataset_id") or 0) > 0})
                     if len(distinct_matches) >= 2 and followup_hint_locked:
-                        # 仅沿用 hint 时释放；用户明确指定（hint_locked=False）尊重锁定不释放（2026-09-06 浔澜实测：
-                        # 浔澜在消费者 ds=2 和用服 ds=64 都有，明确锁定 64 时被此分支误释放弹卡）
+                        # 仅沿用 hint 时释放；用户明确指定（hint_locked=False）尊重锁定不释放（2026-09-06 沧岩实测：
+                        # 沧岩在消费者 ds=2 和用服 ds=64 都有，明确锁定 64 时被此分支误释放弹卡）
                         self._append_trace(
                             trace,
                             "agent1.preferred_dataset_released",

@@ -17,7 +17,7 @@ AGENT1_PROMPT = """
 
 硬性规则：
 1. 围绕 datapivot_core_data（2026年）语义做判断；涉及当前年/最新年/本年统一按 2026。
-2. 必须读取最近对话上下文：用户问“那沧澜呢”“淼澜也看一下”“两个相比呢”等省略表达时，沿用上一轮的数据集、维度和分析口径，只替换新主体。
+2. 必须读取最近对话上下文：用户问“那澔原呢”“岚屿也看一下”“两个相比呢”等省略表达时，沿用上一轮的数据集、维度和分析口径，只替换新主体。
 3. 当问题包含“战区/片区/行业部/客户经理/线”且可能产生统计口径歧义，先判断是否可由上下文消解；不可消解时触发确认。
 4. 多数据集候选接近时，必须返回 confirmation_question 与 2-4 个 options，每个 option 需要包含 dataset_id、label、scope_filter。
 5. 置信度高且上下文明确时不要打断用户，不要为了保险而反复确认。
@@ -265,9 +265,9 @@ def build_syyb_payload(doc_text: str, dataset_meta: Dict[str, Any]) -> Dict[str,
 
     golden_sql = [
         ("aggregation", "商用事业群整体业绩怎么样？", f"{BASE_SQL}\nORDER BY 线 DESC, 层级 DESC, 上级名称, 节点名称\nLIMIT 10000;", ["整体", "全维度"]),
-        ("single_entity", "沧澜战区业绩怎么样？", _sql_with_descendants("节点名称 = '沧澜战区'"), ["战区", "沧澜", "下钻"]),
+        ("single_entity", "澔原战区业绩怎么样？", _sql_with_descendants("节点名称 = '澔原战区'"), ["战区", "澔原", "下钻"]),
         ("single_entity", "淮岸片区业绩怎么样？", _sql_with_descendants("节点名称 = '淮岸片区'"), ["片区", "淮岸", "下钻"]),
-        ("comparative", "沧澜战区和淼澜战区哪个完成得更好？", _sql_with_filter("节点名称 IN ('沧澜战区','淼澜战区') OR 上级名称 IN ('沧澜战区','淼澜战区')"), ["对比", "战区"]),
+        ("comparative", "澔原战区和岚屿战区哪个完成得更好？", _sql_with_filter("节点名称 IN ('澔原战区','岚屿战区') OR 上级名称 IN ('澔原战区','岚屿战区')"), ["对比", "战区"]),
         ("topn", "行业线 Top5 客户经理是谁？", _sql_with_filter("线 = '行业线' AND 层级 = '客户经理'", "年度开单金额 DESC", 5), ["行业", "TopN"]),
         ("risk", "达成率低于10%的单元有哪些？", _sql_with_filter("达成率 < 10", "达成率 ASC", 100), ["风险", "低达成"]),
     ]
@@ -291,17 +291,17 @@ def build_syyb_payload(doc_text: str, dataset_meta: Dict[str, Any]) -> Dict[str,
             {"agent_no": 4, "prompt_content": AGENT4_PROMPT},
         ],
         "common_questions": [
-            {"question_text": "沧澜战区业绩怎么样？", "intent_hint": "single_entity", "sort_order": 1},
+            {"question_text": "澔原战区业绩怎么样？", "intent_hint": "single_entity", "sort_order": 1},
             {"question_text": "淮岸片区业绩怎么样？", "intent_hint": "single_entity", "sort_order": 2},
-            {"question_text": "沧澜战区和淼澜战区哪个完成得更好？", "intent_hint": "comparative", "sort_order": 3},
+            {"question_text": "澔原战区和岚屿战区哪个完成得更好？", "intent_hint": "comparative", "sort_order": 3},
             {"question_text": "行业线 Top5 客户经理是谁？", "intent_hint": "topn", "sort_order": 4},
             {"question_text": "达成率低于10%的单元有哪些？", "intent_hint": "risk", "sort_order": 5},
             {"question_text": "商用事业群整体业绩怎么样？", "intent_hint": "aggregation", "sort_order": 6},
         ],
         "regression_cases": [
-            {"question_text": "沧澜战区业绩怎么样？", "expected_intent": "single_entity", "expected_sql_keywords": ["沧澜战区", "层级", "达成率"], "sort_order": 1},
-            {"question_text": "那淼澜呢？", "expected_intent": "context_followup", "expected_sql_keywords": ["淼澜战区"], "sort_order": 2},
-            {"question_text": "沧澜战区和淼澜战区哪个完成得更好？", "expected_intent": "comparative", "expected_sql_keywords": ["IN", "沧澜战区", "淼澜战区"], "sort_order": 3},
+            {"question_text": "澔原战区业绩怎么样？", "expected_intent": "single_entity", "expected_sql_keywords": ["澔原战区", "层级", "达成率"], "sort_order": 1},
+            {"question_text": "那岚屿呢？", "expected_intent": "context_followup", "expected_sql_keywords": ["岚屿战区"], "sort_order": 2},
+            {"question_text": "澔原战区和岚屿战区哪个完成得更好？", "expected_intent": "comparative", "expected_sql_keywords": ["IN", "澔原战区", "岚屿战区"], "sort_order": 3},
             {"question_text": "淮岸片区业绩怎么样？", "expected_intent": "single_entity", "expected_sql_keywords": ["淮岸片区", "客户经理"], "sort_order": 4},
         ],
         "external_configs": [],

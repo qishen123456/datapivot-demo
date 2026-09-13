@@ -894,7 +894,7 @@ const SYYB_DEFAULT_DDL = `CREATE TABLE datapivot_core_data (
 const createSyybTemplate = (sourceId) => ({
   common_questions: [
     { question_text: '商用事业群当前年整体达成率是多少？', sort_order: 10, is_active: true },
-    { question_text: '沧澜战区当前年达成率和剩余任务是多少？', sort_order: 20, is_active: true },
+    { question_text: '澔原战区当前年达成率和剩余任务是多少？', sort_order: 20, is_active: true },
     { question_text: '哪些片区达成率最低？', sort_order: 30, is_active: true },
     { question_text: '各行业部当前年开单金额排名如何？', sort_order: 40, is_active: true },
   ],
@@ -909,8 +909,8 @@ const createSyybTemplate = (sourceId) => ({
     },
     {
       case_type: 'trend',
-      question_text: '沧澜战区今年任务和开单差距大吗？',
-      expected_focus: '应保留沧澜战区过滤意图，并给出剩余任务金额判断。',
+      question_text: '澔原战区今年任务和开单差距大吗？',
+      expected_focus: '应保留澔原战区过滤意图，并给出剩余任务金额判断。',
       expected_intent: 'generate_sql',
       sort_order: 20,
       is_active: true,
@@ -927,7 +927,7 @@ const createSyybTemplate = (sourceId) => ({
   synonyms: [
     { synonym: '商用事业群', normalized_synonym: '商用事业群', weight: 10 },
     { synonym: '星澜商用', normalized_synonym: '商用事业群', weight: 9 },
-    { synonym: '沧澜战区', normalized_synonym: '沧澜战区', weight: 8 },
+    { synonym: '澔原战区', normalized_synonym: '澔原战区', weight: 8 },
     { synonym: '销售业绩', normalized_synonym: '销售业绩', weight: 7 },
   ],
   lld_documents: [
@@ -1055,7 +1055,7 @@ LIMIT 100`,
     },
     {
       intent_type: 'detail',
-      question: '沧澜战区当前年达成率和剩余任务是多少？',
+      question: '澔原战区当前年达成率和剩余任务是多少？',
       sql_text: `WITH 字段提取 AS (
   SELECT
     CASE WHEN jsonb_typeof(fields->'当前年')='array' THEN fields->'当前年'->0->>'text' ELSE fields->>'当前年' END AS 当前年,
@@ -1067,18 +1067,18 @@ LIMIT 100`,
   FROM datapivot_core_data
 )
 SELECT
-  '沧澜战区' AS 节点名称,
+  '澔原战区' AS 节点名称,
   SUM(任务金额) AS 总任务金额,
   SUM(开单金额) AS 年度开单金额,
   CASE WHEN SUM(任务金额)>0 THEN ROUND(SUM(开单金额)/SUM(任务金额)*100,2) ELSE 0 END AS 达成率,
   ROUND(SUM(任务金额)-SUM(开单金额),2) AS 剩余任务金额
 FROM 字段提取
 WHERE 当前年='2026'
-  AND 战区='沧澜战区'
+  AND 战区='澔原战区'
   AND (片区 IS NULL OR 片区='')
   AND (客户经理 IS NULL OR 客户经理='')
 LIMIT 100`,
-      tags: ['沧澜战区', '战区', '达成率'],
+      tags: ['澔原战区', '战区', '达成率'],
       quality_score: 92,
       is_active: true,
     },

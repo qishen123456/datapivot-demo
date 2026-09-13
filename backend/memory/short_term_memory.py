@@ -130,7 +130,7 @@ class ShortTermMemoryStore:
         # 比较/筛选类条件追问也需要上文语境（如数据集、层级），视为追问
         if any(token in compact for token in ("大于", "小于", "高于", "低于", "超过", "不足", "等于", "不少于", "不多于")):
             return True
-        return any(token in compact for token in ("那沧澜", "那淼澜", "也看", "继续看", "和它比", "相比呢"))
+        return any(token in compact for token in ("那澔原", "那岚屿", "也看", "继续看", "和它比", "相比呢"))
 
     @staticmethod
     def _looks_like_condition_followup(text: str) -> bool:

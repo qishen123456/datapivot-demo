@@ -44,7 +44,7 @@ class IntentResolver:
         }
 
         def resolve_target_level_from_text() -> str:
-            # 优先识别"节点 + 的 + 子层级"结构，避免"浦澜战区的城市战区"被解析成 target_level="战区"
+            # 优先识别"节点 + 的 + 子层级"结构，避免"云溟战区的城市战区"被解析成 target_level="战区"
             level_like_values = {"事业群", "战区", "行业部", "片区", "客户经理", "城市战区", "城市站", "区域线", "行业线"}
             level_pattern = "|".join(re.escape(level) for level in sorted(level_like_values, key=len, reverse=True))
             child_level_match = re.search(rf"(?:的|之下|下面|下属)\s*({level_pattern})\b", text)
@@ -187,7 +187,7 @@ class IntentResolver:
             target_level = "客户经理"
 
         drilldown_problem = bool(re.search(r"下面|下属|下级|展开看看|展开|明细|往下看|继续下钻|下钻|下有哪些|有哪些下属|下都", text))
-        # “国内行业部的客户经理有哪些”这类“有哪些”列表问法，如果没有数值过滤，也视为下钻取子节点
+        # “内贸行业部的客户经理有哪些”这类“有哪些”列表问法，如果没有数值过滤，也视为下钻取子节点
         list_children_question = bool(
             target_level
             and not explicit_filter_question
@@ -319,7 +319,7 @@ class IntentResolver:
                 })
             return intent
 
-        # 具体节点 + 目标子层级（如"浦澜战区的城市战区"）识别为下钻
+        # 具体节点 + 目标子层级（如"云溟战区的城市战区"）识别为下钻
         resolved_names = self.ports.resolved_entity_names(context)
         if (
             resolved_names
@@ -337,7 +337,7 @@ class IntentResolver:
                 if target_aliases and any(name.endswith(alias) for alias in target_aliases):
                     continue
                 # 只有当问题文本中明确出现"节点名 + 目标子层级"结构时才下钻
-                # 例："浦澜战区的城市战区" -> 节点名"浦澜战区" + "城市战区"
+                # 例："云溟战区的城市战区" -> 节点名"云溟战区" + "城市战区"
                 # 直接从文本中匹配节点名后的层级词，不依赖 resolve_target_level_from_text 的结果
                 level_pattern = "|".join(re.escape(level) for level in sorted(level_like_values, key=len, reverse=True))
                 match = re.search(rf"{re.escape(name)}(?:的|之下|下面|下属)?\s*({level_pattern})", text)
@@ -655,12 +655,12 @@ class IntentResolver:
             if metric_column and metric_column in text:
                 score += 30
             # 指标核心词命中（2026-09-03 用服构成指标实测）：label/column 去掉通用
-            # 金额/单位后缀后的独有部分（"滤芯开单金额"→"滤芯开单"）出现在题干里，
-            # 视为点名该指标。精确包含规则要求整串出现，"滤芯开单排名"够不到
-            # "滤芯开单金额"，会静默回落到达成率排序。
+            # 金额/单位后缀后的独有部分（"云芯部件开单金额"→"云芯部件开单"）出现在题干里，
+            # 视为点名该指标。精确包含规则要求整串出现，"云芯部件开单排名"够不到
+            # "云芯部件开单金额"，会静默回落到达成率排序。
             # 分值必须压过通用"开单"组合分（actual 60+metric_text 40=100）：
             # 点名独有核心词是显式 name-drop，理应胜过通用词命中，否则
-            # "滤芯开单排名"会被"开单"带到年度开单金额排序（报告文案与数据口径撕裂）。
+            # "云芯部件开单排名"会被"开单"带到年度开单金额排序（报告文案与数据口径撕裂）。
             for label_text in {metric_label, metric_column}:
                 label_str = str(label_text or "")
                 core = re.sub(r"(?:金额|万元|百分比|万|额|%|_)+$", "", label_str).strip()
@@ -689,7 +689,7 @@ class IntentResolver:
                 and not drilldown_problem
                 and not asks_aggregate
             )
-            # 如果 resolved 了具体节点，且 target_level 只是该节点名的一部分（如"浦澜战区业绩"），
+            # 如果 resolved 了具体节点，且 target_level 只是该节点名的一部分（如"云溟战区业绩"），
             # 则不把它当作纯层级 Overview，继续后续规则处理。
             if is_level_overview:
                 resolved_names = self.ports.resolved_entity_names(context)

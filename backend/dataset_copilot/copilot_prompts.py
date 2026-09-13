@@ -105,7 +105,7 @@ SYSTEM_PROMPT = """\
 10. report_config 必须同时服务 Agent2 和前端：提供 nameColumn/parentColumn/levelColumn/trackColumn/metrics/levels/signalRules，并用 sqlOutputContract + analysisDimensions 说明源字段如何被 SQL 投影成标准报告列。
 11. 保证 PUT /api/bookshelves/datasets/<id>/full 校验通过：≥1 条 LLD，≥1 张 schema，≥若干字段字典，≥3 条 Golden SQL，4 个 Agent prompt 全配齐。
 12. Agent1 prompt 必须显式包含两条硬规则：
-    (a) 对话上下文指代消解：用户出现"那沧澜呢""跟去年比""加上华南"等指代/省略时，要把上一轮的数据集、主体、维度沿用过来；
+    (a) 对话上下文指代消解：用户出现"那澔原呢""跟去年比""加上华南"等指代/省略时，要把上一轮的数据集、主体、维度沿用过来；
     (b) 主动歧义澄清：当问题中实体名可能命中多个数据集，或当前置信度低，必须以 JSON 形式抛出 confirmation_question + 2-4 个 options（含 dataset_id 与 scope_filter），交由用户确认；置信度高时禁止追问。
 13. Agent4 prompt 必须接受可选的"上一轮分析摘要"作为上下文，在追问场景里复用上一轮的口径与节点选择，避免重新铺开整张报告。
 """

@@ -1,3 +1,15 @@
+-- 视图 v_feishu_tbl_beta 建立在数据表 feishu_tbl_beta 之上。
+-- feishu_tbl_beta 由 scripts/load_demo_data.sh 导入脱敏 dump 时创建，
+-- 因此【全新启动】时该表尚不存在——此时直接 CREATE VIEW 会让 migrate 整体失败。
+-- 这里加防护：表不存在则跳过（视图由数据导入时随 dump 一并创建）；
+-- 表已存在则照常 CREATE OR REPLACE（保持幂等，重复执行安全）。
+DO $$
+BEGIN
+  IF to_regclass('public.feishu_tbl_beta') IS NULL THEN
+    RAISE NOTICE '[migrate] feishu_tbl_beta 尚未导入，跳过 v_feishu_tbl_beta 视图创建';
+    RETURN;
+  END IF;
+  EXECUTE $view$
 CREATE OR REPLACE VIEW public.v_feishu_tbl_beta AS
 WITH extracted AS (
   SELECT
@@ -52,3 +64,6 @@ SELECT
   COALESCE(NULLIF(regexp_replace(fields->>'2603', '[^0-9.-]', '', 'g'), ''), '0')::numeric AS q3目标,
   COALESCE(NULLIF(regexp_replace(fields->>'2604', '[^0-9.-]', '', 'g'), ''), '0')::numeric AS q4目标
 FROM extracted;
+$view$;
+END
+$$;
